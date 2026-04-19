@@ -1,0 +1,201 @@
+@model WebNangCao.Models.ViewModels.Admin.EditUserVM
+@{
+    ViewData["Title"] = "Chỉnh sửa người dùng";
+    ViewData["Subtitle"] = "Cập nhật thông tin tài khoản";
+    var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
+}
+
+<style>
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 720px;
+    }
+
+    .section-title {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.4);
+        margin: 24px 0 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .section-title:first-of-type { margin-top: 0; }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.75);
+        margin-bottom: 7px;
+    }
+
+    .form-control, .form-select {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px;
+        color: #fff;
+        padding: 11px 14px;
+        font-size: 13.5px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: rgba(255,255,255,0.09);
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+        color: #fff;
+    }
+
+    .form-control::placeholder { color: rgba(255,255,255,0.25); }
+    .form-select option { background: #1a1d27; }
+
+    .form-check-input {
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.25);
+    }
+
+    .form-check-input:checked { background-color: #11998e; border-color: #11998e; }
+
+    .form-check-label { color: rgba(255,255,255,0.7); font-size: 13.5px; }
+
+    .field-error { color: #fca5a5; font-size: 11.5px; margin-top: 5px; display: block; }
+
+    .validation-summary {
+        background: rgba(239,68,68,0.12);
+        border: 1px solid rgba(239,68,68,0.25);
+        color: #fca5a5;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+
+    .btn-submit {
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        border: none;
+        border-radius: 10px;
+        color: #1a1d27;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,158,11,0.4); }
+
+    .btn-cancel {
+        padding: 12px 24px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px;
+        color: rgba(255,255,255,0.6);
+        font-size: 14px;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .password-note {
+        background: rgba(245,158,11,0.1);
+        border: 1px solid rgba(245,158,11,0.2);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #fcd34d;
+        margin-bottom: 16px;
+    }
+</style>
+
+<div class="form-card">
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="section-title">👤 Thông tin cá nhân</div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label asp-for="FullName" class="form-label">Họ và tên *</label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="field-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Email *</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="field-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DateOfBirth" class="form-label">Ngày sinh</label>
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                <span asp-validation-for="DateOfBirth" class="field-error"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="IdentityCardNumber" class="form-label">Số CCCD/CMND</label>
+            <input asp-for="IdentityCardNumber" class="form-control" />
+            <span asp-validation-for="IdentityCardNumber" class="field-error"></span>
+        </div>
+
+        <div class="section-title">🔐 Phân quyền & Trạng thái</div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label asp-for="Role" class="form-label">Vai trò *</label>
+                <select asp-for="Role" class="form-select">
+                    @foreach (var role in allRoles)
+                    {
+                        <option value="@role">@role</option>
+                    }
+                </select>
+                <span asp-validation-for="Role" class="field-error"></span>
+            </div>
+            <div class="col-md-6 d-flex align-items-end pb-2">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="IsActive" type="checkbox" id="isActive" />
+                    <label class="form-check-label" for="isActive">✅ Tài khoản đang hoạt động</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">🔒 Đổi mật khẩu (tùy chọn)</div>
+        <div class="password-note">💡 Để trống nếu bạn không muốn thay đổi mật khẩu</div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label asp-for="NewPassword" class="form-label">Mật khẩu mới</label>
+                <input asp-for="NewPassword" class="form-control" placeholder="••••••••" />
+                <span asp-validation-for="NewPassword" class="field-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ConfirmNewPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                <input asp-for="ConfirmNewPassword" class="form-control" placeholder="••••••••" />
+                <span asp-validation-for="ConfirmNewPassword" class="field-error"></span>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn-submit">💾 Lưu thay đổi</button>
+            <a asp-action="Index" class="btn-cancel">← Hủy bỏ</a>
+        </div>
+    </form>
+</div>

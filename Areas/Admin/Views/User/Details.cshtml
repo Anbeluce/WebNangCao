@@ -1,0 +1,159 @@
+@model WebNangCao.Models.ViewModels.Admin.UserListVM
+@{
+    ViewData["Title"] = "Chi tiết người dùng";
+    ViewData["Subtitle"] = Model.FullName;
+}
+
+<style>
+    .detail-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 600px;
+    }
+
+    .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .detail-avatar {
+        width: 72px;
+        height: 72px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        flex-shrink: 0;
+    }
+
+    .detail-name { font-size: 22px; font-weight: 700; color: #fff; }
+    .detail-email { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+    .detail-row {
+        display: flex;
+        align-items: flex-start;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-label {
+        width: 180px;
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: rgba(255,255,255,0.35);
+    }
+
+    .detail-value {
+        flex: 1;
+        font-size: 14px;
+        color: #e2e8f0;
+    }
+
+    .badge-role {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-Admin { background: rgba(102,126,234,0.2); color: #a5b4fc; border: 1px solid rgba(102,126,234,0.3); }
+    .badge-Staff { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-Resident { background: rgba(17,153,142,0.2); color: #6ee7b7; border: 1px solid rgba(17,153,142,0.3); }
+
+    .status-active { color: #86efac; }
+    .status-inactive { color: #fca5a5; }
+
+    .btn-edit-detail {
+        padding: 11px 28px;
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        border: none;
+        border-radius: 10px;
+        color: #1a1d27;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-edit-detail:hover { transform: translateY(-1px); color: #1a1d27; }
+
+    .btn-back-detail {
+        padding: 11px 22px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px;
+        color: rgba(255,255,255,0.6);
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+
+    .btn-back-detail:hover { background: rgba(255,255,255,0.1); color: #fff; }
+</style>
+
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-avatar">👤</div>
+        <div>
+            <div class="detail-name">@Model.FullName</div>
+            <div class="detail-email">@Model.Email</div>
+            <div style="margin-top:8px;">
+                @foreach (var role in Model.Roles)
+                {
+                    <span class="badge-role badge-@role">@role</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">📞 Điện thoại</div>
+        <div class="detail-value">@(Model.PhoneNumber ?? "Chưa cập nhật")</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">🪪 CCCD/CMND</div>
+        <div class="detail-value">@(Model.IdentityCardNumber ?? "Chưa cập nhật")</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">🎂 Ngày sinh</div>
+        <div class="detail-value">
+            @(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">📊 Trạng thái</div>
+        <div class="detail-value @(Model.IsActive ? "status-active" : "status-inactive")">
+            @(Model.IsActive ? "● Đang hoạt động" : "● Đã bị khóa")
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">🆔 User ID</div>
+        <div class="detail-value" style="font-size:11px;color:rgba(255,255,255,0.3);word-break:break-all;">@Model.Id</div>
+    </div>
+
+    <div class="d-flex gap-3 mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit-detail">✏️ Chỉnh sửa</a>
+        <a asp-action="Index" class="btn-back-detail">← Quay lại</a>
+    </div>
+</div>
