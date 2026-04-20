@@ -6,11 +6,20 @@ namespace WebNangCao.Models
         public int Month { get; set; }
         public int Year { get; set; }
 
-        public decimal ElectricityFee { get; set; } // Tiền điện
-        public decimal WaterFee { get; set; }       // Tiền nước
-        public decimal ManagementFee { get; set; }  // Phí quản lý chung
+        // Điện
+        public decimal ElectricityUsage { get; set; }    // Số kWh tiêu thụ
+        public decimal ElectricityUnitPrice { get; set; } // Đơn giá (VNĐ/kWh)
+        public decimal ElectricityFee => ElectricityUsage * ElectricityUnitPrice;
 
-        public decimal TotalAmount => ElectricityFee + WaterFee + ManagementFee;
+        // Nước
+        public decimal WaterUsage { get; set; }           // Số m³ tiêu thụ
+        public decimal WaterUnitPrice { get; set; }       // Đơn giá (VNĐ/m³)
+        public decimal WaterFee => WaterUsage * WaterUnitPrice;
+
+        // Phí dịch vụ
+        public decimal ServiceFee { get; set; }
+
+        public decimal TotalAmount => ElectricityFee + WaterFee + ServiceFee;
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Unpaid;
         public DateTime DueDate { get; set; }
 

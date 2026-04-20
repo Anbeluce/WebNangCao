@@ -213,6 +213,20 @@
             font-size: 13px;
             margin-bottom: 20px;
         }
+
+        /* Fix dropdown/select dark theme */
+        select, select option {
+            background-color: #1a1d27 !important;
+            color: #e2e8f0 !important;
+        }
+
+        select option:checked {
+            background-color: #2d3148 !important;
+        }
+
+        input, select, textarea {
+            color-scheme: dark;
+        }
     </style>
 </head>
 <body>
@@ -227,7 +241,8 @@
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <a class="nav-link-main" asp-area="" asp-controller="Blog" asp-action="Index">📰 Tin tức</a>
-                <a class="nav-link-main" asp-area="" asp-controller="Resident" asp-action="Index">👤 Tài khoản</a>
+                <a class="nav-link-main" asp-area="" asp-controller="Resident" asp-action="Index">📄 Hóa đơn</a>
+                <a class="nav-link-main" asp-area="" asp-controller="Resident" asp-action="Profile">👤 Tài khoản</a>
             }
         </div>
 

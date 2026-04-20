@@ -9,10 +9,19 @@ namespace WebNangCao.Data.Configurations
         public void Configure(EntityTypeBuilder<Invoice> builder)
         {
             builder.HasKey(i => i.Id);
-            builder.Property(i => i.ElectricityFee).HasColumnType("decimal(18,2)");
-            builder.Property(i => i.WaterFee).HasColumnType("decimal(18,2)");
-            builder.Property(i => i.ManagementFee).HasColumnType("decimal(18,2)");
-            builder.Ignore(i => i.TotalAmount); // Computed property
+
+            // Stored columns
+            builder.Property(i => i.ElectricityUsage).HasColumnType("decimal(18,2)");
+            builder.Property(i => i.ElectricityUnitPrice).HasColumnType("decimal(18,2)");
+            builder.Property(i => i.WaterUsage).HasColumnType("decimal(18,2)");
+            builder.Property(i => i.WaterUnitPrice).HasColumnType("decimal(18,2)");
+            builder.Property(i => i.ServiceFee).HasColumnType("decimal(18,2)");
+
+            // Computed properties - không lưu vào DB
+            builder.Ignore(i => i.ElectricityFee);
+            builder.Ignore(i => i.WaterFee);
+            builder.Ignore(i => i.TotalAmount);
+
             builder.HasOne(i => i.Apartment)
                    .WithMany(a => a.Invoices)
                    .HasForeignKey(i => i.ApartmentId)

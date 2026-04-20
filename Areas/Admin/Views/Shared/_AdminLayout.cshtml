@@ -237,6 +237,30 @@
             font-size: 13px;
             margin-bottom: 20px;
         }
+
+        /* Fix dropdown/select dark theme */
+        select, select option {
+            background-color: #1a1d27 !important;
+            color: #e2e8f0 !important;
+        }
+
+        select option:hover,
+        select option:checked {
+            background-color: #2d3148 !important;
+        }
+
+        input, select, textarea {
+            color-scheme: dark;
+        }
+
+        input[type="date"],
+        input[type="number"],
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            background-color: rgba(255,255,255,0.06) !important;
+            color: #e2e8f0 !important;
+        }
     </style>
 </head>
 <body>

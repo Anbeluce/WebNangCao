@@ -1,0 +1,125 @@
+@model CreateInvoiceVM
+@{
+    ViewData["Title"] = "Tạo hóa đơn";
+    ViewData["Subtitle"] = "Tạo hóa đơn điện nước cho căn hộ";
+}
+
+<div style="max-width:650px;">
+    <div class="admin-card">
+        <h3 style="margin:0 0 20px; font-size:16px; font-weight:600; color:#fff;">📄 Thông tin hóa đơn</h3>
+        <div asp-validation-summary="All" style="color:#f87171; font-size:13px; margin-bottom:14px;"></div>
+
+        <form asp-action="Create" method="post" id="invoiceForm">
+            @Html.AntiForgeryToken()
+
+            <div style="margin-bottom:16px;">
+                <label asp-for="ApartmentId" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                <select asp-for="ApartmentId" asp-items="@(ViewBag.Apartments as SelectList)" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;">
+                    <option value="">-- Chọn căn hộ --</option>
+                </select>
+                <span asp-validation-for="ApartmentId" style="color:#f87171; font-size:12px;"></span>
+            </div>
+
+            <div style="display:flex; gap:16px; margin-bottom:16px;">
+                <div style="flex:1;">
+                    <label asp-for="Month" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                    <select asp-for="Month" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;">
+                        @for (int m = 1; m <= 12; m++){<option value="@m">Tháng @m</option>}
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label asp-for="Year" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                    <input asp-for="Year" type="number" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
+                </div>
+            </div>
+
+            <!-- Điện -->
+            <div style="background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15); border-radius:12px; padding:16px; margin-bottom:16px;">
+                <div style="font-size:14px; font-weight:600; color:#fbbf24; margin-bottom:12px;">⚡ Tiền điện</div>
+                <div style="display:flex; gap:12px; align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Số kWh tiêu thụ</label>
+                        <input asp-for="ElectricityUsage" type="number" step="0.1" placeholder="VD: 150" id="elecUsage" oninput="calcTotal()"
+                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:14px; width:100%;" />
+                    </div>
+                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">×</div>
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Đơn giá (đ/kWh)</label>
+                        <input asp-for="ElectricityUnitPrice" type="number" step="100" id="elecPrice" oninput="calcTotal()"
+                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:14px; width:100%;" />
+                    </div>
+                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">=</div>
+                    <div style="min-width:120px; text-align:right; padding-bottom:8px;">
+                        <div style="font-size:11px; color:rgba(255,255,255,0.4);">Thành tiền</div>
+                        <div id="elecFee" style="font-size:16px; font-weight:700; color:#fbbf24;">0đ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nước -->
+            <div style="background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:12px; padding:16px; margin-bottom:16px;">
+                <div style="font-size:14px; font-weight:600; color:#60a5fa; margin-bottom:12px;">💧 Tiền nước</div>
+                <div style="display:flex; gap:12px; align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Số m³ tiêu thụ</label>
+                        <input asp-for="WaterUsage" type="number" step="0.1" placeholder="VD: 12" id="waterUsage" oninput="calcTotal()"
+                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:14px; width:100%;" />
+                    </div>
+                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">×</div>
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Đơn giá (đ/m³)</label>
+                        <input asp-for="WaterUnitPrice" type="number" step="100" id="waterPrice" oninput="calcTotal()"
+                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:14px; width:100%;" />
+                    </div>
+                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">=</div>
+                    <div style="min-width:120px; text-align:right; padding-bottom:8px;">
+                        <div style="font-size:11px; color:rgba(255,255,255,0.4);">Thành tiền</div>
+                        <div id="waterFee" style="font-size:16px; font-weight:700; color:#60a5fa;">0đ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phí dịch vụ -->
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;">🏢 Phí dịch vụ (VNĐ)</label>
+                <input asp-for="ServiceFee" type="number" step="1000" placeholder="VD: 975000" id="serviceFee" oninput="calcTotal()"
+                       style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
+            </div>
+
+            <!-- Hạn thanh toán -->
+            <div style="margin-bottom:20px;">
+                <label asp-for="DueDate" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                <input asp-for="DueDate" type="date" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
+            </div>
+
+            <!-- Tổng cộng -->
+            <div style="background:rgba(102,126,234,0.08); border:1px solid rgba(102,126,234,0.2); border-radius:10px; padding:16px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:15px; font-weight:600; color:rgba(255,255,255,0.7);">💰 Tổng cộng</span>
+                <span id="totalAmount" style="font-size:22px; font-weight:700; color:#fff;">0đ</span>
+            </div>
+
+            <div style="display:flex; gap:12px;">
+                <button type="submit" style="padding:10px 24px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">💾 Tạo hóa đơn</button>
+                <a asp-action="Index" style="padding:10px 24px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; text-decoration:none; font-size:14px;">← Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function calcTotal() {
+            var eu = parseFloat(document.getElementById('elecUsage').value) || 0;
+            var ep = parseFloat(document.getElementById('elecPrice').value) || 0;
+            var wu = parseFloat(document.getElementById('waterUsage').value) || 0;
+            var wp = parseFloat(document.getElementById('waterPrice').value) || 0;
+            var sf = parseFloat(document.getElementById('serviceFee').value) || 0;
+            var ef = eu * ep, wf = wu * wp;
+            document.getElementById('elecFee').textContent = ef.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('waterFee').textContent = wf.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('totalAmount').textContent = (ef + wf + sf).toLocaleString('vi-VN') + 'đ';
+        }
+        calcTotal();
+    </script>
+}

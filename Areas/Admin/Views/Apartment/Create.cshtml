@@ -1,0 +1,61 @@
+@model CreateApartmentVM
+@{
+    ViewData["Title"] = "Thêm căn hộ";
+    ViewData["Subtitle"] = "Thêm căn hộ mới vào hệ thống";
+}
+
+<div style="max-width:600px;">
+    <div class="admin-card">
+        <h3 style="margin:0 0 20px; font-size:16px; font-weight:600; color:#fff;">Thông tin căn hộ</h3>
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div style="margin-bottom:16px;">
+                <label asp-for="ApartmentNumber" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                <input asp-for="ApartmentNumber" class="form-control" placeholder="VD: A101, B205..."
+                       style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
+                <span asp-validation-for="ApartmentNumber" style="color:#f87171; font-size:12px;"></span>
+            </div>
+
+            <div style="display:flex; gap:16px; margin-bottom:16px;">
+                <div style="flex:1;">
+                    <label asp-for="Area" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                    <input asp-for="Area" type="number" step="0.1" class="form-control" placeholder="VD: 65.5"
+                           style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
+                    <span asp-validation-for="Area" style="color:#f87171; font-size:12px;"></span>
+                </div>
+                <div style="flex:1;">
+                    <label asp-for="Floor" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                    <input asp-for="Floor" type="number" class="form-control" placeholder="VD: 5"
+                           style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
+                    <span asp-validation-for="Floor" style="color:#f87171; font-size:12px;"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label asp-for="OwnerId" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
+                <select asp-for="OwnerId" asp-items="@(ViewBag.Owners as SelectList)" class="form-control"
+                        style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;">
+                    <option value="">-- Chưa có chủ sở hữu --</option>
+                </select>
+                <span asp-validation-for="OwnerId" style="color:#f87171; font-size:12px;"></span>
+            </div>
+
+            <div style="display:flex; gap:12px;">
+                <button type="submit"
+                        style="padding:10px 24px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
+                    💾 Lưu căn hộ
+                </button>
+                <a asp-action="Index"
+                   style="padding:10px 24px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; text-decoration:none; font-size:14px; font-weight:500; display:inline-flex; align-items:center;">
+                    ← Quay lại
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

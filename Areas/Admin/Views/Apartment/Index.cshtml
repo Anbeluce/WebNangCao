@@ -1,0 +1,81 @@
+@model List<ApartmentListVM>
+@{
+    ViewData["Title"] = "Quản lý căn hộ";
+    ViewData["Subtitle"] = "Danh sách căn hộ trong chung cư";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div>
+        <span style="font-size:14px; color:rgba(255,255,255,0.5);">Tổng cộng: <strong style="color:#fff;">@Model.Count</strong> căn hộ</span>
+    </div>
+    <a asp-action="Create" style="padding:10px 20px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600;">
+        ➕ Thêm căn hộ
+    </a>
+</div>
+
+<div class="admin-card" style="padding:0; overflow:hidden;">
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+        <thead>
+            <tr style="background:rgba(102,126,234,0.1); border-bottom:1px solid rgba(255,255,255,0.08);">
+                <th style="padding:14px 16px; text-align:left; font-weight:600; color:rgba(255,255,255,0.7); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Số căn hộ</th>
+                <th style="padding:14px 16px; text-align:left; font-weight:600; color:rgba(255,255,255,0.7); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Tầng</th>
+                <th style="padding:14px 16px; text-align:left; font-weight:600; color:rgba(255,255,255,0.7); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Diện tích</th>
+                <th style="padding:14px 16px; text-align:left; font-weight:600; color:rgba(255,255,255,0.7); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Chủ sở hữu</th>
+                <th style="padding:14px 16px; text-align:left; font-weight:600; color:rgba(255,255,255,0.7); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Hóa đơn</th>
+                <th style="padding:14px 16px; text-align:center; font-weight:600; color:rgba(255,255,255,0.7); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" style="padding:40px; text-align:center; color:rgba(255,255,255,0.4);">
+                        🏠 Chưa có căn hộ nào. Hãy thêm căn hộ đầu tiên!
+                    </td>
+                </tr>
+            }
+            @foreach (var item in Model)
+            {
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.2s;"
+                    onmouseover="this.style.background='rgba(102,126,234,0.05)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding:12px 16px;">
+                        <strong style="color:#fff;">@item.ApartmentNumber</strong>
+                    </td>
+                    <td style="padding:12px 16px; color:rgba(255,255,255,0.7);">Tầng @item.Floor</td>
+                    <td style="padding:12px 16px; color:rgba(255,255,255,0.7);">@item.Area m²</td>
+                    <td style="padding:12px 16px;">
+                        @if (item.OwnerName != null)
+                        {
+                            <div style="color:#fff; font-weight:500;">@item.OwnerName</div>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.4);">@item.OwnerEmail</div>
+                        }
+                        else
+                        {
+                            <span style="color:rgba(255,255,255,0.3); font-style:italic;">Chưa có chủ</span>
+                        }
+                    </td>
+                    <td style="padding:12px 16px;">
+                        <span style="background:rgba(102,126,234,0.15); color:#a5b4fc; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:500;">
+                            @item.InvoiceCount hóa đơn
+                        </span>
+                    </td>
+                    <td style="padding:12px 16px; text-align:center;">
+                        <a asp-action="Edit" asp-route-id="@item.Id"
+                           style="color:#667eea; text-decoration:none; font-size:13px; margin-right:12px; font-weight:500;">
+                            ✏️ Sửa
+                        </a>
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                              style="display:inline;"
+                              onsubmit="return confirm('Bạn có chắc muốn xóa căn hộ @item.ApartmentNumber?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:13px; font-weight:500;">
+                                🗑️ Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
