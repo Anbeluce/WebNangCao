@@ -1,296 +1,230 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>@ViewData["Title"] - Chung cư Smart</title>
+
+    <!-- Favicon icon -->
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+    <!-- fontawesome icon -->
+    <link rel="stylesheet" href="~/fonts/fontawesome/css/fontawesome-all.min.css">
+    <!-- animation css -->
+    <link rel="stylesheet" href="~/plugins/animation/css/animate.min.css">
+    <!-- vendor css -->
+    <link rel="stylesheet" href="~/css/style.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
     <style>
-        :root {
-            --accent: #667eea;
-            --accent2: #764ba2;
-            --body-bg: #0f1117;
-            --card-bg: #1a1d27;
-            --border: rgba(255,255,255,0.08);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--body-bg);
-            color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Navbar */
-        .main-navbar {
-            background: rgba(15, 17, 23, 0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            padding: 0 28px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .nav-brand .brand-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .nav-brand .brand-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .nav-link-main {
-            padding: 7px 14px;
-            border-radius: 8px;
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-link-main:hover {
-            background: rgba(255,255,255,0.07);
-            color: #fff;
-        }
-
-        .nav-auth {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-login-nav {
-            padding: 7px 18px;
-            background: rgba(102,126,234,0.15);
-            border: 1px solid rgba(102,126,234,0.3);
-            border-radius: 8px;
-            color: #a5b4fc;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-login-nav:hover {
-            background: rgba(102,126,234,0.25);
-            color: #fff;
-        }
-
-        .btn-register-nav {
-            padding: 7px 18px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-register-nav:hover {
-            color: #fff;
-            opacity: 0.9;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 12px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            font-size: 13px;
-            color: rgba(255,255,255,0.75);
-        }
-
-        .user-chip .user-dot {
-            width: 26px;
-            height: 26px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-        }
-
-        .btn-logout-nav {
-            padding: 6px 14px;
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 8px;
-            color: #fca5a5;
-            font-size: 13px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
-
-        .btn-logout-nav:hover {
-            background: rgba(239,68,68,0.2);
-            color: #fff;
-        }
-
-        .btn-admin-nav {
-            padding: 6px 14px;
-            background: rgba(102,126,234,0.12);
-            border: 1px solid rgba(102,126,234,0.25);
-            border-radius: 8px;
-            color: #a5b4fc;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .btn-admin-nav:hover { color: #fff; }
-
-        /* Main content */
-        main {
-            flex: 1;
-            padding: 32px 28px;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        footer {
-            background: rgba(255,255,255,0.02);
-            border-top: 1px solid var(--border);
-            padding: 16px 28px;
-            text-align: center;
-            font-size: 12px;
-            color: rgba(255,255,255,0.25);
-        }
-
-        /* Toast alerts */
-        .toast-success {
-            background: rgba(34,197,94,0.12);
-            border: 1px solid rgba(34,197,94,0.25);
-            color: #86efac;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        /* Fix dropdown/select dark theme */
-        select, select option {
-            background-color: #1a1d27 !important;
-            color: #e2e8f0 !important;
-        }
-
-        select option:checked {
-            background-color: #2d3148 !important;
-        }
-
-        input, select, textarea {
-            color-scheme: dark;
-        }
+        body { font-family: 'Inter', sans-serif !important; }
+        /* Fix validation error color */
+        .field-validation-error { color: #dc3545; font-size: 80%; mt-1; }
+        .input-validation-error { border-color: #dc3545; }
     </style>
 </head>
+
 <body>
-    <nav class="main-navbar">
-        <a class="nav-brand" asp-area="" asp-controller="Home" asp-action="Index">
-            <div class="brand-icon">🏢</div>
-            <span class="brand-name">Chung cư Smart</span>
-        </a>
-
-        <div class="nav-links">
-            <a class="nav-link-main" asp-area="" asp-controller="Home" asp-action="Index">🏠 Trang chủ</a>
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a class="nav-link-main" asp-area="" asp-controller="Blog" asp-action="Index">📰 Tin tức</a>
-                <a class="nav-link-main" asp-area="" asp-controller="Resident" asp-action="Index">📄 Hóa đơn</a>
-                <a class="nav-link-main" asp-area="" asp-controller="Resident" asp-action="Profile">👤 Tài khoản</a>
-            }
+    <!-- [ Pre-loader ] start -->
+    <div class="loader-bg">
+        <div class="loader-track">
+            <div class="loader-fill"></div>
         </div>
+    </div>
+    <!-- [ Pre-loader ] End -->
 
-        <div class="nav-auth">
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <div class="user-menu">
+    <!-- [ navigation menu ] start -->
+    <nav class="pcoded-navbar menupos-fixed">
+        <div class="navbar-wrapper">
+            <div class="navbar-brand header-logo">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="b-brand">
+                    <div class="b-bg">
+                        <i class="feather icon-home"></i>
+                    </div>
+                    <span class="b-title">Chung cư Smart</span>
+                </a>
+                <a class="mobile-menu" id="mobile-collapse" href="#!"><span></span></a>
+            </div>
+            <div class="navbar-content scroll-div">
+                <ul class="nav pcoded-inner-navbar">
+                    <li class="nav-item pcoded-menu-caption">
+                        <label>Menu</label>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-home"></i></span>
+                            <span class="pcoded-mtext">Trang chủ</span>
+                        </a>
+                    </li>
+                    
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Blog" ? "active" : "")">
+                            <a asp-area="" asp-controller="Blog" asp-action="Index" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
+                                <span class="pcoded-mtext">Tin tức</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resident" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                            <a asp-area="" asp-controller="Resident" asp-action="Index" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-clipboard"></i></span>
+                                <span class="pcoded-mtext">Hóa đơn</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resident" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
+                            <a asp-area="" asp-controller="Resident" asp-action="Profile" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-user"></i></span>
+                                <span class="pcoded-mtext">Tài khoản</span>
+                            </a>
+                        </li>
+                    }
+                    
                     @if (User.IsInRole("Admin"))
                     {
-                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn-admin-nav">
-                            ⚙️ Admin
-                        </a>
+                        <li class="nav-item pcoded-menu-caption">
+                            <label>Hệ thống</label>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
+                                <span class="pcoded-mtext">Admin Panel</span>
+                            </a>
+                        </li>
                     }
-                    <div class="user-chip">
-                        <div class="user-dot">👤</div>
-                        <span>@(User.Identity.Name?.Split('@')[0])</span>
-                    </div>
-                    <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post" style="margin:0;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn-logout-nav">Đăng xuất</button>
-                    </form>
-                </div>
-            }
-            else
-            {
-                <a asp-action="Login" asp-controller="Auth" class="btn-login-nav">Đăng nhập</a>
-                <a asp-action="Register" asp-controller="Auth" class="btn-register-nav">Đăng ký</a>
-            }
+                </ul>
+            </div>
         </div>
     </nav>
+    <!-- [ navigation menu ] end -->
 
-    <main role="main">
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="toast-success">✅ @TempData["SuccessMessage"]</div>
-        }
-        @RenderBody()
-    </main>
+    <!-- [ Header ] start -->
+    <header class="navbar pcoded-header navbar-expand-lg navbar-light">
+        <div class="m-header">
+            <a class="mobile-menu" id="mobile-collapse1" href="#!"><span></span></a>
+            <a href="#!" class="b-brand">
+                <div class="b-bg">
+                    <i class="feather icon-home"></i>
+                </div>
+                <span class="b-title">Chung cư Smart</span>
+            </a>
+        </div>
+        <a class="mobile-menu" id="mobile-header" href="#!">
+            <i class="feather icon-more-horizontal"></i>
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li><a href="#!" class="full-screen" onclick="javascript:toggleFullScreen()"><i class="feather icon-maximize"></i></a></li>
+                <li>
+                    <h5 class="m-b-0">@ViewData["Title"]</h5>
+                    <small>Hệ thống quản lý chung cư thông minh</small>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <li>
+                        <div class="dropdown drp-user">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="icon feather icon-settings"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right profile-notification">
+                                <div class="pro-head">
+                                    <img src="~/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
+                                    <span>@User.Identity?.Name?.Split('@')[0]</span>
+                                </div>
+                                <ul class="pro-body">
+                                    <li><a asp-area="" asp-controller="Resident" asp-action="Profile" class="dropdown-item"><i class="feather icon-user"></i> Tài khoản</a></li>
+                                    <li>
+                                        <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post" id="logoutForm" style="display: none;">
+                                            @Html.AntiForgeryToken()
+                                        </form>
+                                        <a href="#" onclick="document.getElementById('logoutForm').submit();" class="dropdown-item">
+                                            <i class="feather icon-log-out"></i> Đăng xuất
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a asp-area="" asp-controller="Auth" asp-action="Login" class="btn btn-outline-primary btn-sm m-r-10">Đăng nhập</a>
+                        <a asp-area="" asp-controller="Auth" asp-action="Register" class="btn btn-primary btn-sm">Đăng ký</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </header>
+    <!-- [ Header ] end -->
 
-    <footer>
-        <span>© 2026 Chung cư Smart — Hệ thống quản lý chung cư thông minh</span>
-    </footer>
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ breadcrumb ] start -->
+                            <div class="page-header">
+                                <div class="page-block">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-12">
+                                            <ul class="breadcrumb">
+                                                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index"><i class="feather icon-home"></i></a></li>
+                                                <li class="breadcrumb-item"><a href="#!">@ViewContext.RouteData.Values["controller"]?.ToString()</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ breadcrumb ] end -->
+                            
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    @if (TempData["SuccessMessage"] != null)
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            @TempData["SuccessMessage"]
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                    }
+                                    @if (TempData["ErrorMessage"] != null)
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            @TempData["ErrorMessage"]
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                    }
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+                                    @RenderBody()
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+    <!-- Required Js -->
+    <script src="~/js/vendor-all.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/js/pcoded.min.js"></script>
+    
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

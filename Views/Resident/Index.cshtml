@@ -1,92 +1,182 @@
 @model List<WebNangCao.Models.Apartment>
 @{
-    ViewData["Title"] = "Tài khoản cư dân";
+    ViewData["Title"] = "Tổng quan";
 }
 
 <!-- Chào mừng -->
-<div style="margin-bottom:28px;">
-    <h2 style="font-size:24px; font-weight:700; color:#fff; margin:0;">
-        Xin chào, @ViewBag.UserName 👋
-    </h2>
-    <p style="font-size:14px; color:rgba(255,255,255,0.5); margin:4px 0 0;">
-        Quản lý căn hộ và hóa đơn của bạn
-    </p>
+<div class="row mb-4">
+    <div class="col-sm-12">
+        <h2 class="mb-2">Xin chào, @ViewBag.UserName 👋</h2>
+        <p class="text-muted">Quản lý căn hộ và hóa đơn của bạn</p>
+    </div>
 </div>
 
 <!-- Thống kê nhanh -->
-<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:28px;">
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
-        <div style="font-size:12px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Căn hộ</div>
-        <div style="font-size:28px; font-weight:700; color:#fff;">@ViewBag.TotalApartments</div>
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h4 class="text-c-blue">@ViewBag.TotalApartments</h4>
+                        <h6 class="text-muted m-b-0">Căn hộ</h6>
+                    </div>
+                    <div class="col-4 text-right">
+                        <i class="feather icon-layout f-28 text-c-blue"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-c-blue">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <p class="text-white m-b-0">Tổng số căn hộ sở hữu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
-        <div style="font-size:12px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Tổng hóa đơn</div>
-        <div style="font-size:28px; font-weight:700; color:#fff;">@ViewBag.TotalInvoices</div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h4 class="text-c-green">@ViewBag.TotalInvoices</h4>
+                        <h6 class="text-muted m-b-0">Tổng hóa đơn</h6>
+                    </div>
+                    <div class="col-4 text-right">
+                        <i class="feather icon-file-text f-28 text-c-green"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-c-green">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <p class="text-white m-b-0">Tất cả hóa đơn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
-        <div style="font-size:12px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Chưa thanh toán</div>
-        <div style="font-size:28px; font-weight:700; color:#f87171;">@ViewBag.UnpaidInvoices</div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h4 class="text-c-red">@ViewBag.UnpaidInvoices</h4>
+                        <h6 class="text-muted m-b-0">Chưa thanh toán</h6>
+                    </div>
+                    <div class="col-4 text-right">
+                        <i class="feather icon-alert-triangle f-28 text-c-red"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-c-red">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <p class="text-white m-b-0">Cần thanh toán</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
-        <div style="font-size:12px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Số tiền còn nợ</div>
-        <div style="font-size:28px; font-weight:700; color:#fbbf24;">@(((decimal)ViewBag.TotalUnpaid).ToString("N0"))đ</div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h4 class="text-c-yellow">@(((decimal)ViewBag.TotalUnpaid).ToString("N0"))đ</h4>
+                        <h6 class="text-muted m-b-0">Số tiền còn nợ</h6>
+                    </div>
+                    <div class="col-4 text-right">
+                        <i class="feather icon-credit-card f-28 text-c-yellow"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-c-yellow">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <p class="text-white m-b-0">Tổng nợ hiện tại</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Danh sách căn hộ -->
-<h3 style="font-size:16px; font-weight:600; color:#fff; margin-bottom:16px;">🏠 Căn hộ của bạn</h3>
+<div class="row mb-3 mt-2">
+    <div class="col-12">
+        <h4>🏠 Căn hộ của bạn</h4>
+        <hr>
+    </div>
+</div>
 
 @if (Model.Count == 0)
 {
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:40px; text-align:center;">
-        <div style="font-size:48px; margin-bottom:12px;">🏠</div>
-        <p style="color:rgba(255,255,255,0.5); font-size:14px;">Bạn chưa được gán căn hộ nào.</p>
-        <p style="color:rgba(255,255,255,0.35); font-size:13px;">Vui lòng liên hệ ban quản lý để được hỗ trợ.</p>
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <i class="feather icon-home display-3 text-muted mb-3 d-block"></i>
+                    <h5 class="text-muted">Bạn chưa được gán căn hộ nào.</h5>
+                    <p class="text-muted mb-0">Vui lòng liên hệ ban quản lý để được hỗ trợ.</p>
+                </div>
+            </div>
+        </div>
     </div>
 }
 else
 {
-    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px;">
+    <div class="row">
         @foreach (var apt in Model)
         {
             var unpaid = apt.Invoices.Count(i => i.Status == WebNangCao.Models.InvoiceStatus.Unpaid);
             var totalDebt = apt.Invoices.Where(i => i.Status != WebNangCao.Models.InvoiceStatus.Paid).Sum(i => i.TotalAmount);
 
-            <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px; transition:border-color 0.2s;"
-                 onmouseover="this.style.borderColor='rgba(102,126,234,0.4)'"
-                 onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
-                
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
-                    <div>
-                        <div style="font-size:20px; font-weight:700; color:#fff;">@apt.ApartmentNumber</div>
-                        <div style="font-size:13px; color:rgba(255,255,255,0.45); margin-top:2px;">Tầng @apt.Floor • @apt.Area m²</div>
-                    </div>
-                    <div style="background:linear-gradient(135deg,#667eea,#764ba2); width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">
-                        🏠
+            <div class="col-xl-4 col-md-6">
+                <div class="card user-card user-card-1">
+                    <div class="card-body pt-0">
+                        <div class="user-about-block text-center mt-4">
+                            <div class="row align-items-end">
+                                <div class="col text-center">
+                                    <div class="bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; font-size: 24px;">
+                                        <i class="feather icon-home"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <h4 class="mb-1">@apt.ApartmentNumber</h4>
+                            <p class="mb-3 text-muted">Tầng @apt.Floor • @apt.Area m²</p>
+                        </div>
+                        
+                        <hr>
+
+                        <div class="row text-center mt-3">
+                            <div class="col-4">
+                                <h6 class="mb-1">@apt.Invoices.Count</h6>
+                                <p class="text-muted mb-0">Hóa đơn</p>
+                            </div>
+                            <div class="col-4 border-left">
+                                <h6 class="mb-1 @(unpaid > 0 ? "text-danger" : "text-success")">@unpaid</h6>
+                                <p class="text-muted mb-0">Chưa TT</p>
+                            </div>
+                            <div class="col-4 border-left">
+                                <h6 class="mb-1 @(totalDebt > 0 ? "text-warning" : "text-success")">@totalDebt.ToString("N0")</h6>
+                                <p class="text-muted mb-0">Còn nợ</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <a asp-action="Invoices" asp-route-id="@apt.Id" class="btn btn-outline-primary btn-block">
+                                <i class="feather icon-file-text"></i> Xem hóa đơn
+                            </a>
+                        </div>
                     </div>
                 </div>
-
-                <div style="display:flex; gap:16px; margin-bottom:16px;">
-                    <div style="flex:1; background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                        <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px;">Hóa đơn</div>
-                        <div style="font-size:16px; font-weight:600; color:#fff;">@apt.Invoices.Count</div>
-                    </div>
-                    <div style="flex:1; background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                        <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px;">Chưa thanh toán</div>
-                        <div style="font-size:16px; font-weight:600; color:@(unpaid > 0 ? "#f87171" : "#4ade80");">@unpaid</div>
-                    </div>
-                    <div style="flex:1; background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                        <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px;">Còn nợ</div>
-                        <div style="font-size:16px; font-weight:600; color:@(totalDebt > 0 ? "#fbbf24" : "#4ade80");">@totalDebt.ToString("N0")đ</div>
-                    </div>
-                </div>
-
-                <a asp-action="Invoices" asp-route-id="@apt.Id"
-                   style="display:block; text-align:center; padding:10px; background:rgba(102,126,234,0.12); border:1px solid rgba(102,126,234,0.25); border-radius:10px; color:#a5b4fc; text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s;"
-                   onmouseover="this.style.background='rgba(102,126,234,0.25)'; this.style.color='#fff'"
-                   onmouseout="this.style.background='rgba(102,126,234,0.12)'; this.style.color='#a5b4fc'">
-                    📄 Xem hóa đơn
-                </a>
             </div>
         }
     </div>

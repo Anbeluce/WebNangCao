@@ -1,353 +1,225 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>@ViewData["Title"] - Admin | Chung cư Smart</title>
+
+    <!-- Favicon icon -->
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+    <!-- fontawesome icon -->
+    <link rel="stylesheet" href="~/fonts/fontawesome/css/fontawesome-all.min.css">
+    <!-- animation css -->
+    <link rel="stylesheet" href="~/plugins/animation/css/animate.min.css">
+    <!-- vendor css -->
+    <link rel="stylesheet" href="~/css/style.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
     <style>
-        :root {
-            --sidebar-bg: #0f1117;
-            --sidebar-width: 260px;
-            --accent: #667eea;
-            --accent2: #764ba2;
-            --text-muted: rgba(255,255,255,0.45);
-            --border: rgba(255,255,255,0.08);
-            --card-bg: #1a1d27;
-            --body-bg: #12151e;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--body-bg);
-            color: #e2e8f0;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Sidebar */
-        .admin-sidebar {
-            position: fixed;
-            top: 0; left: 0; bottom: 0;
-            width: var(--sidebar-width);
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-            overflow-y: auto;
-        }
-
-        .sidebar-brand {
-            padding: 24px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .sidebar-brand .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .sidebar-brand h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-            margin: 0;
-        }
-
-        .sidebar-brand p {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin: 2px 0 0;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 16px 12px;
-        }
-
-        .nav-section-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 12px 12px 8px;
-        }
-
-        .nav-link-admin {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            color: rgba(255,255,255,0.65);
-            text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            margin-bottom: 2px;
-        }
-
-        .nav-link-admin:hover {
-            background: rgba(102,126,234,0.15);
-            color: #fff;
-        }
-
-        .nav-link-admin.active {
-            background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
-            color: #fff;
-            border: 1px solid rgba(102,126,234,0.3);
-        }
-
-        .nav-link-admin .nav-icon { font-size: 18px; width: 22px; text-align: center; }
-
-        .sidebar-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .user-details { min-width: 0; }
-
-        .user-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-role {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .btn-logout {
-            width: 100%;
-            padding: 9px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 10px;
-            color: #fca5a5;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fff;
-        }
-
-        /* Main content */
-        .admin-main {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .admin-topbar {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .topbar-title h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-            margin: 0;
-        }
-
-        .topbar-title p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin: 2px 0 0;
-        }
-
-        .admin-content {
-            flex: 1;
-            padding: 28px;
-        }
-
-        /* Cards */
-        .admin-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        /* Alerts */
-        .alert-success-dark {
-            background: rgba(34,197,94,0.12);
-            border: 1px solid rgba(34,197,94,0.25);
-            color: #86efac;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        .alert-error-dark {
-            background: rgba(239,68,68,0.12);
-            border: 1px solid rgba(239,68,68,0.25);
-            color: #fca5a5;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        /* Fix dropdown/select dark theme */
-        select, select option {
-            background-color: #1a1d27 !important;
-            color: #e2e8f0 !important;
-        }
-
-        select option:hover,
-        select option:checked {
-            background-color: #2d3148 !important;
-        }
-
-        input, select, textarea {
-            color-scheme: dark;
-        }
-
-        input[type="date"],
-        input[type="number"],
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            background-color: rgba(255,255,255,0.06) !important;
-            color: #e2e8f0 !important;
-        }
+        body { font-family: 'Inter', sans-serif !important; }
+        /* Fix validation error color */
+        .field-validation-error { color: #dc3545; font-size: 80%; mt-1; }
+        .input-validation-error { border-color: #dc3545; }
     </style>
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <nav class="admin-sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-icon">🏢</div>
-            <h2>Chung cư Smart</h2>
-            <p>Admin Panel</p>
-        </div>
-
-        <div class="sidebar-nav">
-            <div class="nav-section-label">Tổng quan</div>
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
-               class="nav-link-admin @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
-                <span class="nav-icon">📊</span> Dashboard
-            </a>
-
-            <div class="nav-section-label">Quản lý</div>
-            <a asp-area="Admin" asp-controller="User" asp-action="Index"
-               class="nav-link-admin @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
-                <span class="nav-icon">👥</span> Người dùng
-            </a>
-            <a asp-area="Admin" asp-controller="Apartment" asp-action="Index"
-               class="nav-link-admin @(ViewContext.RouteData.Values["controller"]?.ToString() == "Apartment" ? "active" : "")">
-                <span class="nav-icon">🏠</span> Căn hộ
-            </a>
-            <a asp-area="Admin" asp-controller="Invoice" asp-action="Index"
-               class="nav-link-admin @(ViewContext.RouteData.Values["controller"]?.ToString() == "Invoice" ? "active" : "")">
-                <span class="nav-icon">📄</span> Hóa đơn
-            </a>
-            <a asp-area="Admin" asp-controller="Utility" asp-action="Index"
-               class="nav-link-admin @(ViewContext.RouteData.Values["controller"]?.ToString() == "Utility" ? "active" : "")">
-                <span class="nav-icon">⚡</span> Tiện ích
-            </a>
-
-            <div class="nav-section-label">Hệ thống</div>
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link-admin">
-                <span class="nav-icon">🌐</span> Trang chủ
-            </a>
-        </div>
-
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="user-avatar">👤</div>
-                <div class="user-details">
-                    <div class="user-name">@User.Identity?.Name?.Split('@')[0]</div>
-                    <div class="user-role">Quản trị viên</div>
-                </div>
-            </div>
-            <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn-logout">🚪 Đăng xuất</button>
-            </form>
-        </div>
-    </nav>
-
-    <!-- Main -->
-    <div class="admin-main">
-        <div class="admin-topbar">
-            <div class="topbar-title">
-                <h1>@ViewData["Title"]</h1>
-                <p>@(ViewData["Subtitle"] ?? "Hệ thống quản lý chung cư")</p>
-            </div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.35);">
-                @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
-            </div>
-        </div>
-
-        <div class="admin-content">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert-success-dark">✅ @TempData["SuccessMessage"]</div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert-error-dark">❌ @TempData["ErrorMessage"]</div>
-            }
-
-            @RenderBody()
+    <!-- [ Pre-loader ] start -->
+    <div class="loader-bg">
+        <div class="loader-track">
+            <div class="loader-fill"></div>
         </div>
     </div>
+    <!-- [ Pre-loader ] End -->
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- [ navigation menu ] start -->
+    <nav class="pcoded-navbar menupos-fixed">
+        <div class="navbar-wrapper">
+            <div class="navbar-brand header-logo">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="b-brand">
+                    <div class="b-bg">
+                        <i class="feather icon-briefcase"></i>
+                    </div>
+                    <span class="b-title">Admin Panel</span>
+                </a>
+                <a class="mobile-menu" id="mobile-collapse" href="#!"><span></span></a>
+            </div>
+            <div class="navbar-content scroll-div">
+                <ul class="nav pcoded-inner-navbar">
+                    <li class="nav-item pcoded-menu-caption">
+                        <label>Tổng quan</label>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-home"></i></span>
+                            <span class="pcoded-mtext">Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item pcoded-menu-caption">
+                        <label>Quản lý</label>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="User" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-users"></i></span>
+                            <span class="pcoded-mtext">Người dùng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Apartment" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Apartment" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-layout"></i></span>
+                            <span class="pcoded-mtext">Căn hộ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Invoice" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Invoice" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
+                            <span class="pcoded-mtext">Hóa đơn</span>
+                        </a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Utility" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Utility" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-zap"></i></span>
+                            <span class="pcoded-mtext">Tiện ích</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item pcoded-menu-caption">
+                        <label>Hệ thống</label>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-globe"></i></span>
+                            <span class="pcoded-mtext">Trang chủ web</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- [ navigation menu ] end -->
+
+    <!-- [ Header ] start -->
+    <header class="navbar pcoded-header navbar-expand-lg navbar-light">
+        <div class="m-header">
+            <a class="mobile-menu" id="mobile-collapse1" href="#!"><span></span></a>
+            <a href="#!" class="b-brand">
+                <div class="b-bg">
+                    <i class="feather icon-briefcase"></i>
+                </div>
+                <span class="b-title">Admin Panel</span>
+            </a>
+        </div>
+        <a class="mobile-menu" id="mobile-header" href="#!">
+            <i class="feather icon-more-horizontal"></i>
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li><a href="#!" class="full-screen" onclick="javascript:toggleFullScreen()"><i class="feather icon-maximize"></i></a></li>
+                <li>
+                    <h5 class="m-b-0">@ViewData["Title"]</h5>
+                    <small>@(ViewData["Subtitle"] ?? "Hệ thống quản lý chung cư")</small>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li>
+                    <div class="dropdown drp-user">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="icon feather icon-settings"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right profile-notification">
+                            <div class="pro-head">
+                                <img src="~/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
+                                <span>@User.Identity?.Name?.Split('@')[0]</span>
+                            </div>
+                            <ul class="pro-body">
+                                <li>
+                                    <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post" id="logoutForm" style="display: none;">
+                                        @Html.AntiForgeryToken()
+                                    </form>
+                                    <a href="#" onclick="document.getElementById('logoutForm').submit();" class="dropdown-item">
+                                        <i class="feather icon-log-out"></i> Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <!-- [ Header ] end -->
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ breadcrumb ] start -->
+                            <div class="page-header">
+                                <div class="page-block">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-12">
+                                            <ul class="breadcrumb">
+                                                <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="feather icon-home"></i></a></li>
+                                                <li class="breadcrumb-item"><a href="#!">Admin</a></li>
+                                                <li class="breadcrumb-item"><a href="#!">@ViewContext.RouteData.Values["controller"]?.ToString()</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ breadcrumb ] end -->
+                            
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    @if (TempData["SuccessMessage"] != null)
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            @TempData["SuccessMessage"]
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                    }
+                                    @if (TempData["ErrorMessage"] != null)
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            @TempData["ErrorMessage"]
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                    }
+
+                                    @RenderBody()
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+    <!-- Required Js -->
+    <script src="~/js/vendor-all.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/js/pcoded.min.js"></script>
+    
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

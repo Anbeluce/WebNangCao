@@ -3,118 +3,180 @@
     ViewData["Title"] = $"Chi tiết hóa đơn T{Model.Month}/{Model.Year}";
 }
 
-<div style="margin-bottom:20px;">
-    <a asp-action="Invoices" asp-route-id="@Model.ApartmentId" style="color:rgba(255,255,255,0.5); text-decoration:none; font-size:13px;">← Quay lại danh sách hóa đơn</a>
+<div class="row mb-3">
+    <div class="col-sm-12">
+        <a asp-action="Invoices" asp-route-id="@Model.ApartmentId" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="feather icon-arrow-left"></i> Quay lại danh sách hóa đơn
+        </a>
+    </div>
 </div>
 
 @{
-    var sColor = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "#4ade80" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "#fbbf24" : "#f87171";
-    var sBg = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "rgba(74,222,128,0.12)" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "rgba(251,191,36,0.12)" : "rgba(248,113,113,0.12)";
+    var sColorClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "text-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "text-warning" : "text-danger";
+    var sBgClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "badge-light-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "badge-light-warning" : "badge-light-danger";
     var sTxt = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "✅ Đã thanh toán" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "⏳ Một phần" : "❌ Chưa thanh toán";
     var paidAmount = Model.Transactions.Where(t => !t.IsDeleted).Sum(t => t.Amount);
     var remaining = Model.TotalAmount - paidAmount;
 }
 
-<div style="max-width:700px;">
-    <!-- Header -->
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div>
-                <h2 style="font-size:22px; font-weight:700; color:#fff; margin:0;">Hóa đơn tháng @Model.Month/@Model.Year</h2>
-                <p style="font-size:13px; color:rgba(255,255,255,0.45); margin:4px 0 0;">Căn hộ @Model.Apartment.ApartmentNumber • Tầng @Model.Apartment.Floor</p>
+<div class="row">
+    <!-- Cột trái: Chi tiết hóa đơn -->
+    <div class="col-xl-8 col-md-12">
+        <!-- Header Hóa đơn -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-sm-8">
+                        <h4 class="mb-1">Hóa đơn tháng @Model.Month/@Model.Year</h4>
+                        <p class="text-muted mb-0">Căn hộ @Model.Apartment.ApartmentNumber • Tầng @Model.Apartment.Floor</p>
+                    </div>
+                    <div class="col-sm-4 text-sm-right mt-3 mt-sm-0">
+                        <span class="badge @sBgClass f-14 py-2 px-3">@sTxt</span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <span class="text-muted">Hạn thanh toán: </span>
+                        <strong class="text-body">@Model.DueDate.ToString("dd/MM/yyyy")</strong>
+                        @if (Model.DueDate < DateTime.Now && Model.Status != WebNangCao.Models.InvoiceStatus.Paid)
+                        {
+                            <span class="text-danger ml-2"><i class="feather icon-alert-circle"></i> Đã quá hạn</span>
+                        }
+                    </div>
+                </div>
             </div>
-            <span style="padding:6px 14px; background:@sBg; color:@sColor; border-radius:20px; font-size:13px; font-weight:600;">@sTxt</span>
         </div>
-        <div style="font-size:12px; color:rgba(255,255,255,0.4);">
-            Hạn thanh toán: <strong style="color:rgba(255,255,255,0.7);">@Model.DueDate.ToString("dd/MM/yyyy")</strong>
-            @if (Model.DueDate < DateTime.Now && Model.Status != WebNangCao.Models.InvoiceStatus.Paid)
-            {
-                <span style="color:#f87171; margin-left:8px;">⚠️ Đã quá hạn</span>
-            }
+
+        <!-- Chi tiết phí -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Chi tiết phí</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <!-- Điện -->
+                    <li class="list-group-item px-0 pb-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="bg-light-warning text-warning d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
+                                    ⚡
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1">Tiền điện</h6>
+                                <small class="text-muted">@Model.ElectricityUsage kWh × @Model.ElectricityUnitPrice.ToString("N0")đ/kWh</small>
+                            </div>
+                            <div class="col-auto text-right">
+                                <h6 class="mb-0 text-warning">@Model.ElectricityFee.ToString("N0")đ</h6>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Nước -->
+                    <li class="list-group-item px-0 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="bg-light-primary text-primary d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
+                                    💧
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1">Tiền nước</h6>
+                                <small class="text-muted">@Model.WaterUsage m³ × @Model.WaterUnitPrice.ToString("N0")đ/m³</small>
+                            </div>
+                            <div class="col-auto text-right">
+                                <h6 class="mb-0 text-primary">@Model.WaterFee.ToString("N0")đ</h6>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Phí dịch vụ -->
+                    <li class="list-group-item px-0 py-3 border-bottom-0">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="bg-light-info text-info d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
+                                    🏢
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1">Phí dịch vụ</h6>
+                                <small class="text-muted">Phí quản lý vận hành</small>
+                            </div>
+                            <div class="col-auto text-right">
+                                <h6 class="mb-0 text-info">@Model.ServiceFee.ToString("N0")đ</h6>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <hr class="mt-0">
+
+                <div class="row align-items-center mb-2">
+                    <div class="col">
+                        <h6 class="mb-0 text-muted">Tổng cộng</h6>
+                    </div>
+                    <div class="col-auto">
+                        <h4 class="mb-0">@Model.TotalAmount.ToString("N0")đ</h4>
+                    </div>
+                </div>
+
+                @if (paidAmount > 0)
+                {
+                    <div class="row align-items-center mt-2">
+                        <div class="col">
+                            <span class="text-muted">Đã thanh toán</span>
+                        </div>
+                        <div class="col-auto">
+                            <h6 class="mb-0 text-success">@paidAmount.ToString("N0")đ</h6>
+                        </div>
+                    </div>
+                }
+
+                @if (remaining > 0)
+                {
+                    <div class="row align-items-center mt-2">
+                        <div class="col">
+                            <span class="text-muted">Còn lại</span>
+                        </div>
+                        <div class="col-auto">
+                            <h6 class="mb-0 text-danger">@remaining.ToString("N0")đ</h6>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 
-    <!-- Chi tiết phí -->
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px; margin-bottom:16px;">
-        <h3 style="font-size:15px; font-weight:600; color:#fff; margin:0 0 16px;">Chi tiết phí</h3>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-            <!-- Điện -->
-            <div style="padding:14px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.12); border-radius:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:20px;">⚡</span>
-                        <div>
-                            <div style="font-size:14px; font-weight:500; color:#fff;">Tiền điện</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.4);">@Model.ElectricityUsage kWh × @Model.ElectricityUnitPrice.ToString("N0")đ/kWh</div>
-                        </div>
-                    </div>
-                    <div style="font-size:16px; font-weight:700; color:#fbbf24;">@Model.ElectricityFee.ToString("N0")đ</div>
-                </div>
-            </div>
-            <!-- Nước -->
-            <div style="padding:14px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.12); border-radius:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:20px;">💧</span>
-                        <div>
-                            <div style="font-size:14px; font-weight:500; color:#fff;">Tiền nước</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.4);">@Model.WaterUsage m³ × @Model.WaterUnitPrice.ToString("N0")đ/m³</div>
-                        </div>
-                    </div>
-                    <div style="font-size:16px; font-weight:700; color:#60a5fa;">@Model.WaterFee.ToString("N0")đ</div>
-                </div>
-            </div>
-            <!-- Phí dịch vụ -->
-            <div style="padding:14px; background:rgba(167,139,250,0.06); border:1px solid rgba(167,139,250,0.12); border-radius:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:20px;">🏢</span>
-                        <div>
-                            <div style="font-size:14px; font-weight:500; color:#fff;">Phí dịch vụ</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.4);">Service Fee</div>
-                        </div>
-                    </div>
-                    <div style="font-size:16px; font-weight:700; color:#a78bfa;">@Model.ServiceFee.ToString("N0")đ</div>
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:15px; font-weight:600; color:rgba(255,255,255,0.7);">Tổng cộng</span>
-            <span style="font-size:22px; font-weight:700; color:#fff;">@Model.TotalAmount.ToString("N0")đ</span>
-        </div>
-        @if (paidAmount > 0)
+    <!-- Cột phải: Lịch sử thanh toán -->
+    <div class="col-xl-4 col-md-12">
+        @if (Model.Transactions.Any(t => !t.IsDeleted))
         {
-            <div style="margin-top:12px; display:flex; justify-content:space-between;">
-                <span style="font-size:13px; color:rgba(255,255,255,0.5);">Đã thanh toán</span>
-                <span style="font-size:15px; font-weight:600; color:#4ade80;">@paidAmount.ToString("N0")đ</span>
-            </div>
-        }
-        @if (remaining > 0)
-        {
-            <div style="margin-top:8px; display:flex; justify-content:space-between;">
-                <span style="font-size:13px; color:rgba(255,255,255,0.5);">Còn lại</span>
-                <span style="font-size:15px; font-weight:600; color:#f87171;">@remaining.ToString("N0")đ</span>
+            <div class="card">
+                <div class="card-header">
+                    <h5>💳 Lịch sử thanh toán</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var tx in Model.Transactions.Where(t => !t.IsDeleted).OrderByDescending(t => t.PaymentDate))
+                        {
+                            <li class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h6 class="mb-1">@tx.PaymentMethod</h6>
+                                        <small class="text-muted"><i class="feather icon-calendar"></i> @tx.PaymentDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                        @if (!string.IsNullOrEmpty(tx.Note))
+                                        {
+                                            <small class="d-block text-muted mt-1">📝 @tx.Note</small>
+                                        }
+                                    </div>
+                                    <div class="col-auto text-right">
+                                        <h6 class="mb-0 text-success">+@tx.Amount.ToString("N0")đ</h6>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         }
     </div>
-
-    <!-- Lịch sử thanh toán -->
-    @if (Model.Transactions.Any(t => !t.IsDeleted))
-    {
-        <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px;">
-            <h3 style="font-size:15px; font-weight:600; color:#fff; margin:0 0 16px;">💳 Lịch sử thanh toán</h3>
-            @foreach (var tx in Model.Transactions.Where(t => !t.IsDeleted).OrderByDescending(t => t.PaymentDate))
-            {
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px; margin-bottom:8px;">
-                    <div>
-                        <div style="font-size:13px; color:#fff; font-weight:500;">@tx.PaymentMethod</div>
-                        <div style="font-size:11px; color:rgba(255,255,255,0.4);">@tx.PaymentDate.ToString("dd/MM/yyyy HH:mm")</div>
-                        @if (!string.IsNullOrEmpty(tx.Note)){<div style="font-size:11px; color:rgba(255,255,255,0.35);">📝 @tx.Note</div>}
-                    </div>
-                    <div style="font-size:15px; font-weight:700; color:#4ade80;">+@tx.Amount.ToString("N0")đ</div>
-                </div>
-            }
-        </div>
-    }
 </div>

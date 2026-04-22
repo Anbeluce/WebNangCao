@@ -3,136 +3,139 @@
     ViewData["Title"] = "Tài khoản của tôi";
 }
 
-<div style="margin-bottom:28px;">
-    <h2 style="font-size:24px; font-weight:700; color:#fff; margin:0;">👤 Tài khoản của tôi</h2>
-    <p style="font-size:14px; color:rgba(255,255,255,0.5); margin:4px 0 0;">Quản lý thông tin cá nhân và bảo mật</p>
-</div>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div style="background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.25); color:#fca5a5; border-radius:12px; padding:12px 16px; font-size:13px; margin-bottom:20px;">
-        ❌ @TempData["ErrorMessage"]
-    </div>
-}
-
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:900px;">
-
-    <!-- Cột trái: Thông tin cá nhân -->
-    <div>
-        <!-- Card avatar + tên -->
-        <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px; margin-bottom:20px; text-align:center;">
-            <div style="width:80px; height:80px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 14px;">
-                👤
-            </div>
-            <div style="font-size:20px; font-weight:700; color:#fff;">@Model.FullName</div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.45); margin-top:4px;">@Model.Email</div>
-
-            <!-- Thống kê mini -->
-            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:20px;">
-                <div style="background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                    <div style="font-size:20px; font-weight:700; color:#fff;">@Model.ApartmentCount</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Căn hộ</div>
+<div class="row">
+    <!-- Cột trái: Thông tin tổng quan và Đổi mật khẩu -->
+    <div class="col-xl-4 col-md-5">
+        <!-- Card Thông tin ngắn gọn -->
+        <div class="card user-card user-card-1">
+            <div class="card-body pt-0">
+                <div class="user-about-block text-center mt-4">
+                    <div class="row align-items-end">
+                        <div class="col text-center">
+                            <div style="width:80px; height:80px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:36px; color:#fff;">
+                                👤
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                    <div style="font-size:20px; font-weight:700; color:#fff;">@Model.InvoiceCount</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Hóa đơn</div>
+                <div class="text-center">
+                    <h4 class="mb-1 mt-3">@Model.FullName</h4>
+                    <p class="mb-3 text-muted">@Model.Email</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                    <div style="font-size:20px; font-weight:700; color:#f87171;">@Model.UnpaidInvoiceCount</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Chưa TT</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.04); border-radius:10px; padding:12px;">
-                    <div style="font-size:20px; font-weight:700; color:#fbbf24;">@Model.TotalDebt.ToString("N0")đ</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Còn nợ</div>
+                
+                <hr>
+
+                <div class="row text-center mt-3">
+                    <div class="col-6 mb-3">
+                        <h6 class="mb-1">@Model.ApartmentCount</h6>
+                        <p class="text-muted mb-0">Căn hộ</p>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h6 class="mb-1">@Model.InvoiceCount</h6>
+                        <p class="text-muted mb-0">Hóa đơn</p>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="mb-1 text-danger">@Model.UnpaidInvoiceCount</h6>
+                        <p class="text-muted mb-0">Chưa thanh toán</p>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="mb-1 text-warning">@Model.TotalDebt.ToString("N0") đ</h6>
+                        <p class="text-muted mb-0">Còn nợ</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Đổi mật khẩu -->
-        <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; cursor:pointer;"
-                 onclick="var f=document.getElementById('pwdForm'); f.style.display = f.style.display==='none'?'block':'none';">
-                <h3 style="margin:0; font-size:15px; font-weight:600; color:#fff;">🔒 Đổi mật khẩu</h3>
-                <span style="color:rgba(255,255,255,0.3); font-size:12px;">Nhấn để mở ▼</span>
+        <!-- Card Đổi mật khẩu -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Đổi mật khẩu</h5>
             </div>
-            <div id="pwdForm" style="display:@(TempData["ShowPasswordForm"] != null ? "block" : "none");">
+            <div class="card-body">
+                @if (TempData["ShowPasswordForm"] != null && TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                }
+
                 <form asp-action="ChangePassword" method="post">
                     @Html.AntiForgeryToken()
-                    <div style="margin-bottom:12px;">
-                        <label asp-for="ChangePassword.CurrentPassword" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                        <input asp-for="ChangePassword.CurrentPassword" class="form-control"
-                               style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:13px;" />
-                        <span asp-validation-for="ChangePassword.CurrentPassword" style="color:#f87171; font-size:12px;"></span>
+                    <div class="form-group">
+                        <label asp-for="ChangePassword.CurrentPassword"></label>
+                        <input asp-for="ChangePassword.CurrentPassword" class="form-control" />
+                        <span asp-validation-for="ChangePassword.CurrentPassword" class="text-danger"></span>
                     </div>
-                    <div style="margin-bottom:12px;">
-                        <label asp-for="ChangePassword.NewPassword" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                        <input asp-for="ChangePassword.NewPassword" class="form-control"
-                               style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:13px;" />
-                        <span asp-validation-for="ChangePassword.NewPassword" style="color:#f87171; font-size:12px;"></span>
+                    <div class="form-group">
+                        <label asp-for="ChangePassword.NewPassword"></label>
+                        <input asp-for="ChangePassword.NewPassword" class="form-control" />
+                        <span asp-validation-for="ChangePassword.NewPassword" class="text-danger"></span>
                     </div>
-                    <div style="margin-bottom:16px;">
-                        <label asp-for="ChangePassword.ConfirmPassword" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                        <input asp-for="ChangePassword.ConfirmPassword" class="form-control"
-                               style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; font-size:13px;" />
-                        <span asp-validation-for="ChangePassword.ConfirmPassword" style="color:#f87171; font-size:12px;"></span>
+                    <div class="form-group">
+                        <label asp-for="ChangePassword.ConfirmPassword"></label>
+                        <input asp-for="ChangePassword.ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="ChangePassword.ConfirmPassword" class="text-danger"></span>
                     </div>
-                    <button type="submit"
-                            style="width:100%; padding:10px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
-                        🔑 Đổi mật khẩu
+                    <button type="submit" class="btn btn-warning btn-block">
+                        <i class="feather icon-lock"></i> Đổi mật khẩu
                     </button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Cột phải: Form chỉnh sửa thông tin -->
-    <div>
-        <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px;">
-            <h3 style="margin:0 0 20px; font-size:15px; font-weight:600; color:#fff;">📝 Thông tin cá nhân</h3>
+    <!-- Cột phải: Form cập nhật thông tin cá nhân -->
+    <div class="col-xl-8 col-md-7">
+        <div class="card">
+            <div class="card-header">
+                <h5>Cập nhật thông tin cá nhân</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="UpdateProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
 
-            <form asp-action="UpdateProfile" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="Id" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="FullName"></label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input value="@Model.Email" disabled class="form-control" />
+                                <small class="form-text text-muted">Email dùng để đăng nhập không thể thay đổi.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PhoneNumber"></label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="VD: 0912345678" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="IdentityCardNumber"></label>
+                                <input asp-for="IdentityCardNumber" class="form-control" placeholder="VD: 012345678901" />
+                                <span asp-validation-for="IdentityCardNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="DateOfBirth"></label>
+                                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
 
-                <div style="margin-bottom:14px;">
-                    <label asp-for="FullName" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                    <input asp-for="FullName"
-                           style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px 12px; font-size:14px;" />
-                    <span asp-validation-for="FullName" style="color:#f87171; font-size:12px;"></span>
-                </div>
-
-                <div style="margin-bottom:14px;">
-                    <label style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;">Email</label>
-                    <input value="@Model.Email" disabled
-                           style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); border-radius:8px; padding:10px 12px; font-size:14px;" />
-                    <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">Email không thể thay đổi</div>
-                </div>
-
-                <div style="margin-bottom:14px;">
-                    <label asp-for="PhoneNumber" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                    <input asp-for="PhoneNumber" placeholder="VD: 0912345678"
-                           style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px 12px; font-size:14px;" />
-                    <span asp-validation-for="PhoneNumber" style="color:#f87171; font-size:12px;"></span>
-                </div>
-
-                <div style="margin-bottom:14px;">
-                    <label asp-for="IdentityCardNumber" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                    <input asp-for="IdentityCardNumber" placeholder="VD: 012345678901"
-                           style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px 12px; font-size:14px;" />
-                    <span asp-validation-for="IdentityCardNumber" style="color:#f87171; font-size:12px;"></span>
-                </div>
-
-                <div style="margin-bottom:20px;">
-                    <label asp-for="DateOfBirth" style="display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:5px;"></label>
-                    <input asp-for="DateOfBirth" type="date"
-                           style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px 12px; font-size:14px;" />
-                </div>
-
-                <button type="submit"
-                        style="width:100%; padding:11px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">
-                    💾 Lưu thay đổi
-                </button>
-            </form>
+                    <hr>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="feather icon-save"></i> Lưu thay đổi
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

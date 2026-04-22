@@ -5,194 +5,108 @@
     var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
 }
 
-<style>
-    .form-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 32px;
-        max-width: 720px;
-    }
-
-    .section-title {
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.4);
-        margin: 24px 0 16px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-
-    .section-title:first-of-type { margin-top: 0; }
-
-    .form-label {
-        font-size: 13px;
-        font-weight: 500;
-        color: rgba(255,255,255,0.75);
-        margin-bottom: 7px;
-    }
-
-    .form-control, .form-select {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px;
-        color: #fff;
-        padding: 11px 14px;
-        font-size: 13.5px;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.2s ease;
-    }
-
-    .form-control:focus, .form-select:focus {
-        background: rgba(255,255,255,0.09);
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
-        color: #fff;
-    }
-
-    .form-control::placeholder { color: rgba(255,255,255,0.25); }
-    .form-select option { background: #1a1d27; }
-
-    .form-check-input {
-        background: rgba(255,255,255,0.1);
-        border-color: rgba(255,255,255,0.25);
-    }
-
-    .form-check-input:checked {
-        background-color: #11998e;
-        border-color: #11998e;
-    }
-
-    .form-check-label {
-        color: rgba(255,255,255,0.7);
-        font-size: 13.5px;
-    }
-
-    .field-error {
-        color: #fca5a5;
-        font-size: 11.5px;
-        margin-top: 5px;
-        display: block;
-    }
-
-    .validation-summary {
-        background: rgba(239,68,68,0.12);
-        border: 1px solid rgba(239,68,68,0.25);
-        color: #fca5a5;
-        border-radius: 12px;
-        padding: 14px 16px;
-        font-size: 13px;
-        margin-bottom: 24px;
-    }
-
-    .btn-submit {
-        padding: 12px 32px;
-        background: linear-gradient(135deg, #11998e, #38ef7d);
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.2s ease;
-    }
-
-    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(17,153,142,0.4); }
-
-    .btn-cancel {
-        padding: 12px 24px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px;
-        color: rgba(255,255,255,0.6);
-        font-size: 14px;
-        text-decoration: none;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.2s;
-        display: inline-block;
-    }
-
-    .btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
-</style>
-
-<div class="form-card">
-    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
-
-    <form asp-action="Create" method="post">
-        @Html.AntiForgeryToken()
-
-        <div class="section-title">👤 Thông tin cá nhân</div>
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label asp-for="FullName" class="form-label">Họ và tên *</label>
-                <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
-                <span asp-validation-for="FullName" class="field-error"></span>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Thông tin tài khoản</h5>
             </div>
-            <div class="col-md-6">
-                <label asp-for="Email" class="form-label">Email *</label>
-                <input asp-for="Email" class="form-control" placeholder="email@example.com" />
-                <span asp-validation-for="Email" class="field-error"></span>
+            <div class="card-body">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                    </div>
+                }
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <h6 class="mb-3"><i class="feather icon-user"></i> Thông tin cá nhân</h6>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="FullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="0901234567" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="DateOfBirth" class="form-label">Ngày sinh</label>
+                                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="IdentityCardNumber" class="form-label">Số CCCD/CMND</label>
+                                <input asp-for="IdentityCardNumber" class="form-control" placeholder="001234567890" />
+                                <span asp-validation-for="IdentityCardNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3 mt-4"><i class="feather icon-lock"></i> Đăng nhập & Phân quyền</h6>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                                <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ConfirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                                <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select asp-for="Role" class="form-control">
+                                    @foreach (var role in allRoles)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-group mb-0">
+                                <div class="checkbox checkbox-primary checkbox-fill d-inline">
+                                    <input type="checkbox" asp-for="IsActive" id="isActive" checked="">
+                                    <label for="isActive" class="cr">Kích hoạt tài khoản ngay</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="feather icon-check-circle"></i> Tạo tài khoản</button>
+                        <a asp-action="Index" class="btn btn-light"><i class="feather icon-arrow-left"></i> Quay lại</a>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
-                <input asp-for="PhoneNumber" class="form-control" placeholder="0901234567" />
-                <span asp-validation-for="PhoneNumber" class="field-error"></span>
-            </div>
-            <div class="col-md-6">
-                <label asp-for="DateOfBirth" class="form-label">Ngày sinh</label>
-                <input asp-for="DateOfBirth" class="form-control" type="date" />
-                <span asp-validation-for="DateOfBirth" class="field-error"></span>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="IdentityCardNumber" class="form-label">Số CCCD/CMND</label>
-            <input asp-for="IdentityCardNumber" class="form-control" placeholder="001234567890" />
-            <span asp-validation-for="IdentityCardNumber" class="field-error"></span>
-        </div>
-
-        <div class="section-title">🔐 Đăng nhập & Phân quyền</div>
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label asp-for="Password" class="form-label">Mật khẩu *</label>
-                <input asp-for="Password" class="form-control" placeholder="••••••••" />
-                <span asp-validation-for="Password" class="field-error"></span>
-            </div>
-            <div class="col-md-6">
-                <label asp-for="ConfirmPassword" class="form-label">Xác nhận mật khẩu *</label>
-                <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
-                <span asp-validation-for="ConfirmPassword" class="field-error"></span>
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4">
-            <div class="col-md-6">
-                <label asp-for="Role" class="form-label">Vai trò *</label>
-                <select asp-for="Role" class="form-select">
-                    @foreach (var role in allRoles)
-                    {
-                        <option value="@role">@role</option>
-                    }
-                </select>
-                <span asp-validation-for="Role" class="field-error"></span>
-            </div>
-            <div class="col-md-6 d-flex align-items-end pb-2">
-                <div class="form-check">
-                    <input class="form-check-input" asp-for="IsActive" type="checkbox" id="isActive" />
-                    <label class="form-check-label" for="isActive">✅ Kích hoạt tài khoản ngay</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex gap-3">
-            <button type="submit" class="btn-submit">✅ Tạo tài khoản</button>
-            <a asp-action="Index" class="btn-cancel">← Hủy bỏ</a>
-        </div>
-    </form>
+    </div>
 </div>

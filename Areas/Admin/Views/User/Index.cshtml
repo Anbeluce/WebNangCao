@@ -5,299 +5,150 @@
     var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
 }
 
-<style>
-    .filter-bar {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 18px 20px;
-        margin-bottom: 20px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
+<!-- Custom CSS for Datatables is loaded in layout if needed, but we can rely on standard bootstrap table for now or include the datatable CSS from theme -->
+@section Styles {
+    <!-- data tables css -->
+    <link rel="stylesheet" href="~/plugins/data-tables/css/datatables.min.css">
+}
 
-    .filter-input {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px;
-        color: #fff;
-        padding: 9px 14px;
-        font-size: 13px;
-        flex: 1;
-        min-width: 200px;
-        font-family: 'Inter', sans-serif;
-    }
+<div class="row">
+    <!-- Zero config table start -->
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5>Danh sách người dùng</h5>
+                    <a asp-area="Admin" asp-controller="User" asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="feather icon-plus"></i> Thêm người dùng
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filter form -->
+                <form method="get" asp-action="Index" class="mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Tìm kiếm</label>
+                            <input type="text" name="search" class="form-control" placeholder="Tên, email, SĐT..." value="@ViewBag.Search" />
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Vai trò</label>
+                            <select name="roleFilter" class="form-control">
+                                <option value="">Tất cả</option>
+                                @foreach (var role in allRoles)
+                                {
+                                    <option value="@role" selected="@(ViewBag.RoleFilter == role)">@role</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Trạng thái</label>
+                            <select name="activeFilter" class="form-control">
+                                <option value="">Tất cả</option>
+                                <option value="true" selected="@(ViewBag.ActiveFilter == true)">Hoạt động</option>
+                                <option value="false" selected="@(ViewBag.ActiveFilter == false)">Đã khóa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <button type="submit" class="btn btn-info btn-block"><i class="feather icon-filter"></i> Lọc</button>
+                        </div>
+                    </div>
+                </form>
 
-    .filter-input:focus {
-        outline: none;
-        border-color: var(--accent);
-        background: rgba(255,255,255,0.09);
-    }
-
-    .filter-select {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px;
-        color: #fff;
-        padding: 9px 14px;
-        font-size: 13px;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .filter-select option { background: #1a1d27; }
-
-    .btn-filter {
-        padding: 9px 20px;
-        background: linear-gradient(135deg, var(--accent), var(--accent2));
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .btn-add-user {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 10px 20px;
-        background: linear-gradient(135deg, #11998e, #38ef7d);
-        border-radius: 10px;
-        color: #fff;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .btn-add-user:hover { color: #fff; transform: translateY(-1px); }
-
-    .users-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 6px;
-    }
-
-    .users-table thead th {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.4);
-        padding: 8px 14px;
-        border: none;
-    }
-
-    .users-table tbody tr {
-        background: rgba(255,255,255,0.03);
-        border-radius: 10px;
-        transition: background 0.2s;
-    }
-
-    .users-table tbody tr:hover { background: rgba(255,255,255,0.06); }
-
-    .users-table tbody td {
-        padding: 14px;
-        font-size: 13.5px;
-        color: #e2e8f0;
-        border: none;
-        vertical-align: middle;
-    }
-
-    .users-table tbody td:first-child { border-radius: 10px 0 0 10px; }
-    .users-table tbody td:last-child { border-radius: 0 10px 10px 0; }
-
-    .user-avatar-sm {
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, var(--accent), var(--accent2));
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        margin-right: 10px;
-        flex-shrink: 0;
-    }
-
-    .badge-role {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .badge-Admin { background: rgba(102,126,234,0.2); color: #a5b4fc; border: 1px solid rgba(102,126,234,0.3); }
-    .badge-Staff { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
-    .badge-Resident { background: rgba(17,153,142,0.2); color: #6ee7b7; border: 1px solid rgba(17,153,142,0.3); }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-
-    .status-active { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
-    .status-inactive { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
-
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        font-size: 15px;
-        text-decoration: none;
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s;
-        margin-right: 4px;
-    }
-
-    .action-view { background: rgba(102,126,234,0.15); color: #a5b4fc; }
-    .action-view:hover { background: rgba(102,126,234,0.3); color: #fff; }
-    .action-edit { background: rgba(245,158,11,0.15); color: #fcd34d; }
-    .action-edit:hover { background: rgba(245,158,11,0.3); color: #fff; }
-    .action-toggle { background: rgba(17,153,142,0.15); color: #6ee7b7; }
-    .action-toggle:hover { background: rgba(17,153,142,0.3); color: #fff; }
-    .action-delete { background: rgba(239,68,68,0.15); color: #fca5a5; }
-    .action-delete:hover { background: rgba(239,68,68,0.3); color: #fff; }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: rgba(255,255,255,0.35);
-    }
-
-    .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
-    .empty-state p { font-size: 14px; }
-</style>
-
-<!-- Toolbar -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-    <div style="color:rgba(255,255,255,0.5);font-size:13px;">
-        Tổng: <strong style="color:#fff;">@Model.Count()</strong> người dùng
-    </div>
-    <a asp-area="Admin" asp-controller="User" asp-action="Create" class="btn-add-user">
-        ➕ Thêm người dùng
-    </a>
-</div>
-
-<!-- Filter -->
-<form method="get" asp-action="Index">
-    <div class="filter-bar">
-        <input type="text" name="search" class="filter-input" placeholder="🔍 Tìm kiếm theo tên, email, SĐT..." value="@ViewBag.Search" />
-        <select name="roleFilter" class="filter-select">
-            <option value="">Tất cả vai trò</option>
-            @foreach (var role in allRoles)
-            {
-                <option value="@role" selected="@(ViewBag.RoleFilter == role)">@role</option>
-            }
-        </select>
-        <select name="activeFilter" class="filter-select">
-            <option value="">Tất cả trạng thái</option>
-            <option value="true" selected="@(ViewBag.ActiveFilter == true)">Hoạt động</option>
-            <option value="false" selected="@(ViewBag.ActiveFilter == false)">Đã khóa</option>
-        </select>
-        <button type="submit" class="btn-filter">Lọc</button>
-        <a href="@Url.Action("Index")" style="padding:9px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;">
-            Xóa lọc
-        </a>
-    </div>
-</form>
-
-<!-- Table -->
-<div class="admin-card" style="padding:0;overflow:hidden;">
-    @if (!Model.Any())
-    {
-        <div class="empty-state">
-            <div class="empty-icon">👤</div>
-            <p>Không tìm thấy người dùng nào</p>
-        </div>
-    }
-    else
-    {
-        <div style="overflow-x:auto;padding:20px;">
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>Người dùng</th>
-                        <th>Email</th>
-                        <th>Điện thoại</th>
-                        <th>Vai trò</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in Model)
-                    {
-                        <tr>
-                            <td>
-                                <div style="display:flex;align-items:center;">
-                                    <div class="user-avatar-sm">👤</div>
-                                    <div>
-                                        <div style="font-weight:600;color:#fff;">@user.FullName</div>
-                                        @if (user.IdentityCardNumber != null)
+                <div class="dt-responsive table-responsive">
+                    <table id="simpletable" class="table table-striped table-bordered nowrap">
+                        <thead>
+                            <tr>
+                                <th>Người dùng</th>
+                                <th>Email</th>
+                                <th>Điện thoại</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-inline-block align-middle">
+                                            <div class="d-inline-block">
+                                                <h6 class="m-b-0">@user.FullName</h6>
+                                                @if (user.IdentityCardNumber != null)
+                                                {
+                                                    <p class="m-b-0 text-muted">CCCD: @user.IdentityCardNumber</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@user.Email</td>
+                                    <td>@(user.PhoneNumber ?? "—")</td>
+                                    <td>
+                                        @foreach (var role in user.Roles)
                                         {
-                                            <div style="font-size:11px;color:rgba(255,255,255,0.4);">CCCD: @user.IdentityCardNumber</div>
+                                            var badgeClass = role == "Admin" ? "badge-primary" : role == "Staff" ? "badge-warning" : "badge-success";
+                                            <span class="badge @badgeClass mr-1">@role</span>
                                         }
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="color:rgba(255,255,255,0.7);">@user.Email</td>
-                            <td style="color:rgba(255,255,255,0.7);">@(user.PhoneNumber ?? "—")</td>
-                            <td>
-                                @foreach (var role in user.Roles)
-                                {
-                                    <span class="badge-role badge-@role">@role</span>
-                                }
-                            </td>
-                            <td>
-                                @if (user.IsActive)
-                                {
-                                    <span class="status-badge status-active">● Hoạt động</span>
-                                }
-                                else
-                                {
-                                    <span class="status-badge status-inactive">● Đã khóa</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-action="Details" asp-route-id="@user.Id" class="action-btn action-view" title="Xem chi tiết">👁</a>
-                                <a asp-action="Edit" asp-route-id="@user.Id" class="action-btn action-edit" title="Chỉnh sửa">✏️</a>
+                                    </td>
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge badge-light-success">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-light-danger">Đã khóa</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-icon btn-outline-info btn-sm" title="Xem chi tiết">
+                                            <i class="feather icon-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-icon btn-outline-warning btn-sm" title="Chỉnh sửa">
+                                            <i class="feather icon-edit"></i>
+                                        </a>
 
-                                <form asp-action="ToggleActive" asp-route-id="@user.Id" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="action-btn action-toggle"
-                                            title="@(user.IsActive ? "Khóa tài khoản" : "Mở khóa tài khoản")"
-                                            onclick="return confirm('@(user.IsActive ? "Bạn có chắc muốn khóa tài khoản này?" : "Bạn có chắc muốn mở khóa tài khoản này?")')">
-                                        @(user.IsActive ? "🔒" : "🔓")
-                                    </button>
-                                </form>
+                                        <form asp-action="ToggleActive" asp-route-id="@user.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-icon btn-outline-@(user.IsActive ? "danger" : "success") btn-sm"
+                                                    title="@(user.IsActive ? "Khóa tài khoản" : "Mở khóa tài khoản")"
+                                                    onclick="return confirm('@(user.IsActive ? "Bạn có chắc muốn khóa tài khoản này?" : "Bạn có chắc muốn mở khóa tài khoản này?")')">
+                                                <i class="feather @(user.IsActive ? "icon-lock" : "icon-unlock")"></i>
+                                            </button>
+                                        </form>
 
-                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="action-btn action-delete" title="Xóa"
-                                            onclick="return confirm('Bạn có chắc muốn XÓA tài khoản @user.FullName? Hành động này không thể hoàn tác!')">
-                                        🗑️
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                                        <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-icon btn-outline-danger btn-sm" title="Xóa"
+                                                    onclick="return confirm('Bạn có chắc muốn XÓA tài khoản @user.FullName? Hành động này không thể hoàn tác!')">
+                                                <i class="feather icon-trash-2"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    }
+    </div>
+    <!-- Zero config table end -->
 </div>
+
+@section Scripts {
+    <!-- datatable Js -->
+    <script src="~/plugins/data-tables/js/datatables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#simpletable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+                },
+                "pageLength": 10,
+                "ordering": false // Disable datatables sorting to not mess with backend sorting if any, or keep true
+            });
+        });
+    </script>
+}

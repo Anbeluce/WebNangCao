@@ -3,67 +3,77 @@
     ViewData["Subtitle"] = "Tổng quan hệ thống";
 }
 
-<div class="row g-4 mb-4">
-    <!-- Stats Cards -->
-    <div class="col-md-3">
-        <div style="background:linear-gradient(135deg,rgba(102,126,234,0.2),rgba(118,75,162,0.2));border:1px solid rgba(102,126,234,0.3);border-radius:16px;padding:24px;">
-            <div style="font-size:32px;margin-bottom:12px;">👥</div>
-            <div style="font-size:28px;font-weight:700;color:#fff;">@ViewBag.TotalUsers</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;">Tổng người dùng</div>
+<!-- Stats Cards -->
+<div class="row">
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-blue order-card">
+            <div class="card-body">
+                <h6 class="text-white">Tổng người dùng</h6>
+                <h2 class="text-white">@ViewBag.TotalUsers</h2>
+                <i class="feather icon-users card-icon"></i>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div style="background:linear-gradient(135deg,rgba(17,153,142,0.2),rgba(56,239,125,0.2));border:1px solid rgba(17,153,142,0.3);border-radius:16px;padding:24px;">
-            <div style="font-size:32px;margin-bottom:12px;">✅</div>
-            <div style="font-size:28px;font-weight:700;color:#fff;">@ViewBag.ActiveUsers</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;">Tài khoản hoạt động</div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-green order-card">
+            <div class="card-body">
+                <h6 class="text-white">TK hoạt động</h6>
+                <h2 class="text-white">@ViewBag.ActiveUsers</h2>
+                <i class="feather icon-user-check card-icon"></i>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(252,211,77,0.2));border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:24px;">
-            <div style="font-size:32px;margin-bottom:12px;">🏠</div>
-            <div style="font-size:28px;font-weight:700;color:#fff;">@ViewBag.TotalApartments</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;">Căn hộ</div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-yellow order-card">
+            <div class="card-body">
+                <h6 class="text-white">Căn hộ</h6>
+                <h2 class="text-white">@ViewBag.TotalApartments</h2>
+                <i class="feather icon-home card-icon"></i>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div style="background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(252,165,165,0.2));border:1px solid rgba(239,68,68,0.3);border-radius:16px;padding:24px;">
-            <div style="font-size:32px;margin-bottom:12px;">📄</div>
-            <div style="font-size:28px;font-weight:700;color:#fff;">@ViewBag.TotalInvoices</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;">Hóa đơn</div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-red order-card">
+            <div class="card-body">
+                <h6 class="text-white">Hóa đơn</h6>
+                <h2 class="text-white">@ViewBag.TotalInvoices</h2>
+                <i class="feather icon-file-text card-icon"></i>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="admin-card">
-    <h5 style="font-weight:600;color:#fff;margin-bottom:16px;">⚡ Truy cập nhanh</h5>
-    <div class="row g-3">
-        <div class="col-md-4">
-            <a asp-area="Admin" asp-controller="User" asp-action="Index"
-               style="display:block;background:rgba(102,126,234,0.1);border:1px solid rgba(102,126,234,0.2);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s ease;"
-               onmouseover="this.style.background='rgba(102,126,234,0.2)'" onmouseout="this.style.background='rgba(102,126,234,0.1)'">
-                <div style="font-size:24px;margin-bottom:8px;">👥</div>
-                <div style="color:#fff;font-weight:600;font-size:14px;">Quản lý người dùng</div>
-                <div style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:4px;">Xem và quản lý tài khoản</div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a asp-area="Admin" asp-controller="User" asp-action="Create"
-               style="display:block;background:rgba(17,153,142,0.1);border:1px solid rgba(17,153,142,0.2);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s ease;"
-               onmouseover="this.style.background='rgba(17,153,142,0.2)'" onmouseout="this.style.background='rgba(17,153,142,0.1)'">
-                <div style="font-size:24px;margin-bottom:8px;">➕</div>
-                <div style="color:#fff;font-weight:600;font-size:14px;">Thêm người dùng</div>
-                <div style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:4px;">Tạo tài khoản mới</div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a asp-area="Admin" asp-controller="Apartment" asp-action="Index"
-               style="display:block;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s ease;"
-               onmouseover="this.style.background='rgba(245,158,11,0.2)'" onmouseout="this.style.background='rgba(245,158,11,0.1)'">
-                <div style="font-size:24px;margin-bottom:8px;">🏠</div>
-                <div style="color:#fff;font-weight:600;font-size:14px;">Quản lý căn hộ</div>
-                <div style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:4px;">Xem danh sách căn hộ</div>
-            </a>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>⚡ Truy cập nhanh</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4 mb-3">
+                        <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-outline-primary btn-block text-left p-3">
+                            <i class="feather icon-users text-primary f-24 d-block mb-2"></i>
+                            <span class="d-block font-weight-bold f-16 text-body">Quản lý người dùng</span>
+                            <span class="d-block text-muted mt-1 f-12">Xem và quản lý tài khoản</span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a asp-area="Admin" asp-controller="User" asp-action="Create" class="btn btn-outline-success btn-block text-left p-3">
+                            <i class="feather icon-user-plus text-success f-24 d-block mb-2"></i>
+                            <span class="d-block font-weight-bold f-16 text-body">Thêm người dùng</span>
+                            <span class="d-block text-muted mt-1 f-12">Tạo tài khoản mới</span>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a asp-area="Admin" asp-controller="Apartment" asp-action="Index" class="btn btn-outline-warning btn-block text-left p-3">
+                            <i class="feather icon-home text-warning f-24 d-block mb-2"></i>
+                            <span class="d-block font-weight-bold f-16 text-body">Quản lý căn hộ</span>
+                            <span class="d-block text-muted mt-1 f-12">Xem danh sách căn hộ</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

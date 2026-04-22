@@ -3,65 +3,86 @@
     ViewData["Title"] = $"Hóa đơn căn hộ {ViewBag.ApartmentNumber}";
 }
 
-<div style="margin-bottom:20px;">
-    <a asp-action="Index" style="color:rgba(255,255,255,0.5); text-decoration:none; font-size:13px;">← Quay lại tài khoản</a>
-</div>
-
-<div style="margin-bottom:24px;">
-    <h2 style="font-size:22px; font-weight:700; color:#fff; margin:0;">📄 Hóa đơn căn hộ @ViewBag.ApartmentNumber</h2>
-    <p style="font-size:13px; color:rgba(255,255,255,0.45); margin:4px 0 0;">Tổng cộng @Model.Count hóa đơn</p>
+<div class="row mb-3">
+    <div class="col-sm-12">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="feather icon-arrow-left"></i> Quay lại tài khoản
+        </a>
+        <h2 class="mb-2">📄 Hóa đơn căn hộ @ViewBag.ApartmentNumber</h2>
+        <p class="text-muted">Tổng cộng @Model.Count hóa đơn</p>
+    </div>
 </div>
 
 @if (!Model.Any())
 {
-    <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:40px; text-align:center;">
-        <div style="font-size:48px; margin-bottom:12px;">📄</div>
-        <p style="color:rgba(255,255,255,0.5);">Chưa có hóa đơn nào cho căn hộ này.</p>
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <i class="feather icon-file-text display-3 text-muted mb-3 d-block"></i>
+                    <h5 class="text-muted">Chưa có hóa đơn nào cho căn hộ này.</h5>
+                </div>
+            </div>
+        </div>
     </div>
 }
 else
 {
-    <div style="display:flex; flex-direction:column; gap:12px;">
+    <div class="row">
         @foreach (var inv in Model)
         {
-            var sColor = inv.Status == WebNangCao.Models.InvoiceStatus.Paid ? "#4ade80" : inv.Status == WebNangCao.Models.InvoiceStatus.Partial ? "#fbbf24" : "#f87171";
-            var sBg = inv.Status == WebNangCao.Models.InvoiceStatus.Paid ? "rgba(74,222,128,0.12)" : inv.Status == WebNangCao.Models.InvoiceStatus.Partial ? "rgba(251,191,36,0.12)" : "rgba(248,113,113,0.12)";
+            var sColorClass = inv.Status == WebNangCao.Models.InvoiceStatus.Paid ? "text-success" : inv.Status == WebNangCao.Models.InvoiceStatus.Partial ? "text-warning" : "text-danger";
+            var sBgClass = inv.Status == WebNangCao.Models.InvoiceStatus.Paid ? "badge-light-success" : inv.Status == WebNangCao.Models.InvoiceStatus.Partial ? "badge-light-warning" : "badge-light-danger";
             var sTxt = inv.Status == WebNangCao.Models.InvoiceStatus.Paid ? "Đã thanh toán" : inv.Status == WebNangCao.Models.InvoiceStatus.Partial ? "Một phần" : "Chưa thanh toán";
 
-            <div style="background:var(--card-bg, #1a1d27); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px; transition:border-color 0.2s;"
-                 onmouseover="this.style.borderColor='rgba(102,126,234,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                    <div style="display:flex; align-items:center; gap:14px;">
-                        <div style="background:linear-gradient(135deg,#667eea,#764ba2); width:46px; height:46px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                            <div style="font-size:14px; font-weight:700; color:#fff; line-height:1;">@inv.Month</div>
-                            <div style="font-size:9px; color:rgba(255,255,255,0.7);">@inv.Year</div>
+            <div class="col-sm-12">
+                <div class="card mb-3">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <!-- Tháng/Năm & Hạn -->
+                            <div class="col-md-3 col-sm-6 mb-2 mb-md-0 d-flex align-items-center">
+                                <div class="bg-primary text-white d-inline-flex flex-column align-items-center justify-content-center rounded mr-3" style="width: 50px; height: 50px;">
+                                    <span class="f-16 font-weight-bold">@inv.Month</span>
+                                    <span class="f-10">@inv.Year</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Tháng @inv.Month/@inv.Year</h6>
+                                    <small class="text-muted">Hạn: @inv.DueDate.ToString("dd/MM/yyyy")</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Chi tiết điện, nước, DV -->
+                            <div class="col-md-5 col-sm-6 mb-2 mb-md-0">
+                                <div class="row text-center">
+                                    <div class="col-4 border-right">
+                                        <small class="text-muted d-block">⚡ Điện (@inv.ElectricityUsage kWh)</small>
+                                        <span class="font-weight-bold text-warning">@inv.ElectricityFee.ToString("N0")đ</span>
+                                    </div>
+                                    <div class="col-4 border-right">
+                                        <small class="text-muted d-block">💧 Nước (@inv.WaterUsage m³)</small>
+                                        <span class="font-weight-bold text-info">@inv.WaterFee.ToString("N0")đ</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">🏢 Phí DV</small>
+                                        <span class="font-weight-bold" style="color: #a78bfa;">@inv.ServiceFee.ToString("N0")đ</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tổng tiền & Trạng thái -->
+                            <div class="col-md-4 col-sm-12 text-md-right text-center d-flex align-items-center justify-content-md-end justify-content-between">
+                                <div class="mr-3 text-left text-md-right">
+                                    <small class="text-muted d-block">Tổng cộng</small>
+                                    <h5 class="mb-0">@inv.TotalAmount.ToString("N0")đ</h5>
+                                </div>
+                                <div class="mr-3">
+                                    <span class="badge @sBgClass">@sTxt</span>
+                                </div>
+                                <div>
+                                    <a asp-action="InvoiceDetail" asp-route-id="@inv.Id" class="btn btn-outline-secondary btn-sm">Chi tiết <i class="feather icon-arrow-right"></i></a>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-size:15px; font-weight:600; color:#fff;">Tháng @inv.Month/@inv.Year</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.4);">Hạn: @inv.DueDate.ToString("dd/MM/yyyy")</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:20px; font-size:13px;">
-                        <div style="text-align:center;">
-                            <div style="color:rgba(255,255,255,0.4); font-size:11px;">⚡ Điện (@inv.ElectricityUsage kWh)</div>
-                            <div style="color:#fbbf24; font-weight:600;">@inv.ElectricityFee.ToString("N0")đ</div>
-                        </div>
-                        <div style="text-align:center;">
-                            <div style="color:rgba(255,255,255,0.4); font-size:11px;">💧 Nước (@inv.WaterUsage m³)</div>
-                            <div style="color:#60a5fa; font-weight:600;">@inv.WaterFee.ToString("N0")đ</div>
-                        </div>
-                        <div style="text-align:center;">
-                            <div style="color:rgba(255,255,255,0.4); font-size:11px;">🏢 Phí DV</div>
-                            <div style="color:#a78bfa; font-weight:600;">@inv.ServiceFee.ToString("N0")đ</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:16px;">
-                        <div style="text-align:right;">
-                            <div style="font-size:11px; color:rgba(255,255,255,0.4);">Tổng cộng</div>
-                            <div style="font-size:18px; font-weight:700; color:#fff;">@inv.TotalAmount.ToString("N0")đ</div>
-                        </div>
-                        <span style="padding:5px 12px; background:@sBg; color:@sColor; border-radius:20px; font-size:12px; font-weight:600;">@sTxt</span>
-                        <a asp-action="InvoiceDetail" asp-route-id="@inv.Id" style="padding:7px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:rgba(255,255,255,0.7); text-decoration:none; font-size:12px;">Chi tiết →</a>
                     </div>
                 </div>
             </div>

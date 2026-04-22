@@ -4,110 +4,142 @@
     ViewData["Subtitle"] = $"Chỉnh sửa hóa đơn T{Model.Month}/{Model.Year} - {Model.ApartmentNumber}";
 }
 
-<div style="max-width:650px;">
-    <div class="admin-card">
-        <h3 style="margin:0 0 6px; font-size:16px; font-weight:600; color:#fff;">📄 Sửa hóa đơn</h3>
-        <p style="font-size:13px; color:rgba(255,255,255,0.45); margin:0 0 20px;">Căn hộ: <strong style="color:#fff;">@Model.ApartmentNumber</strong></p>
-        <div asp-validation-summary="All" style="color:#f87171; font-size:13px; margin-bottom:14px;"></div>
-
-        <form asp-action="Edit" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="ApartmentId" />
-            <input type="hidden" asp-for="ApartmentNumber" />
-
-            <div style="display:flex; gap:16px; margin-bottom:16px;">
-                <div style="flex:1;">
-                    <label asp-for="Month" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
-                    <select asp-for="Month" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;">
-                        @for (int m = 1; m <= 12; m++){<option value="@m">Tháng @m</option>}
-                    </select>
-                </div>
-                <div style="flex:1;">
-                    <label asp-for="Year" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
-                    <input asp-for="Year" type="number" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
-                </div>
+<div class="row">
+    <div class="col-sm-12 col-md-10 col-xl-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Cập nhật hóa đơn</h5>
+                <span class="d-block m-t-5 text-muted">Căn hộ: <strong>@Model.ApartmentNumber</strong></span>
             </div>
-
-            <!-- Điện -->
-            <div style="background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15); border-radius:12px; padding:16px; margin-bottom:16px;">
-                <div style="font-size:14px; font-weight:600; color:#fbbf24; margin-bottom:12px;">⚡ Tiền điện</div>
-                <div style="display:flex; gap:12px; align-items:flex-end;">
-                    <div style="flex:1;">
-                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Số kWh</label>
-                        <input asp-for="ElectricityUsage" type="number" step="0.1" id="elecUsage" oninput="calcTotal()"
-                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; width:100%;" />
+            <div class="card-body">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <div asp-validation-summary="ModelOnly" class="mb-0"></div>
                     </div>
-                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">×</div>
-                    <div style="flex:1;">
-                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Đơn giá</label>
-                        <input asp-for="ElectricityUnitPrice" type="number" step="100" id="elecPrice" oninput="calcTotal()"
-                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; width:100%;" />
-                    </div>
-                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">=</div>
-                    <div style="min-width:110px; text-align:right; padding-bottom:8px;">
-                        <div style="font-size:11px; color:rgba(255,255,255,0.4);">Thành tiền</div>
-                        <div id="elecFee" style="font-size:16px; font-weight:700; color:#fbbf24;">0đ</div>
-                    </div>
-                </div>
-            </div>
+                }
 
-            <!-- Nước -->
-            <div style="background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:12px; padding:16px; margin-bottom:16px;">
-                <div style="font-size:14px; font-weight:600; color:#60a5fa; margin-bottom:12px;">💧 Tiền nước</div>
-                <div style="display:flex; gap:12px; align-items:flex-end;">
-                    <div style="flex:1;">
-                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Số m³</label>
-                        <input asp-for="WaterUsage" type="number" step="0.1" id="waterUsage" oninput="calcTotal()"
-                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; width:100%;" />
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ApartmentId" />
+                    <input type="hidden" asp-for="ApartmentNumber" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Month" class="form-label">Tháng <span class="text-danger">*</span></label>
+                                <select asp-for="Month" class="form-control">
+                                    @for (int m = 1; m <= 12; m++){<option value="@m">Tháng @m</option>}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Year" class="form-label">Năm <span class="text-danger">*</span></label>
+                                <input asp-for="Year" type="number" class="form-control" />
+                            </div>
+                        </div>
                     </div>
-                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">×</div>
-                    <div style="flex:1;">
-                        <label style="display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Đơn giá</label>
-                        <input asp-for="WaterUnitPrice" type="number" step="100" id="waterPrice" oninput="calcTotal()"
-                               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:9px 12px; width:100%;" />
+
+                    <!-- Điện -->
+                    <h6 class="mt-4 mb-3 text-warning"><i class="feather icon-zap"></i> Tiền điện</h6>
+                    <div class="row align-items-end mb-4">
+                        <div class="col-md-4">
+                            <div class="form-group mb-md-0">
+                                <label class="form-label">Số kWh tiêu thụ</label>
+                                <input asp-for="ElectricityUsage" type="number" step="0.1" id="elecUsage" oninput="calcTotal()" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center d-none d-md-block">
+                            <span class="f-20 text-muted">×</span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-md-0">
+                                <label class="form-label">Đơn giá (đ/kWh)</label>
+                                <input asp-for="ElectricityUnitPrice" type="number" step="100" id="elecPrice" oninput="calcTotal()" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center d-none d-md-block">
+                            <span class="f-20 text-muted">=</span>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <small class="text-muted d-block">Thành tiền</small>
+                            <span id="elecFee" class="f-18 font-weight-bold text-warning">0đ</span>
+                        </div>
                     </div>
-                    <div style="font-size:18px; color:rgba(255,255,255,0.3); padding-bottom:10px;">=</div>
-                    <div style="min-width:110px; text-align:right; padding-bottom:8px;">
-                        <div style="font-size:11px; color:rgba(255,255,255,0.4);">Thành tiền</div>
-                        <div id="waterFee" style="font-size:16px; font-weight:700; color:#60a5fa;">0đ</div>
+
+                    <!-- Nước -->
+                    <h6 class="mt-4 mb-3 text-info"><i class="feather icon-droplet"></i> Tiền nước</h6>
+                    <div class="row align-items-end mb-4">
+                        <div class="col-md-4">
+                            <div class="form-group mb-md-0">
+                                <label class="form-label">Số m³ tiêu thụ</label>
+                                <input asp-for="WaterUsage" type="number" step="0.1" id="waterUsage" oninput="calcTotal()" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center d-none d-md-block">
+                            <span class="f-20 text-muted">×</span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-md-0">
+                                <label class="form-label">Đơn giá (đ/m³)</label>
+                                <input asp-for="WaterUnitPrice" type="number" step="100" id="waterPrice" oninput="calcTotal()" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center d-none d-md-block">
+                            <span class="f-20 text-muted">=</span>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <small class="text-muted d-block">Thành tiền</small>
+                            <span id="waterFee" class="f-18 font-weight-bold text-info">0đ</span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Phí dịch vụ -->
-            <div style="margin-bottom:16px;">
-                <label style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;">🏢 Phí dịch vụ (VNĐ)</label>
-                <input asp-for="ServiceFee" type="number" step="1000" id="serviceFee" oninput="calcTotal()"
-                       style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; font-size:14px; width:100%;" />
-            </div>
+                    <hr>
 
-            <div style="display:flex; gap:16px; margin-bottom:16px;">
-                <div style="flex:1;">
-                    <label asp-for="DueDate" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
-                    <input asp-for="DueDate" type="date" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; width:100%;" />
-                </div>
-                <div style="flex:1;">
-                    <label asp-for="Status" style="display:block; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:6px;"></label>
-                    <select asp-for="Status" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:10px 14px; width:100%;">
-                        <option value="0">❌ Chưa thanh toán</option>
-                        <option value="1">⏳ Một phần</option>
-                        <option value="2">✅ Đã thanh toán</option>
-                    </select>
-                </div>
-            </div>
+                    <!-- Phí dịch vụ & Trạng thái -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="ServiceFee" class="form-label">Phí dịch vụ (VNĐ)</label>
+                                <input asp-for="ServiceFee" type="number" step="1000" id="serviceFee" oninput="calcTotal()" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="DueDate" class="form-label">Hạn thanh toán</label>
+                                <input asp-for="DueDate" type="date" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Status" class="form-label">Trạng thái thanh toán</label>
+                                <select asp-for="Status" class="form-control">
+                                    <option value="0">Chưa thanh toán</option>
+                                    <option value="1">Một phần</option>
+                                    <option value="2">Đã thanh toán</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Tổng cộng -->
-            <div style="background:rgba(102,126,234,0.08); border:1px solid rgba(102,126,234,0.2); border-radius:10px; padding:16px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:15px; font-weight:600; color:rgba(255,255,255,0.7);">💰 Tổng cộng</span>
-                <span id="totalAmount" style="font-size:22px; font-weight:700; color:#fff;">0đ</span>
-            </div>
+                    <!-- Tổng cộng -->
+                    <div class="alert alert-primary mt-3 d-flex justify-content-between align-items-center">
+                        <span class="f-16 font-weight-bold">Tổng cộng:</span>
+                        <span id="totalAmount" class="f-24 font-weight-bold">0đ</span>
+                    </div>
 
-            <div style="display:flex; gap:12px;">
-                <button type="submit" style="padding:10px 24px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">💾 Cập nhật</button>
-                <a asp-action="Index" style="padding:10px 24px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; text-decoration:none; font-size:14px;">← Quay lại</a>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-warning text-dark"><i class="feather icon-save"></i> Cập nhật hóa đơn</button>
+                        <a asp-action="Index" class="btn btn-light"><i class="feather icon-arrow-left"></i> Quay lại</a>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -125,6 +157,6 @@
             document.getElementById('waterFee').textContent = wf.toLocaleString('vi-VN') + 'đ';
             document.getElementById('totalAmount').textContent = (ef + wf + sf).toLocaleString('vi-VN') + 'đ';
         }
-        calcTotal();
+        calcTotal(); // Run once on load
     </script>
 }
