@@ -228,16 +228,20 @@ namespace WebNangCao.Controllers
             return RedirectToAction(nameof(Profile));
         }
 
+        // GET: /Resident/ChangePassword
+        public IActionResult ChangePassword()
+        {
+            return View(new ChangePasswordVM());
+        }
+
         // POST: /Resident/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword([Bind(Prefix = "ChangePassword")] ChangePasswordVM model)
+        public async Task<IActionResult> ChangePassword(ChangePasswordVM model)
         {
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Vui lòng kiểm tra lại thông tin mật khẩu.";
-                TempData["ShowPasswordForm"] = true;
-                return RedirectToAction(nameof(Profile));
+                return View(model);
             }
 
             var user = await _userManager.GetUserAsync(User);
@@ -248,15 +252,16 @@ namespace WebNangCao.Controllers
             {
                 await _signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
+                return RedirectToAction(nameof(Profile));
             }
             else
             {
-                TempData["ErrorMessage"] = string.Join(", ", result.Errors.Select(e =>
-                    e.Code == "PasswordMismatch" ? "Mật khẩu hiện tại không đúng." : e.Description));
-                TempData["ShowPasswordForm"] = true;
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Code == "PasswordMismatch" ? "Mật khẩu hiện tại không đúng." : error.Description);
+                }
+                return View(model);
             }
-
-            return RedirectToAction(nameof(Profile));
         }
     }
 }

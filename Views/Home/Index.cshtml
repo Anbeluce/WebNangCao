@@ -1,8 +1,527 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ";
+    Layout = null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <title>Chung cư Smart - Hệ thống quản lý chung cư thông minh</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Hệ thống quản lý chung cư thông minh">
+
+    <!-- Favicon icon -->
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+    <!-- fontawesome icon -->
+    <link rel="stylesheet" href="~/fonts/fontawesome/css/fontawesome-all.min.css">
+    <!-- animation css -->
+    <link rel="stylesheet" href="~/plugins/animation/css/animate.min.css">
+    <!-- vendor css -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== Reset ===== */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif !important;
+            margin: 0; padding: 0;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            background: #f4f7fa;
+        }
+
+        /* ===== Navbar ===== */
+        .lp-navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 65px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 1000;
+            border-bottom: 1px solid #e8e8e8;
+            transition: box-shadow 0.3s;
+        }
+        .lp-navbar.scrolled {
+            box-shadow: 0 1px 5px 0 rgba(96,96,96,0.3);
+        }
+        .lp-navbar .brand {
+            display: flex; align-items: center;
+            text-decoration: none; gap: 10px;
+        }
+        .lp-navbar .brand-icon {
+            width: 36px; height: 36px;
+            background: #04a9f5;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 16px;
+        }
+        .lp-navbar .brand-text {
+            font-size: 1.15rem; font-weight: 700; color: #111;
+        }
+        .lp-navbar .nav-links {
+            display: flex; align-items: center; gap: 0;
+            list-style: none; margin: 0; padding: 0;
+        }
+        .lp-navbar .nav-links a {
+            color: #666; text-decoration: none;
+            padding: 10px 16px;
+            font-weight: 600; font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .lp-navbar .nav-links a:hover { color: #04a9f5; }
+        .lp-navbar .auth-btns { display: flex; gap: 8px; }
+        .lp-navbar .btn-login {
+            padding: 8px 20px; border: 2px solid #04a9f5; color: #04a9f5;
+            font-weight: 600; text-decoration: none; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .lp-navbar .btn-login:hover { background: #04a9f5; color: #fff; }
+        .lp-navbar .btn-register {
+            padding: 8px 20px; background: #04a9f5; color: #fff;
+            font-weight: 600; text-decoration: none; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 1px;
+            border: 2px solid #04a9f5;
+            transition: all 0.2s;
+        }
+        .lp-navbar .btn-register:hover {
+            background: transparent; color: #04a9f5;
+        }
+
+        /* ===== Hero Section ===== */
+        .hero-section {
+            background: #f4f7fa;
+            padding: 160px 0 80px;
+            text-align: center;
+        }
+        .hero-section h1 {
+            font-size: 2.6rem; font-weight: 600; color: #111;
+            margin-bottom: 18px; letter-spacing: -1px; line-height: 1.3;
+        }
+        .hero-section p {
+            font-size: 1rem; color: #666;
+            max-width: 580px; margin: 0 auto 35px;
+            line-height: 1.6; letter-spacing: 0.5px;
+        }
+        .hero-btns { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .hero-btns a {
+            padding: 0 21px; font-weight: 400;
+            font-size: 0.75rem; text-decoration: none;
+            text-transform: uppercase; letter-spacing: 1px;
+            line-height: 3; display: inline-block;
+            transition: all 0.2s;
+        }
+        .btn-hero-primary {
+            background: #04a9f5; color: #fff;
+            border: 2px solid #04a9f5;
+        }
+        .btn-hero-primary:hover {
+            background: transparent; color: #04a9f5;
+        }
+        .btn-hero-outline {
+            background: transparent; color: #04a9f5;
+            border: 2px solid #04a9f5;
+        }
+        .btn-hero-outline:hover {
+            background: #04a9f5; color: #fff;
+        }
+
+        /* ===== Services Section ===== */
+        .services-section {
+            background: #fff; padding: 80px 0; text-align: center;
+        }
+        .section-header { margin-bottom: 50px; }
+        .section-header h2 {
+            font-size: 1.5rem; font-weight: 600; color: #111;
+            margin-bottom: 10px; letter-spacing: 0;
+        }
+        .section-header p {
+            font-size: 0.9rem; color: #666; max-width: 550px;
+            margin: 0 auto; line-height: 1.6; letter-spacing: 0.5px;
+        }
+        .service-card {
+            padding: 30px 20px;
+            transition: all 0.3s; margin-bottom: 30px;
+        }
+        .service-icon {
+            width: 80px; height: 80px;
+            border: 2px solid transparent;
+            background: #f6f6f6;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 20px;
+            color: #04a9f5;
+            transition: border-color 0.3s;
+        }
+        .service-card:hover .service-icon {
+            border-color: #04a9f5;
+        }
+        .service-card h5 {
+            font-size: 1rem; font-weight: 600; color: #111;
+            margin-bottom: 10px;
+        }
+        .service-card p {
+            font-size: 0.85rem; color: #666; line-height: 1.6;
+            letter-spacing: 0.5px; margin: 0;
+        }
+
+        /* ===== Feature Split ===== */
+        .feature-section {
+            background: #f4f7fa; padding: 60px 0 30px;
+        }
+        .feature-row {
+            display: flex; align-items: center; gap: 40px;
+            margin-bottom: 50px; flex-wrap: wrap;
+        }
+        .feature-row:last-child { margin-bottom: 0; }
+        .feature-row.reverse { flex-direction: row-reverse; }
+        .feature-img, .feature-text { flex: 1; min-width: 280px; }
+        .feature-img {
+            background: #e8edf2;
+            padding: 40px;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 260px; font-size: 72px;
+        }
+        .feature-text h3 {
+            font-size: 1.4rem; font-weight: 600; color: #111;
+            margin-bottom: 12px; line-height: 1.5;
+        }
+        .feature-text p {
+            font-size: 0.9rem; color: #666; line-height: 1.6;
+            letter-spacing: 0.5px; margin-bottom: 15px;
+        }
+        .feature-text ul {
+            list-style: none; padding: 0; margin: 0 0 20px;
+        }
+        .feature-text ul li {
+            font-size: 0.85rem; color: #111; line-height: 2;
+        }
+        .feature-text ul li i { color: #04a9f5; margin-right: 10px; }
+        .feature-text .btn-action {
+            background: #04a9f5; border: 2px solid #04a9f5; color: #fff;
+            padding: 0 21px; font-size: 0.75rem; font-weight: 400;
+            letter-spacing: 1px; line-height: 3; text-transform: uppercase;
+            text-decoration: none; display: inline-block;
+            transition: all 0.2s;
+        }
+        .feature-text .btn-action:hover {
+            background: transparent; color: #04a9f5;
+        }
+
+        /* ===== Counter Section ===== */
+        .counter-section {
+            background: #04a9f5;
+            padding: 50px 0; text-align: center;
+        }
+        .counter-item { padding: 15px 0; }
+        .counter-item .counter-icon {
+            font-size: 32px; color: #fff; margin-bottom: 10px;
+        }
+        .counter-item h3 {
+            font-size: 2rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+        }
+        .counter-item p {
+            font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 400;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        /* ===== CTA Section ===== */
+        .cta-section {
+            background: #f4f7fa; padding: 70px 0; text-align: center;
+        }
+        .cta-section h2 {
+            font-size: 1.5rem; font-weight: 600; color: #111; margin-bottom: 12px;
+        }
+        .cta-section p {
+            font-size: 0.9rem; color: #666; margin-bottom: 30px;
+            max-width: 500px; margin-left: auto; margin-right: auto;
+            line-height: 1.6; letter-spacing: 0.5px;
+        }
+        .cta-btns { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .cta-btns a {
+            padding: 0 21px; font-weight: 400;
+            font-size: 0.75rem; text-decoration: none;
+            text-transform: uppercase; letter-spacing: 1px;
+            line-height: 3; display: inline-block;
+            transition: all 0.2s;
+        }
+        .btn-cta-primary {
+            background: #04a9f5; color: #fff; border: 2px solid #04a9f5;
+        }
+        .btn-cta-primary:hover { background: transparent; color: #04a9f5; }
+        .btn-cta-outline {
+            border: 2px solid #04a9f5; color: #04a9f5; background: transparent;
+        }
+        .btn-cta-outline:hover { background: #04a9f5; color: #fff; }
+
+        /* ===== Footer ===== */
+        .lp-footer {
+            background: #2c3e50; padding: 35px 0; text-align: center;
+        }
+        .lp-footer .footer-brand {
+            font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .lp-footer .footer-brand .f-icon {
+            width: 30px; height: 30px;
+            background: #04a9f5;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px;
+        }
+        .footer-links { margin: 15px 0; }
+        .footer-links a {
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            margin: 0 12px; font-size: 0.8rem; transition: color 0.2s;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .footer-links a:hover { color: #fff; }
+        .footer-copy {
+            color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 12px;
+        }
+
+        /* ===== Responsive ===== */
+        @@media (max-width: 768px) {
+            .lp-navbar { padding: 0 15px; }
+            .lp-navbar .nav-links { display: none; }
+            .hero-section { padding: 130px 0 60px; }
+            .hero-section h1 { font-size: 1.8rem; }
+            .feature-row, .feature-row.reverse { flex-direction: column; }
+            .feature-img { min-height: 180px; font-size: 56px; padding: 30px; }
+        }
+
+        /* ===== Scroll animation ===== */
+        .fade-up {
+            opacity: 0; transform: translateY(25px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Navbar ===== -->
+    <div class="lp-navbar" id="lp-navbar">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="brand">
+            <div class="brand-icon"><i class="feather icon-home"></i></div>
+            <span class="brand-text">Chung cư Smart</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#main">Trang chủ</a></li>
+            <li><a href="#services">Tiện ích</a></li>
+            <li><a href="#features">Đặc điểm</a></li>
+            <li><a asp-area="" asp-controller="Blog" asp-action="Index">Tin tức</a></li>
+        </ul>
+        <div class="auth-btns">
+            <a asp-area="" asp-controller="Auth" asp-action="Login" class="btn-login">Đăng nhập</a>
+            <a asp-area="" asp-controller="Auth" asp-action="Register" class="btn-register">Đăng ký</a>
+        </div>
+    </div>
+
+    <!-- ===== Hero ===== -->
+    <div class="hero-section" id="main">
+        <div class="container">
+            <h1 class="fade-up">Chung cư Smart</h1>
+            <p class="fade-up">Hệ thống quản lý chung cư thông minh — kết nối cư dân, minh bạch hóa đơn, cập nhật tin tức nhanh chóng và tiện lợi.</p>
+            <div class="hero-btns fade-up">
+                <a asp-area="" asp-controller="Auth" asp-action="Register" class="btn-hero-primary">Đăng ký cư dân</a>
+                <a href="#services" class="btn-hero-outline">Tìm hiểu thêm</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Services ===== -->
+    <div class="services-section" id="services">
+        <div class="container">
+            <div class="section-header fade-up">
+                <h2>Tiện ích nổi bật dành cho cư dân</h2>
+                <p>Chung cư Smart mang đến trải nghiệm sống hiện đại với các tiện ích quản lý thông minh, giúp cư dân dễ dàng theo dõi mọi thông tin.</p>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 fade-up">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="feather icon-clipboard"></i></div>
+                        <h5>Quản lý hóa đơn</h5>
+                        <p>Theo dõi hóa đơn điện, nước, phí quản lý hàng tháng. Thanh toán nhanh chóng, minh bạch và chính xác.</p>
+                    </div>
+                </div>
+                <div class="col-sm-4 fade-up">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="feather icon-file-text"></i></div>
+                        <h5>Tin tức & Thông báo</h5>
+                        <p>Cập nhật nhanh các thông báo từ Ban quản lý, lịch bảo trì, sự kiện cộng đồng và các hoạt động nội khu.</p>
+                    </div>
+                </div>
+                <div class="col-sm-4 fade-up">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="feather icon-shield"></i></div>
+                        <h5>An ninh 24/7</h5>
+                        <p>Hệ thống camera giám sát, bảo vệ trực 24/7, đảm bảo an toàn tuyệt đối cho cư dân và tài sản.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Features ===== -->
+    <div class="feature-section" id="features">
+        <div class="container">
+            <div class="feature-row fade-up">
+                <div class="feature-img">🏢</div>
+                <div class="feature-text">
+                    <h3>Thiết kế hiện đại, sang trọng</h3>
+                    <p>Chung cư Smart được thiết kế theo phong cách hiện đại với vật liệu cao cấp, tối ưu hóa ánh sáng tự nhiên và không gian sống.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Căn hộ từ 1 - 3 phòng ngủ linh hoạt</li>
+                        <li><i class="fas fa-check-circle"></i> Ban công rộng, view thoáng mát</li>
+                        <li><i class="fas fa-check-circle"></i> Hệ thống thông gió và chiếu sáng thông minh</li>
+                    </ul>
+                    <a href="#services" class="btn-action">Tìm hiểu thêm</a>
+                </div>
+            </div>
+            <div class="feature-row reverse fade-up">
+                <div class="feature-img">📱</div>
+                <div class="feature-text">
+                    <h3>Quản lý trực tuyến tiện lợi</h3>
+                    <p>Cư dân có thể tra cứu hóa đơn, theo dõi lịch sử thanh toán, cập nhật thông tin cá nhân và nhận thông báo mọi lúc mọi nơi.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Xem và thanh toán hóa đơn online</li>
+                        <li><i class="fas fa-check-circle"></i> Nhận thông báo từ Ban quản lý</li>
+                        <li><i class="fas fa-check-circle"></i> Quản lý hồ sơ cá nhân bảo mật</li>
+                    </ul>
+                    <a href="#services" class="btn-action">Tìm hiểu thêm</a>
+                </div>
+            </div>
+            <div class="feature-row fade-up">
+                <div class="feature-img">🏊</div>
+                <div class="feature-text">
+                    <h3>Tiện ích nội khu đầy đủ</h3>
+                    <p>Hệ thống tiện ích nội khu đẳng cấp phục vụ nhu cầu sinh hoạt, giải trí và rèn luyện sức khỏe cho mọi lứa tuổi.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Hồ bơi, phòng gym, công viên cây xanh</li>
+                        <li><i class="fas fa-check-circle"></i> Khu vui chơi trẻ em, sân BBQ</li>
+                        <li><i class="fas fa-check-circle"></i> Trung tâm thương mại, siêu thị tiện lợi</li>
+                    </ul>
+                    <a href="#services" class="btn-action">Tìm hiểu thêm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Counter ===== -->
+    <div class="counter-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="counter-item fade-up">
+                        <div class="counter-icon"><i class="feather icon-home"></i></div>
+                        <h3>500+</h3>
+                        <p>Căn hộ</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="counter-item fade-up">
+                        <div class="counter-icon"><i class="feather icon-users"></i></div>
+                        <h3>1200+</h3>
+                        <p>Cư dân</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="counter-item fade-up">
+                        <div class="counter-icon"><i class="feather icon-shield"></i></div>
+                        <h3>24/7</h3>
+                        <p>An ninh</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="counter-item fade-up">
+                        <div class="counter-icon"><i class="feather icon-star"></i></div>
+                        <h3>15+</h3>
+                        <p>Tiện ích</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div class="cta-section">
+        <div class="container">
+            <h2 class="fade-up">Sẵn sàng trở thành cư dân Smart?</h2>
+            <p class="fade-up">Đăng ký tài khoản ngay hôm nay để trải nghiệm hệ thống quản lý chung cư thông minh, tiện lợi.</p>
+            <div class="cta-btns fade-up">
+                <a asp-area="" asp-controller="Auth" asp-action="Register" class="btn-cta-primary">Đăng ký ngay</a>
+                <a asp-area="" asp-controller="Auth" asp-action="Login" class="btn-cta-outline">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <div class="lp-footer">
+        <div class="container">
+            <div class="footer-brand">
+                <div class="f-icon"><i class="feather icon-home"></i></div>
+                Chung cư Smart
+            </div>
+            <div class="footer-links">
+                <a href="#main">Trang chủ</a>
+                <a href="#services">Tiện ích</a>
+                <a href="#features">Đặc điểm</a>
+                <a asp-area="" asp-controller="Blog" asp-action="Index">Tin tức</a>
+            </div>
+            <p class="footer-copy">&copy; @DateTime.Now.Year Chung cư Smart. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <!-- Required Js -->
+    <script src="~/js/vendor-all.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.min.js"></script>
+
+    <script>
+        // Navbar scroll shadow
+        window.addEventListener('scroll', function () {
+            var navbar = document.getElementById('lp-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+            anchor.addEventListener('click', function (e) {
+                var href = this.getAttribute('href');
+                if (href === '#' || href === '#!') return;
+                e.preventDefault();
+                var target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Fade-up on scroll
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-up').forEach(function (el) {
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>

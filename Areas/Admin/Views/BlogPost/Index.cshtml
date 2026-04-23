@@ -1,0 +1,130 @@
+@model IEnumerable<WebNangCao.Models.ViewModels.Admin.BlogPostListVM>
+@{
+    ViewData["Title"] = "Quản lý bài viết";
+    ViewData["Subtitle"] = "Danh sách tất cả bài viết trên hệ thống";
+}
+
+@section Styles {
+    <!-- data tables css -->
+    <link rel="stylesheet" href="~/plugins/data-tables/css/datatables.min.css">
+}
+
+<div class="row">
+    <!-- Zero config table start -->
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5>Danh sách bài viết</h5>
+                    <a asp-area="Admin" asp-controller="BlogPost" asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="feather icon-plus"></i> Thêm bài viết mới
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filter form -->
+                <form method="get" asp-action="Index" class="mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-md-8 mb-2">
+                            <label class="form-label">Tìm kiếm</label>
+                            <input type="text" name="search" class="form-control" placeholder="Tìm theo tiêu đề, tác giả..." value="@ViewBag.Search" />
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="submit" class="btn btn-info btn-block"><i class="feather icon-search"></i> Lọc dữ liệu</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="dt-responsive table-responsive">
+                    <table id="simpletable" class="table table-striped table-bordered nowrap">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tiêu đề</th>
+                                <th>Tác giả</th>
+                                <th>Ngày tạo</th>
+                                <th>Công khai</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>
+                                        <div class="d-inline-block align-middle">
+                                            <div class="d-inline-block">
+                                                <h6 class="m-b-0 text-truncate" style="max-width: 250px;" title="@item.Title">@item.Title</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@item.AuthorName</td>
+                                    <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (item.Status == WebNangCao.Models.BlogPostStatus.Published)
+                                        {
+                                            <span class="badge badge-success">Công khai</span>
+                                        }
+                                        else if (item.Status == WebNangCao.Models.BlogPostStatus.Archived)
+                                        {
+                                            <span class="badge badge-secondary">Lưu trữ</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">Nháp</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.IsDeleted)
+                                        {
+                                            <span class="badge badge-light-danger">Đã ẩn/Xóa</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-light-success">Hiển thị</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-icon btn-outline-info btn-sm" title="Xem chi tiết">
+                                            <i class="feather icon-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-icon btn-outline-warning btn-sm" title="Chỉnh sửa">
+                                            <i class="feather icon-edit"></i>
+                                        </a>
+
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-icon btn-outline-danger btn-sm" title="Xóa"
+                                                    onclick="return confirm('Bạn có chắc muốn XÓA bài viết này? Hành động này không thể hoàn tác!')">
+                                                <i class="feather icon-trash-2"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Zero config table end -->
+</div>
+
+@section Scripts {
+    <!-- datatable Js -->
+    <script src="~/plugins/data-tables/js/datatables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#simpletable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+                },
+                "pageLength": 10,
+                "ordering": false // Disable datatables sorting to not mess with backend sorting if any, or keep true
+            });
+        });
+    </script>
+}

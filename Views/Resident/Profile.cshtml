@@ -46,40 +46,8 @@
             </div>
         </div>
 
-        <!-- Card Đổi mật khẩu -->
-        <div class="card">
-            <div class="card-header">
-                <h5>Đổi mật khẩu</h5>
-            </div>
-            <div class="card-body">
-                @if (TempData["ShowPasswordForm"] != null && TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-                }
 
-                <form asp-action="ChangePassword" method="post">
-                    @Html.AntiForgeryToken()
-                    <div class="form-group">
-                        <label asp-for="ChangePassword.CurrentPassword"></label>
-                        <input asp-for="ChangePassword.CurrentPassword" class="form-control" />
-                        <span asp-validation-for="ChangePassword.CurrentPassword" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ChangePassword.NewPassword"></label>
-                        <input asp-for="ChangePassword.NewPassword" class="form-control" />
-                        <span asp-validation-for="ChangePassword.NewPassword" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ChangePassword.ConfirmPassword"></label>
-                        <input asp-for="ChangePassword.ConfirmPassword" class="form-control" />
-                        <span asp-validation-for="ChangePassword.ConfirmPassword" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-warning btn-block">
-                        <i class="feather icon-lock"></i> Đổi mật khẩu
-                    </button>
-                </form>
-            </div>
-        </div>
+
     </div>
 
     <!-- Cột phải: Form cập nhật thông tin cá nhân -->

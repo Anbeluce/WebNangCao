@@ -1,0 +1,77 @@
+@model WebNangCao.Models.ViewModels.Admin.BlogPostEditVM
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+    ViewData["Subtitle"] = $"Cập nhật nội dung bài viết #{Model.Id}";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Cập nhật bài viết</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group mb-4">
+                                <label asp-for="Title" class="form-label">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                                <input asp-for="Title" class="form-control" />
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-4">
+                                <label asp-for="Status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<WebNangCao.Models.BlogPostStatus>()">
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Content" class="form-label">Nội dung <span class="text-danger">*</span></label>
+                        <textarea asp-for="Content" class="form-control" rows="15" id="tinymce-editor"></textarea>
+                        <span asp-validation-for="Content" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-4 custom-control custom-switch">
+                        <input type="checkbox" asp-for="IsDeleted" class="custom-control-input" id="customSwitch1">
+                        <label class="custom-control-label" for="customSwitch1">Ẩn/Xóa bài viết này</label>
+                        <small class="form-text text-muted">Bật tùy chọn này nếu bạn không muốn bài viết hiển thị ra bên ngoài.</small>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <a asp-action="Index" class="btn btn-light"><i class="feather icon-arrow-left"></i> Quay lại</a>
+                        <button type="submit" class="btn btn-warning text-dark"><i class="feather icon-save"></i> Cập nhật bài viết</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- TinyMCE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#tinymce-editor',
+            plugins: 'advlist autolink lists link image charmap preview anchor pagebreak',
+            toolbar_mode: 'floating',
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | image link',
+            language: 'vi',
+            height: 400,
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save();
+                });
+            }
+        });
+    </script>
+}

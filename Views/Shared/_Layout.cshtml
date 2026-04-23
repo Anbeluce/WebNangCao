@@ -27,6 +27,8 @@
         .field-validation-error { color: #dc3545; font-size: 80%; mt-1; }
         .input-validation-error { border-color: #dc3545; }
     </style>
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
@@ -42,7 +44,7 @@
     <nav class="pcoded-navbar menupos-fixed">
         <div class="navbar-wrapper">
             <div class="navbar-brand header-logo">
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="b-brand">
+                <a asp-area="" asp-controller="Blog" asp-action="Index" class="b-brand">
                     <div class="b-bg">
                         <i class="feather icon-home"></i>
                     </div>
@@ -55,32 +57,44 @@
                     <li class="nav-item pcoded-menu-caption">
                         <label>Menu</label>
                     </li>
-                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
-                        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link">
-                            <span class="pcoded-micon"><i class="feather icon-home"></i></span>
-                            <span class="pcoded-mtext">Trang chủ</span>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Blog" ? "active" : "")">
+                        <a asp-area="" asp-controller="Blog" asp-action="Index" class="nav-link">
+                            <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
+                            <span class="pcoded-mtext">Tin tức</span>
                         </a>
                     </li>
                     
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Blog" ? "active" : "")">
-                            <a asp-area="" asp-controller="Blog" asp-action="Index" class="nav-link">
-                                <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
-                                <span class="pcoded-mtext">Tin tức</span>
-                            </a>
-                        </li>
                         <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resident" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
                             <a asp-area="" asp-controller="Resident" asp-action="Index" class="nav-link">
                                 <span class="pcoded-micon"><i class="feather icon-clipboard"></i></span>
                                 <span class="pcoded-mtext">Hóa đơn</span>
                             </a>
                         </li>
+                        <li class="nav-item pcoded-menu-caption">
+                            <label>Tài khoản</label>
+                        </li>
                         <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resident" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
                             <a asp-area="" asp-controller="Resident" asp-action="Profile" class="nav-link">
                                 <span class="pcoded-micon"><i class="feather icon-user"></i></span>
-                                <span class="pcoded-mtext">Tài khoản</span>
+                                <span class="pcoded-mtext">Hồ sơ cá nhân</span>
                             </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resident" && ViewContext.RouteData.Values["action"]?.ToString() == "ChangePassword" ? "active" : "")">
+                            <a asp-area="" asp-controller="Resident" asp-action="ChangePassword" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-lock"></i></span>
+                                <span class="pcoded-mtext">Đổi mật khẩu</span>
+                            </a>
+                        </li>
+                                                <li class="nav-item">
+                            <a href="#" onclick="document.getElementById('logoutFormSidebar').submit(); return false;" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-log-out"></i></span>
+                                <span class="pcoded-mtext">Đăng xuất</span>
+                            </a>
+                            <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post" id="logoutFormSidebar" style="display:none;">
+                                @Html.AntiForgeryToken()
+                            </form>
                         </li>
                     }
                     
@@ -96,73 +110,14 @@
                             </a>
                         </li>
                     }
+
                 </ul>
             </div>
         </div>
     </nav>
     <!-- [ navigation menu ] end -->
 
-    <!-- [ Header ] start -->
-    <header class="navbar pcoded-header navbar-expand-lg navbar-light">
-        <div class="m-header">
-            <a class="mobile-menu" id="mobile-collapse1" href="#!"><span></span></a>
-            <a href="#!" class="b-brand">
-                <div class="b-bg">
-                    <i class="feather icon-home"></i>
-                </div>
-                <span class="b-title">Chung cư Smart</span>
-            </a>
-        </div>
-        <a class="mobile-menu" id="mobile-header" href="#!">
-            <i class="feather icon-more-horizontal"></i>
-        </a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li><a href="#!" class="full-screen" onclick="javascript:toggleFullScreen()"><i class="feather icon-maximize"></i></a></li>
-                <li>
-                    <h5 class="m-b-0">@ViewData["Title"]</h5>
-                    <small>Hệ thống quản lý chung cư thông minh</small>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <li>
-                        <div class="dropdown drp-user">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="icon feather icon-settings"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right profile-notification">
-                                <div class="pro-head">
-                                    <img src="~/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
-                                    <span>@User.Identity?.Name?.Split('@')[0]</span>
-                                </div>
-                                <ul class="pro-body">
-                                    <li><a asp-area="" asp-controller="Resident" asp-action="Profile" class="dropdown-item"><i class="feather icon-user"></i> Tài khoản</a></li>
-                                    <li>
-                                        <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post" id="logoutForm" style="display: none;">
-                                            @Html.AntiForgeryToken()
-                                        </form>
-                                        <a href="#" onclick="document.getElementById('logoutForm').submit();" class="dropdown-item">
-                                            <i class="feather icon-log-out"></i> Đăng xuất
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item">
-                        <a asp-area="" asp-controller="Auth" asp-action="Login" class="btn btn-outline-primary btn-sm m-r-10">Đăng nhập</a>
-                        <a asp-area="" asp-controller="Auth" asp-action="Register" class="btn btn-primary btn-sm">Đăng ký</a>
-                    </li>
-                }
-            </ul>
-        </div>
-    </header>
-    <!-- [ Header ] end -->
+    <!-- [ Header removed - all features in sidebar ] -->
 
     <!-- [ Main Content ] start -->
     <div class="pcoded-main-container">
@@ -177,7 +132,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-md-12">
                                             <ul class="breadcrumb">
-                                                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index"><i class="feather icon-home"></i></a></li>
+                                                <li class="breadcrumb-item"><a asp-area="" asp-controller="Blog" asp-action="Index"><i class="feather icon-home"></i></a></li>
                                                 <li class="breadcrumb-item"><a href="#!">@ViewContext.RouteData.Values["controller"]?.ToString()</a></li>
                                             </ul>
                                         </div>

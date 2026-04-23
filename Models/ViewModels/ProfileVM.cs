@@ -31,9 +31,6 @@ namespace WebNangCao.Models.ViewModels
         public int InvoiceCount { get; set; }
         public int UnpaidInvoiceCount { get; set; }
         public decimal TotalDebt { get; set; }
-
-        // Form đổi mật khẩu
-        public ChangePasswordVM ChangePassword { get; set; } = new();
     }
 
     public class ChangePasswordVM

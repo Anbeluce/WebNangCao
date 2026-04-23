@@ -1,0 +1,59 @@
+@model IEnumerable<WebNangCao.Models.BlogPost>
+@{
+    ViewData["Title"] = "Tin tức & Thông báo";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <h5>Tin tức & Thông báo mới nhất từ Ban quản lý</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" asp-action="Index" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tin tức..." value="@ViewBag.Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="feather icon-search"></i> Tìm kiếm</button>
+                        </div>
+                    </div>
+                </form>
+
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info text-center">
+                        Không có bài viết nào được tìm thấy.
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var item in Model)
+                        {
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-truncate" title="@item.Title">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="text-dark">@item.Title</a>
+                                        </h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">
+                                            <i class="feather icon-calendar"></i> @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </h6>
+                                        <p class="card-text text-muted" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                            @* Strip HTML tags for preview *@
+                                            @(string.IsNullOrEmpty(item.Content) ? "" : System.Text.RegularExpressions.Regex.Replace(item.Content, "<.*?>", String.Empty))
+                                        </p>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm mt-auto">Xem chi tiết</a>
+                                    </div>
+                                    <div class="card-footer bg-white border-top-0">
+                                        <small class="text-muted"><i class="feather icon-user"></i> Đăng bởi: @(item.Author?.FullName ?? "Ban quản lý")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

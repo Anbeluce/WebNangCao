@@ -1,0 +1,95 @@
+@model WebNangCao.Models.BlogPost
+@{
+    ViewData["Title"] = "Chi tiết bài viết";
+    ViewData["Subtitle"] = Model.Title;
+}
+
+<div class="row">
+    <div class="col-sm-12 col-xl-8">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="m-0">Nội dung bài viết</h5>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm text-dark">
+                            <i class="feather icon-edit"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <h3 class="mb-4">@Model.Title</h3>
+                <div class="content-preview">
+                    @Html.Raw(Model.Content)
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-sm-12 col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Thông tin bài viết</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 pt-0">
+                        <strong>Tác giả:</strong>
+                        <span class="float-right">@(Model.Author?.FullName ?? "N/A")</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Ngày tạo:</strong>
+                        <span class="float-right">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Lần cập nhật cuối:</strong>
+                        <span class="float-right">@(Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa có")</span>
+                    </li>
+                    <li class="list-group-item px-0 pb-0">
+                        <strong>Đăng tải:</strong>
+                        <span class="float-right">
+                            @if (Model.Status == WebNangCao.Models.BlogPostStatus.Published)
+                            {
+                                <span class="badge badge-success">Công khai</span>
+                            }
+                            else if (Model.Status == WebNangCao.Models.BlogPostStatus.Archived)
+                            {
+                                <span class="badge badge-secondary">Lưu trữ</span>
+                                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Nháp</span>
+                            }
+                        </span>
+                    </li>
+                    <li class="list-group-item px-0 pb-0 mt-2">
+                        <strong>Trạng thái hiển thị:</strong>
+                        <span class="float-right">
+                            @if (Model.IsDeleted)
+                            {
+                                <span class="badge badge-light-danger">Đã ẩn/Xóa</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-light-success">Hiển thị</span>
+                            }
+                        </span>
+                    </li>
+                </ul>
+
+                <div class="mt-4">
+                    <a asp-action="Index" class="btn btn-light btn-block"><i class="feather icon-arrow-left"></i> Quay lại danh sách</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .content-preview img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+}
