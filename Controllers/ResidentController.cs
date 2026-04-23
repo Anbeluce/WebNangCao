@@ -94,6 +94,66 @@ namespace WebNangCao.Controllers
             return View(invoice);
         }
 
+        // POST: /Resident/ConfirmPaymentRequest
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmPaymentRequest(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Auth");
+
+            // Kiểm tra hóa đơn tồn tại và thuộc quyền sở hữu của User
+            var invoice = await _context.Invoices
+                .Include(i => i.Apartment)
+                .Include(i => i.Transactions.Where(t => !t.IsDeleted))
+                .FirstOrDefaultAsync(i => i.Id == id && !i.IsDeleted
+                    && i.Apartment.OwnerId == user.Id);
+
+            if (invoice == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hóa đơn hoặc bạn không có quyền thực hiện.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Nếu đã thanh toán xong rồi thì không cần gửi yêu cầu nữa
+            if (invoice.Status == InvoiceStatus.Paid)
+            {
+                TempData["InfoMessage"] = "Hóa đơn này đã được thanh toán hoàn tất.";
+                return RedirectToAction(nameof(InvoiceDetail), new { id = id });
+            }
+
+            // Tính số tiền còn lại cần trả
+            var paidAmount = invoice.Transactions.Sum(t => t.Amount);
+            var remaining = invoice.TotalAmount - paidAmount;
+
+            // 1. Tạo một Transaction mới với trạng thái "Chờ duyệt"
+            var transaction = new Transaction
+            {
+                InvoiceId = id,
+                Amount = remaining,
+                PaymentDate = DateTime.Now,
+                PaymentMethod = "Chuyển khoản VietQR",
+                Note = "Cư dân báo đã chuyển khoản - Chờ duyệt", // Chuỗi này để Admin dễ lọc
+                IsDeleted = false
+            };
+
+            // 2. Cập nhật trạng thái hóa đơn sang "Một phần" hoặc giữ nguyên để chờ Admin xác nhận chính thức
+            // Ở đây mình giữ nguyên InvoiceStatus để Admin bấm Duyệt mới đổi màu trạng thái
+
+            _context.Transactions.Add(transaction);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Đã gửi thông báo xác nhận thanh toán! Vui lòng chờ Ban quản lý đối soát tài khoản.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.";
+            }
+
+            return RedirectToAction(nameof(InvoiceDetail), new { id = id });
+        }
         // GET: /Resident/Profile - Trang quản lý tài khoản
         public async Task<IActionResult> Profile()
         {

@@ -19,6 +19,16 @@
     var remaining = Model.TotalAmount - paidAmount;
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    @TempData["SuccessMessage"]
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+}
+
 <div class="row">
     <!-- Cột trái: Chi tiết hóa đơn -->
     <div class="col-xl-8 col-md-12">
@@ -41,7 +51,7 @@
                         <strong class="text-body">@Model.DueDate.ToString("dd/MM/yyyy")</strong>
                         @if (Model.DueDate < DateTime.Now && Model.Status != WebNangCao.Models.InvoiceStatus.Paid)
                         {
-                            <span class="text-danger ml-2"><i class="feather icon-alert-circle"></i> Đã quá hạn</span>
+                        <span class="text-danger ml-2"><i class="feather icon-alert-circle"></i> Đã quá hạn</span>
                         }
                     </div>
                 </div>
@@ -121,62 +131,112 @@
 
                 @if (paidAmount > 0)
                 {
-                    <div class="row align-items-center mt-2">
-                        <div class="col">
-                            <span class="text-muted">Đã thanh toán</span>
-                        </div>
-                        <div class="col-auto">
-                            <h6 class="mb-0 text-success">@paidAmount.ToString("N0")đ</h6>
-                        </div>
+                <div class="row align-items-center mt-2">
+                    <div class="col">
+                        <span class="text-muted">Đã thanh toán</span>
                     </div>
+                    <div class="col-auto">
+                        <h6 class="mb-0 text-success">@paidAmount.ToString("N0")đ</h6>
+                    </div>
+                </div>
                 }
 
                 @if (remaining > 0)
                 {
-                    <div class="row align-items-center mt-2">
-                        <div class="col">
-                            <span class="text-muted">Còn lại</span>
-                        </div>
-                        <div class="col-auto">
-                            <h6 class="mb-0 text-danger">@remaining.ToString("N0")đ</h6>
-                        </div>
+                <div class="row align-items-center mt-2">
+                    <div class="col">
+                        <span class="text-muted">Còn lại</span>
                     </div>
+                    <div class="col-auto">
+                        <h6 class="mb-0 text-danger">@remaining.ToString("N0")đ</h6>
+                    </div>
+                </div>
                 }
             </div>
         </div>
     </div>
 
+    @{
+    // Cấu hình thông tin ngân hàng của bạn
+    var bankId = "MB";
+    var accountNo = "0962342005";
+    var accountName = "NGUYEN VAN A"; // Viết hoa không dấu
+
+    // Nội dung chuyển khoản: HD <Số hóa đơn> <Căn hộ> <Tháng/Năm>
+    var paymentDescription = $"HD{Model.Id} Phong{Model.Apartment.ApartmentNumber} T{Model.Month}{Model.Year}";
+
+    // Chỉ hiện mã QR nếu hóa đơn chưa thanh toán xong
+    var showQR = Model.Status != WebNangCao.Models.InvoiceStatus.Paid && remaining > 0;
+    }
+
     <!-- Cột phải: Lịch sử thanh toán -->
-    <div class="col-xl-4 col-md-12">
-        @if (Model.Transactions.Any(t => !t.IsDeleted))
+<div class="col-xl-4 col-md-12">
+    @if (showQR)
         {
-            <div class="card">
-                <div class="card-header">
-                    <h5>💳 Lịch sử thanh toán</h5>
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="text-white mb-0"><i class="feather icon-credit-card"></i> Thanh toán nhanh</h5>
+        </div>
+        <div class="card-body text-center">
+            <p class="small text-muted">Quét mã bằng ứng dụng Ngân hàng để thanh toán số tiền còn lại</p>
+
+            <div class="bg-light p-3 rounded mb-3">
+                <img src="https://img.vietqr.io/image/@(bankId)-@(accountNo)-compact.png?amount=@(remaining)&addInfo=@(paymentDescription)&accountName=@(accountName)"
+                     class="img-fluid"
+                     alt="Mã QR VietQR"
+                     style="max-width: 250px;" />
+            </div>
+
+            <div class="text-left bg-light p-2 rounded">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted small">Số tiền:</span>
+                    <span class="font-weight-bold">@remaining.ToString("N0")đ</span>
                 </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
-                        @foreach (var tx in Model.Transactions.Where(t => !t.IsDeleted).OrderByDescending(t => t.PaymentDate))
-                        {
-                            <li class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h6 class="mb-1">@tx.PaymentMethod</h6>
-                                        <small class="text-muted"><i class="feather icon-calendar"></i> @tx.PaymentDate.ToString("dd/MM/yyyy HH:mm")</small>
-                                        @if (!string.IsNullOrEmpty(tx.Note))
-                                        {
-                                            <small class="d-block text-muted mt-1">📝 @tx.Note</small>
-                                        }
-                                    </div>
-                                    <div class="col-auto text-right">
-                                        <h6 class="mb-0 text-success">+@tx.Amount.ToString("N0")đ</h6>
-                                    </div>
-                                </div>
-                            </li>
-                        }
-                    </ul>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted small">Nội dung:</span>
+                    <span class="font-weight-bold text-primary small">@paymentDescription</span>
                 </div>
             </div>
-        }
+
+            <button class="btn btn-primary btn-block mt-3" onclick="window.print()">
+                <i class="feather icon-printer"></i> In hóa đơn
+            </button>
+        </div>
     </div>
+    <form asp-controller="Resident" asp-action="ConfirmPaymentRequest" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-success btn-block">Tôi đã chuyển khoản</button>
+    </form>
+        }
+    @if (Model.Transactions.Any(t => !t.IsDeleted))
+        {
+    <div class="card">
+        <div class="card-header">
+            <h5>💳 Lịch sử thanh toán</h5>
+        </div>
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+                @foreach (var tx in Model.Transactions.Where(t => !t.IsDeleted).OrderByDescending(t => t.PaymentDate))
+                        {
+                <li class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="mb-1">@tx.PaymentMethod</h6>
+                            <small class="text-muted"><i class="feather icon-calendar"></i> @tx.PaymentDate.ToString("dd/MM/yyyy HH:mm")</small>
+                            @if (!string.IsNullOrEmpty(tx.Note))
+                                        {
+                            <small class="d-block text-muted mt-1">📝 @tx.Note</small>
+                                        }
+                        </div>
+                        <div class="col-auto text-right">
+                            <h6 class="mb-0 text-success">+@tx.Amount.ToString("N0")đ</h6>
+                        </div>
+                    </div>
+                </li>
+                        }
+            </ul>
+        </div>
+    </div>
+        }
+</div>
 </div>
