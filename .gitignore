@@ -361,3 +361,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# API Keys and Secrets
+brevo_key.txt
+appsettings.json
+appsettings.*.json
+
+# Local Database
+*.db
+*.db-shm
+*.db-wal

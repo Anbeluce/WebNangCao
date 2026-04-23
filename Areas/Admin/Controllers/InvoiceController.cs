@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using WebNangCao.Data;
 using WebNangCao.Models;
 using WebNangCao.Models.ViewModels.Admin;
+using WebNangCao.Services;
+
 
 namespace WebNangCao.Areas.Admin.Controllers
 {
@@ -13,15 +15,17 @@ namespace WebNangCao.Areas.Admin.Controllers
     public class InvoiceController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
         // Đơn giá mặc định
         private const decimal DefaultElectricityPrice = 3500;  // VNĐ/kWh
         private const decimal DefaultWaterPrice = 15000;       // VNĐ/m³
         private const decimal DefaultServiceFeePerM2 = 15000;  // VNĐ/m²
 
-        public InvoiceController(AppDbContext context)
+        public InvoiceController(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // GET: Admin/Invoice
@@ -130,7 +134,61 @@ namespace WebNangCao.Areas.Admin.Controllers
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Đã tạo hóa đơn tháng {model.Month}/{model.Year} — Tổng: {invoice.TotalAmount:N0}đ";
+            // Gửi mail thông báo cho cư dân
+            try
+            {
+                var apartment = await _context.Apartments
+                    .Include(a => a.Owner)
+                    .FirstOrDefaultAsync(a => a.Id == model.ApartmentId);
+
+                if (apartment?.Owner?.Email != null)
+                {
+                    var subject = $"[Thông báo] Hóa đơn tiền điện/nước tháng {model.Month}/{model.Year}";
+                    var body = $@"
+                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;'>
+                            <h2 style='color: #04a9f5;'>Thông báo hóa đơn mới</h2>
+                            <p>Kính gửi ông/bà <strong>{apartment.Owner.FullName}</strong>,</p>
+                            <p>Ban quản lý chung cư xin thông báo hóa đơn tháng <strong>{model.Month}/{model.Year}</strong> của căn hộ <strong>{apartment.ApartmentNumber}</strong> đã được khởi tạo.</p>
+                            <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
+                                <tr style='background: #f4f7fa;'>
+                                    <th style='padding: 10px; border: 1px solid #eee; text-align: left;'>Hạng mục</th>
+                                    <th style='padding: 10px; border: 1px solid #eee; text-align: right;'>Thành tiền</th>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>Tiền điện ({model.ElectricityUsage} kWh)</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{(model.ElectricityUsage * model.ElectricityUnitPrice):N0}đ</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>Tiền nước ({model.WaterUsage} m³)</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{(model.WaterUsage * model.WaterUnitPrice):N0}đ</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>Phí dịch vụ</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{model.ServiceFee:N0}đ</td>
+                                </tr>
+                                <tr style='font-weight: bold; font-size: 16px; color: #04a9f5;'>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>TỔNG CỘNG</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{invoice.TotalAmount:N0}đ</td>
+                                </tr>
+                            </table>
+                            <p>Hạn thanh toán: <strong>{model.DueDate:dd/MM/yyyy}</strong></p>
+                            <p>Vui lòng đăng nhập vào hệ thống để xem chi tiết và thực hiện thanh toán.</p>
+                            <div style='text-align: center; margin: 30px 0;'>
+                                <a href='#' style='background: #04a9f5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;'>XEM HÓA ĐƠN</a>
+                            </div>
+                            <hr style='border: none; border-top: 1px solid #eee;'/>
+                            <p style='font-size: 12px; color: #999;'>Ban quản lý Chung cư Smart</p>
+                        </div>";
+
+                    await _emailService.SendEmailAsync(apartment.Owner.Email, subject, body);
+                }
+            }
+            catch (Exception)
+            {
+                // Bỏ qua lỗi gửi mail để không làm gián đoạn việc lưu hóa đơn
+            }
+
+            TempData["SuccessMessage"] = $"Đã tạo hóa đơn tháng {model.Month}/{model.Year} — Tổng: {invoice.TotalAmount:N0}đ. Đã gửi email thông báo.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -185,6 +243,8 @@ namespace WebNangCao.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            var oldStatus = invoice.Status;
+            
             invoice.Month = model.Month;
             invoice.Year = model.Year;
             invoice.ElectricityUsage = model.ElectricityUsage;
@@ -198,7 +258,44 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Đã cập nhật hóa đơn tháng {model.Month}/{model.Year} — Tổng: {invoice.TotalAmount:N0}đ";
+            // Nếu trạng thái đổi từ Unpaid sang Paid thì gửi mail cảm ơn/xác nhận
+            if (oldStatus == InvoiceStatus.Unpaid && model.Status == InvoiceStatus.Paid)
+            {
+                try
+                {
+                    var apartment = await _context.Apartments
+                        .Include(a => a.Owner)
+                        .FirstOrDefaultAsync(a => a.Id == invoice.ApartmentId);
+
+                    if (apartment?.Owner?.Email != null)
+                    {
+                        var subject = $"[Xác nhận] Thanh toán hóa đơn tháng {model.Month}/{model.Year} thành công";
+                        var body = $@"
+                            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;'>
+                                <div style='text-align: center; color: #28a745; margin-bottom: 20px;'>
+                                    <h2 style='margin: 0;'>Thanh toán thành công!</h2>
+                                    <p style='font-size: 16px;'>Cảm ơn bạn đã hoàn thành nghĩa vụ thanh toán.</p>
+                                </div>
+                                <p>Kính gửi ông/bà <strong>{apartment.Owner.FullName}</strong>,</p>
+                                <p>Hệ thống đã ghi nhận thanh toán cho hóa đơn tháng <strong>{model.Month}/{model.Year}</strong> của căn hộ <strong>{apartment.ApartmentNumber}</strong>.</p>
+                                <div style='background: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;'>
+                                    <p style='margin: 5px 0;'>Mã hóa đơn: <strong>#{invoice.Id}</strong></p>
+                                    <p style='margin: 5px 0;'>Số tiền: <strong style='color: #04a9f5;'>{invoice.TotalAmount:N0}đ</strong></p>
+                                    <p style='margin: 5px 0;'>Ngày thanh toán: <strong>{DateTime.Now:dd/MM/yyyy HH:mm}</strong></p>
+                                    <p style='margin: 5px 0;'>Trạng thái: <strong style='color: #28a745;'>Đã thanh toán</strong></p>
+                                </div>
+                                <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ Ban quản lý để được hỗ trợ.</p>
+                                <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'/>
+                                <p style='font-size: 12px; color: #999;'>Ban quản lý Chung cư Smart</p>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(apartment.Owner.Email, subject, body);
+                    }
+                }
+                catch (Exception) { /* Bỏ qua lỗi gửi mail */ }
+            }
+
+            TempData["SuccessMessage"] = $"Đã cập nhật hóa đơn tháng {model.Month}/{model.Year}.";
             return RedirectToAction(nameof(Index));
         }
 

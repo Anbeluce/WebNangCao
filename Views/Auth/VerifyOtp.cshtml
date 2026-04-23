@@ -1,0 +1,158 @@
+@model WebNangCao.Models.ViewModels.Auth.VerifyOtpVM
+@{
+    ViewData["Title"] = "Xác nhận OTP";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <title>Xác nhận OTP - Chung cư Smart</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Favicon icon -->
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+    <!-- fontawesome icon -->
+    <link rel="stylesheet" href="~/fonts/fontawesome/css/fontawesome-all.min.css">
+    <!-- animation css -->
+    <link rel="stylesheet" href="~/plugins/animation/css/animate.min.css">
+    <!-- vendor css -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif !important; }
+        .field-validation-error { color: #dc3545; font-size: 80%; display: block; text-align: left; margin-bottom: 10px; margin-top: -5px; }
+        .input-validation-error { border-color: #dc3545; }
+        .auth-content { max-width: 450px; margin: 0 auto; }
+        .otp-input {
+            letter-spacing: 15px;
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
+            padding-left: 25px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- [ auth-verify-otp ] start -->
+    <div class="auth-wrapper">
+        <div class="auth-content text-center">
+            <div class="card">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-12">
+                        <div class="card-body">
+                            <!-- Header -->
+                            <div class="mb-4">
+                                <div class="bg-primary text-white d-inline-flex align-items-center justify-content-center rounded" style="width: 50px; height: 50px; font-size: 24px; margin-bottom: 15px;">
+                                    <i class="feather icon-shield"></i>
+                                </div>
+                                <h4 class="mb-3 f-w-400">Xác nhận mã OTP</h4>
+                                <p class="text-muted">Chúng tôi đã gửi mã xác thực đến email: <br/><strong>@Model.Email</strong></p>
+                            </div>
+
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success text-left">
+                                    <i class="feather icon-check-circle"></i> @TempData["SuccessMessage"]
+                                </div>
+                            }
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-warning text-left">
+                                    <i class="feather icon-alert-triangle"></i> @TempData["ErrorMessage"]
+                                </div>
+                            }
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger text-left">
+                                    <div asp-validation-summary="All"></div>
+                                </div>
+                            }
+
+                            <!-- Form -->
+                            <form asp-action="VerifyOtp" asp-controller="Auth" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="Email" />
+
+                                <div class="form-group mb-4">
+                                    <label class="floating-label" for="OtpCode">Nhập 6 chữ số OTP</label>
+                                    <input asp-for="OtpCode" class="form-control otp-input" maxlength="6" autocomplete="off" autofocus>
+                                    <span asp-validation-for="OtpCode"></span>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-block mb-4">Xác nhận đăng ký</button>
+                            </form>
+
+                            <p class="mb-2 text-muted">Không nhận được mã? <a href="#" class="f-w-400">Gửi lại (Chưa hỗ trợ)</a></p>
+                            <div class="mt-4 text-center">
+                                <a asp-action="Register" class="text-muted"><i class="feather icon-arrow-left"></i> Quay lại trang đăng ký</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ auth-verify-otp ] end -->
+
+    <!-- Required Js -->
+    <script src="~/js/vendor-all.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var $form = $('form');
+            var $input = $('.otp-input');
+            var $btn = $form.find('button[type="submit"]');
+
+            function performSubmit() {
+                if ($form.valid()) {
+                    $btn.prop('disabled', true);
+                    $btn.html('<i class="feather icon-loader rotate"></i> Đang xác thực...');
+                    
+                    setTimeout(function() {
+                        $form.get(0).submit();
+                    }, 1000);
+                }
+            }
+
+            // Tự động submit khi nhập đủ 6 số
+            $input.on('input', function() {
+                var val = $(this).val();
+                if (val.length === 6 && /^\d+$/.test(val)) {
+                    performSubmit();
+                }
+            });
+
+            $form.on('submit', function(e) {
+                e.preventDefault();
+                performSubmit();
+            });
+        });
+    </script>
+    
+    <style>
+        .rotate {
+            animation: rotation 2s infinite linear;
+            display: inline-block;
+        }
+        @@keyframes rotation {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(359deg); }
+        }
+    </style>
+</body>
+
+</html>
