@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebNangCao.Data;
@@ -46,6 +47,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
 builder.Services.AddHttpClient<IEmailService, BrevoEmailService>();
 
+// Cấu hình SePay
+builder.Services.Configure<SepaySettings>(builder.Configuration.GetSection("SepaySettings"));
+builder.Services.AddScoped<ISepayService, SepayService>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(10);
@@ -71,6 +76,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

@@ -8,6 +8,8 @@ namespace WebNangCao.Models
         public string PaymentMethod { get; set; } = "Chuyển khoản";
         public string? Note { get; set; }
 
+        public int? SepayTransactionId { get; set; }
+
         public Invoice Invoice { get; set; } = null!;
     }
 }

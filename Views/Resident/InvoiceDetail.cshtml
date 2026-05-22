@@ -165,9 +165,9 @@
             <p class="small text-muted">Quét mã bằng ứng dụng Ngân hàng để thanh toán số tiền còn lại</p>
 
             <div class="bg-light p-3 rounded mb-3">
-                <img src="https://img.vietqr.io/image/@(bankId)-@(accountNo)-compact.png?amount=@(remaining)&addInfo=@(paymentDescription)&accountName=@(accountName)"
+                <img src="https://qr.sepay.vn/img?acc=@(accountNo)&bank=@(bankId)&amount=@(remaining)&des=@(paymentDescription)&template=compact"
                      class="img-fluid"
-                     alt="Mã QR VietQR"
+                     alt="Mã QR SePay"
                      style="max-width: 250px;" />
             </div>
 
@@ -224,3 +224,31 @@
         }
 </div>
 </div>
+
+@section Scripts {
+    @if (showQR)
+    {
+        <script>
+            $(document).ready(function () {
+                var invoiceId = @Model.Id;
+                var currentStatus = "@Model.Status";
+
+                var pollInterval = setInterval(function () {
+                    $.get('/api/payment/status/' + invoiceId, function (data) {
+                        if (data && data.isPaid) {
+                            clearInterval(pollInterval);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thanh toán thành công!',
+                                text: 'Hệ thống đã ghi nhận khoản thanh toán của bạn.',
+                                confirmButtonText: 'Đóng'
+                            }).then((result) => {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }, 5000); // Poll every 5 seconds
+            });
+        </script>
+    }
+}
