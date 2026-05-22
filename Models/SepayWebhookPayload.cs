@@ -8,7 +8,7 @@ namespace WebNangCao.Models
         public int Id { get; set; }
 
         [JsonPropertyName("gateway")]
-        public string Gateway { get; set; }
+        public string? Gateway { get; set; }
 
         [JsonPropertyName("transactionDate")]
         public string? TransactionDate { get; set; }
@@ -34,8 +34,8 @@ namespace WebNangCao.Models
         [JsonPropertyName("content")]
         public string? Content { get; set; } // The transaction content where we look for Invoice ID
 
-        [JsonPropertyName("referenceNumber")]
-        public string? ReferenceNumber { get; set; }
+        [JsonPropertyName("referenceCode")]
+        public string? ReferenceCode { get; set; }
 
         [JsonPropertyName("description")]
         public string? Description { get; set; }

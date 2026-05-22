@@ -81,7 +81,7 @@ namespace WebNangCao.Services
                 Amount = payload.TransferAmount,
                 PaymentDate = parsedDate,
                 PaymentMethod = "Chuyển khoản (SePay QR)",
-                Note = $"Auto-paid via SePay. Ref: {payload.ReferenceNumber}",
+                Note = $"Auto-paid via SePay. Ref: {payload.ReferenceCode}",
                 SepayTransactionId = payload.Id
             };
 
