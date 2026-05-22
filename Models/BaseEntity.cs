@@ -1,9 +1,9 @@
-﻿namespace WebNangCao.Models
+namespace WebNangCao.Models
 {
     public abstract class BaseEntity
     {
         public int Id { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(7);
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; } = false; // Dùng cho Soft Delete
     }

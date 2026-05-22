@@ -68,7 +68,7 @@ namespace WebNangCao.Areas.Admin.Controllers
                     Content = model.Content,
                     Status = model.Status,
                     AuthorId = userId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow.AddHours(7)
                 };
 
                 _context.BlogPosts.Add(blogPost);
@@ -119,7 +119,7 @@ namespace WebNangCao.Areas.Admin.Controllers
                     blogPost.Content = model.Content;
                     blogPost.Status = model.Status;
                     blogPost.IsDeleted = model.IsDeleted;
-                    blogPost.UpdatedAt = DateTime.UtcNow;
+                    blogPost.UpdatedAt = DateTime.UtcNow.AddHours(7);
 
                     _context.Update(blogPost);
                     await _context.SaveChangesAsync();

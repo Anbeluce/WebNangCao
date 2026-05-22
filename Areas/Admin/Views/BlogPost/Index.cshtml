@@ -43,7 +43,6 @@
                                 <th>Tiêu đề</th>
                                 <th>Tác giả</th>
                                 <th>Ngày tạo</th>
-                                <th>Công khai</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>
@@ -74,16 +73,6 @@
                                         else
                                         {
                                             <span class="badge badge-warning">Nháp</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (item.IsDeleted)
-                                        {
-                                            <span class="badge badge-light-danger">Đã ẩn/Xóa</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-light-success">Hiển thị</span>
                                         }
                                     </td>
                                     <td>

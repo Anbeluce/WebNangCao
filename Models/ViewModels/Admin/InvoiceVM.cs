@@ -11,12 +11,12 @@ namespace WebNangCao.Models.ViewModels.Admin
         public int Year { get; set; }
         public decimal ElectricityUsage { get; set; }
         public decimal ElectricityUnitPrice { get; set; }
-        public decimal ElectricityFee => ElectricityUsage * ElectricityUnitPrice;
+        public decimal ElectricityFee => 0;
         public decimal WaterUsage { get; set; }
         public decimal WaterUnitPrice { get; set; }
         public decimal WaterFee => WaterUsage * WaterUnitPrice;
         public decimal ServiceFee { get; set; }
-        public decimal TotalAmount => ElectricityFee + WaterFee + ServiceFee;
+        public decimal TotalAmount => WaterFee + ServiceFee;
         public InvoiceStatus Status { get; set; }
         public DateTime DueDate { get; set; }
     }
@@ -37,15 +37,13 @@ namespace WebNangCao.Models.ViewModels.Admin
         [Range(2020, 2099, ErrorMessage = "Năm không hợp lệ")]
         public int Year { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng nhập số điện tiêu thụ")]
         [Display(Name = "Số điện tiêu thụ (kWh)")]
         [Range(0, 99999, ErrorMessage = "Số điện không hợp lệ")]
-        public decimal ElectricityUsage { get; set; }
+        public decimal ElectricityUsage { get; set; } = 0;
 
-        [Required(ErrorMessage = "Vui lòng nhập đơn giá điện")]
         [Display(Name = "Đơn giá điện (VNĐ/kWh)")]
         [Range(0, 100000)]
-        public decimal ElectricityUnitPrice { get; set; } = 3500;
+        public decimal ElectricityUnitPrice { get; set; } = 0;
 
         [Required(ErrorMessage = "Vui lòng nhập số nước tiêu thụ")]
         [Display(Name = "Số nước tiêu thụ (m³)")]
@@ -65,7 +63,7 @@ namespace WebNangCao.Models.ViewModels.Admin
         [Required(ErrorMessage = "Vui lòng chọn hạn thanh toán")]
         [Display(Name = "Hạn thanh toán")]
         [DataType(DataType.Date)]
-        public DateTime DueDate { get; set; } = DateTime.Now.AddDays(30);
+        public DateTime DueDate { get; set; } = DateTime.UtcNow.AddHours(7).AddDays(30);
     }
 
     public class EditInvoiceVM
@@ -86,15 +84,13 @@ namespace WebNangCao.Models.ViewModels.Admin
         [Range(2020, 2099)]
         public int Year { get; set; }
 
-        [Required]
         [Display(Name = "Số điện tiêu thụ (kWh)")]
         [Range(0, 99999)]
-        public decimal ElectricityUsage { get; set; }
+        public decimal ElectricityUsage { get; set; } = 0;
 
-        [Required]
         [Display(Name = "Đơn giá điện (VNĐ/kWh)")]
         [Range(0, 100000)]
-        public decimal ElectricityUnitPrice { get; set; }
+        public decimal ElectricityUnitPrice { get; set; } = 0;
 
         [Required]
         [Display(Name = "Số nước tiêu thụ (m³)")]

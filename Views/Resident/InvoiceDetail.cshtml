@@ -49,7 +49,7 @@
                     <div class="col-12">
                         <span class="text-muted">Hạn thanh toán: </span>
                         <strong class="text-body">@Model.DueDate.ToString("dd/MM/yyyy")</strong>
-                        @if (Model.DueDate < DateTime.Now && Model.Status != WebNangCao.Models.InvoiceStatus.Paid)
+                        @if (Model.DueDate < DateTime.UtcNow.AddHours(7) && Model.Status != WebNangCao.Models.InvoiceStatus.Paid)
                         {
                         <span class="text-danger ml-2"><i class="feather icon-alert-circle"></i> Đã quá hạn</span>
                         }
@@ -65,23 +65,7 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    <!-- Điện -->
-                    <li class="list-group-item px-0 pb-3">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <div class="bg-light-warning text-warning d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
-                                    ⚡
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h6 class="mb-1">Tiền điện</h6>
-                                <small class="text-muted">@Model.ElectricityUsage kWh × @Model.ElectricityUnitPrice.ToString("N0")đ/kWh</small>
-                            </div>
-                            <div class="col-auto text-right">
-                                <h6 class="mb-0 text-warning">@Model.ElectricityFee.ToString("N0")đ</h6>
-                            </div>
-                        </div>
-                    </li>
+
                     <!-- Nước -->
                     <li class="list-group-item px-0 py-3">
                         <div class="row align-items-center">

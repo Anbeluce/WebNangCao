@@ -131,7 +131,7 @@ namespace WebNangCao.Controllers
             {
                 InvoiceId = id,
                 Amount = remaining,
-                PaymentDate = DateTime.Now,
+                PaymentDate = DateTime.UtcNow.AddHours(7),
                 PaymentMethod = "Chuyển khoản VietQR",
                 Note = "Cư dân báo đã chuyển khoản - Chờ duyệt", // Chuỗi này để Admin dễ lọc
                 IsDeleted = false

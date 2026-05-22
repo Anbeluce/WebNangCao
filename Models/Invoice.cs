@@ -9,7 +9,7 @@ namespace WebNangCao.Models
         // Điện
         public decimal ElectricityUsage { get; set; }    // Số kWh tiêu thụ
         public decimal ElectricityUnitPrice { get; set; } // Đơn giá (VNĐ/kWh)
-        public decimal ElectricityFee => ElectricityUsage * ElectricityUnitPrice;
+        public decimal ElectricityFee => 0;
 
         // Nước
         public decimal WaterUsage { get; set; }           // Số m³ tiêu thụ
@@ -19,7 +19,7 @@ namespace WebNangCao.Models
         // Phí dịch vụ
         public decimal ServiceFee { get; set; }
 
-        public decimal TotalAmount => ElectricityFee + WaterFee + ServiceFee;
+        public decimal TotalAmount => WaterFee + ServiceFee;
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Unpaid;
         public DateTime DueDate { get; set; }
 

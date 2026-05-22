@@ -351,7 +351,7 @@
                     <div class="service-card">
                         <div class="service-icon"><i class="feather icon-clipboard"></i></div>
                         <h5>Quản lý hóa đơn</h5>
-                        <p>Theo dõi hóa đơn điện, nước, phí quản lý hàng tháng. Thanh toán nhanh chóng, minh bạch và chính xác.</p>
+                        <p>Theo dõi hóa đơn nước, phí quản lý hàng tháng. Thanh toán nhanh chóng, minh bạch và chính xác.</p>
                     </div>
                 </div>
                 <div class="col-sm-4 fade-up">
@@ -478,7 +478,7 @@
                 <a href="#features">Đặc điểm</a>
                 <a asp-area="" asp-controller="Blog" asp-action="Index">Tin tức</a>
             </div>
-            <p class="footer-copy">&copy; @DateTime.Now.Year Chung cư Smart. All Rights Reserved.</p>
+            <p class="footer-copy">&copy; @DateTime.UtcNow.AddHours(7).Year Chung cư Smart. All Rights Reserved.</p>
         </div>
     </div>
 

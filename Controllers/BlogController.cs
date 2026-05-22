@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebNangCao.Data;
@@ -5,6 +6,7 @@ using WebNangCao.Models;
 
 namespace WebNangCao.Controllers
 {
+    [Authorize]
     public class BlogController : Controller
     {
         private readonly AppDbContext _context;

@@ -40,8 +40,14 @@
                                             <i class="feather icon-calendar"></i> @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                                         </h6>
                                         <p class="card-text text-muted" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
-                                            @* Strip HTML tags for preview *@
-                                            @(string.IsNullOrEmpty(item.Content) ? "" : System.Text.RegularExpressions.Regex.Replace(item.Content, "<.*?>", String.Empty))
+                                            @* Strip HTML tags and decode entities for preview *@
+                                            @{
+                                                var plainText = string.IsNullOrEmpty(item.Content) 
+                                                    ? "" 
+                                                    : System.Text.RegularExpressions.Regex.Replace(item.Content, "<.*?>", String.Empty);
+                                                var decodedText = System.Net.WebUtility.HtmlDecode(plainText);
+                                            }
+                                            @decodedText
                                         </p>
                                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm mt-auto">Xem chi tiết</a>
                                     </div>

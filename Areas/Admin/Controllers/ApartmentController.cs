@@ -147,7 +147,7 @@ namespace WebNangCao.Areas.Admin.Controllers
             apartment.Area = model.Area;
             apartment.Floor = model.Floor;
             apartment.OwnerId = model.OwnerId;
-            apartment.UpdatedAt = DateTime.UtcNow;
+            apartment.UpdatedAt = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
 
@@ -171,7 +171,7 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             // Soft delete
             apartment.IsDeleted = true;
-            apartment.UpdatedAt = DateTime.UtcNow;
+            apartment.UpdatedAt = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = $"Đã xóa căn hộ {apartment.ApartmentNumber}.";

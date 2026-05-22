@@ -46,9 +46,15 @@ namespace WebNangCao.Controllers
                 return View(model);
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !user.IsActive)
+            if (user == null)
             {
-                // Không thêm lỗi ở đây - sẽ xử lý dưới
+                ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng.");
+                return View(model);
+            }
+
+            if (!user.IsActive)
+            {
+                ModelState.AddModelError(string.Empty, "Tài khoản của bạn đã bị khóa hoặc ngừng hoạt động. Vui lòng liên hệ Ban quản lý.");
                 return View(model);
             }
 
@@ -104,6 +110,14 @@ namespace WebNangCao.Controllers
 
             if (!ModelState.IsValid)
                 return View(model);
+
+            // Kiểm tra xem email đã tồn tại chưa
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "Email này đã được đăng ký. Vui lòng đăng nhập hoặc sử dụng email khác.");
+                return View(model);
+            }
 
             // Tạo mã OTP ngẫu nhiên 6 số
             var otpCode = new Random().Next(100000, 999999).ToString();
@@ -175,13 +189,32 @@ namespace WebNangCao.Controllers
 
             if (model.OtpCode != sessionOtp)
             {
-                ModelState.AddModelError("OtpCode", "Mã OTP không chính xác.");
+                ModelState.AddModelError("OtpCode", "Mã xác thực không chính xác.");
+                TempData["ErrorMessage"] = "Mã OTP bạn vừa nhập không đúng. Vui lòng kiểm tra lại email.";
                 return View(model);
             }
 
             // OTP đúng -> Tiến hành tạo tài khoản
             var regData = JsonSerializer.Deserialize<RegisterVM>(registrationJson);
             if (regData == null) return RedirectToAction("Register");
+
+            // Kiểm tra xem người dùng đã được tạo chưa (trường hợp click đúp/double-submit)
+            var existingUser = await _userManager.FindByEmailAsync(regData.Email);
+            if (existingUser != null)
+            {
+                // Nếu đã tồn tại, có thể là do double-submit hoặc đã đăng ký xong ở tab khác
+                // Xóa session và cho phép đăng nhập luôn
+                HttpContext.Session.Remove("RegistrationOTP");
+                HttpContext.Session.Remove("RegistrationData");
+
+                if (!(User.Identity?.IsAuthenticated == true))
+                {
+                    await _signInManager.SignInAsync(existingUser, isPersistent: false);
+                }
+                
+                TempData["SuccessMessage"] = "Tài khoản đã được xác thực thành công.";
+                return RedirectToAction("Index", "Home");
+            }
 
             var user = new ApplicationUser
             {
@@ -207,6 +240,19 @@ namespace WebNangCao.Controllers
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 TempData["SuccessMessage"] = "Đăng ký và xác thực thành công! Chào mừng bạn.";
                 return RedirectToAction("Index", "Home");
+            }
+
+            // Nếu thất bại vì email đã tồn tại (lại một lần nữa check race condition)
+            if (result.Errors.Any(e => e.Code == "DuplicateEmail" || e.Code == "DuplicateUserName"))
+            {
+                var userAgain = await _userManager.FindByEmailAsync(regData.Email);
+                if (userAgain != null)
+                {
+                    HttpContext.Session.Remove("RegistrationOTP");
+                    HttpContext.Session.Remove("RegistrationData");
+                    await _signInManager.SignInAsync(userAgain, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             foreach (var error in result.Errors)

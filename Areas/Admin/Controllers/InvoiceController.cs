@@ -84,13 +84,14 @@ namespace WebNangCao.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             await PopulateApartmentDropdown();
+            var localNow = DateTime.UtcNow.AddHours(7);
             var model = new CreateInvoiceVM
             {
-                Month = DateTime.Now.Month,
-                Year = DateTime.Now.Year,
-                ElectricityUnitPrice = DefaultElectricityPrice,
+                Month = localNow.Month,
+                Year = localNow.Year,
+                ElectricityUnitPrice = 0,
                 WaterUnitPrice = DefaultWaterPrice,
-                DueDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(14)
+                DueDate = new DateTime(localNow.Year, localNow.Month, 1).AddMonths(1).AddDays(14)
             };
             return View(model);
         }
@@ -143,7 +144,7 @@ namespace WebNangCao.Areas.Admin.Controllers
 
                 if (apartment?.Owner?.Email != null)
                 {
-                    var subject = $"[Thông báo] Hóa đơn tiền điện/nước tháng {model.Month}/{model.Year}";
+                    var subject = $"[Thông báo] Hóa đơn tiền nước & phí dịch vụ tháng {model.Month}/{model.Year}";
                     var body = $@"
                         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;'>
                             <h2 style='color: #04a9f5;'>Thông báo hóa đơn mới</h2>
@@ -153,10 +154,6 @@ namespace WebNangCao.Areas.Admin.Controllers
                                 <tr style='background: #f4f7fa;'>
                                     <th style='padding: 10px; border: 1px solid #eee; text-align: left;'>Hạng mục</th>
                                     <th style='padding: 10px; border: 1px solid #eee; text-align: right;'>Thành tiền</th>
-                                </tr>
-                                <tr>
-                                    <td style='padding: 10px; border: 1px solid #eee;'>Tiền điện ({model.ElectricityUsage} kWh)</td>
-                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{(model.ElectricityUsage * model.ElectricityUnitPrice):N0}đ</td>
                                 </tr>
                                 <tr>
                                     <td style='padding: 10px; border: 1px solid #eee;'>Tiền nước ({model.WaterUsage} m³)</td>
@@ -254,7 +251,7 @@ namespace WebNangCao.Areas.Admin.Controllers
             invoice.ServiceFee = model.ServiceFee;
             invoice.DueDate = model.DueDate;
             invoice.Status = model.Status;
-            invoice.UpdatedAt = DateTime.UtcNow;
+            invoice.UpdatedAt = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
 
@@ -281,7 +278,7 @@ namespace WebNangCao.Areas.Admin.Controllers
                                 <div style='background: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;'>
                                     <p style='margin: 5px 0;'>Mã hóa đơn: <strong>#{invoice.Id}</strong></p>
                                     <p style='margin: 5px 0;'>Số tiền: <strong style='color: #04a9f5;'>{invoice.TotalAmount:N0}đ</strong></p>
-                                    <p style='margin: 5px 0;'>Ngày thanh toán: <strong>{DateTime.Now:dd/MM/yyyy HH:mm}</strong></p>
+                                    <p style='margin: 5px 0;'>Ngày thanh toán: <strong>{DateTime.UtcNow.AddHours(7):dd/MM/yyyy HH:mm}</strong></p>
                                     <p style='margin: 5px 0;'>Trạng thái: <strong style='color: #28a745;'>Đã thanh toán</strong></p>
                                 </div>
                                 <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ Ban quản lý để được hỗ trợ.</p>
@@ -315,7 +312,7 @@ namespace WebNangCao.Areas.Admin.Controllers
             }
 
             invoice.IsDeleted = true;
-            invoice.UpdatedAt = DateTime.UtcNow;
+            invoice.UpdatedAt = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = $"Đã xóa hóa đơn T{invoice.Month}/{invoice.Year} - {invoice.Apartment.ApartmentNumber}.";
@@ -344,7 +341,7 @@ namespace WebNangCao.Areas.Admin.Controllers
                     Month = month,
                     Year = year,
                     ElectricityUsage = 0,
-                    ElectricityUnitPrice = DefaultElectricityPrice,
+                    ElectricityUnitPrice = 0,
                     WaterUsage = 0,
                     WaterUnitPrice = DefaultWaterPrice,
                     ServiceFee = (decimal)apt.Area * serviceFeePerM2,
@@ -358,7 +355,7 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Đã tạo {created} hóa đơn tháng {month}/{year} (phí DV: {serviceFeePerM2:N0}đ/m²). Vui lòng cập nhật số điện/nước cho từng căn hộ.";
+            TempData["SuccessMessage"] = $"Đã tạo {created} hóa đơn tháng {month}/{year} (phí DV: {serviceFeePerM2:N0}đ/m²). Vui lòng cập nhật số nước cho từng căn hộ.";
             return RedirectToAction(nameof(Index));
         }
 

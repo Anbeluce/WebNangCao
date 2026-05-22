@@ -1,7 +1,7 @@
 @model List<InvoiceListVM>
 @{
     ViewData["Title"] = "Quản lý hóa đơn";
-    ViewData["Subtitle"] = "Tạo và quản lý hóa đơn điện nước, phí dịch vụ";
+    ViewData["Subtitle"] = "Tạo và quản lý hóa đơn nước, phí dịch vụ";
 }
 
 @section Styles {
@@ -83,7 +83,7 @@
                             <label class="form-label">Năm</label>
                             <select name="year" class="form-control">
                                 <option value="">Tất cả năm</option>
-                                @for (int y = DateTime.Now.Year; y >= 2020; y--)
+                                @for (int y = DateTime.UtcNow.AddHours(7).Year; y >= 2020; y--)
                                 {
                                     <option value="@y" selected="@(ViewBag.FilterYear != null && (int)ViewBag.FilterYear == y)">@y</option>
                                 }
@@ -107,7 +107,6 @@
                             <tr>
                                 <th>Căn hộ</th>
                                 <th>Kỳ</th>
-                                <th class="text-right">Điện</th>
                                 <th class="text-right">Nước</th>
                                 <th class="text-right">Phí DV</th>
                                 <th class="text-right">Tổng</th>
@@ -127,10 +126,6 @@
                                         }
                                     </td>
                                     <td>T@(inv.Month)/@inv.Year</td>
-                                    <td class="text-right">
-                                        <span class="text-warning">@inv.ElectricityFee.ToString("N0")đ</span>
-                                        <br><small class="text-muted">@inv.ElectricityUsage kWh</small>
-                                    </td>
                                     <td class="text-right">
                                         <span class="text-info">@inv.WaterFee.ToString("N0")đ</span>
                                         <br><small class="text-muted">@inv.WaterUsage m³</small>
@@ -182,7 +177,7 @@
             </div>
             <form asp-action="CreateBatch" method="post">
                 <div class="modal-body">
-                    <p class="text-muted mb-3">Tạo cho tất cả căn hộ có chủ. Số điện/nước = 0, cập nhật sau.</p>
+                    <p class="text-muted mb-3">Tạo cho tất cả căn hộ có chủ. Số nước = 0, cập nhật sau.</p>
                     @Html.AntiForgeryToken()
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -190,13 +185,13 @@
                             <select name="month" class="form-control">
                                 @for (int m = 1; m <= 12; m++)
                                 {
-                                    <option value="@m" selected="@(m == DateTime.Now.Month)">Tháng @m</option>
+                                    <option value="@m" selected="@(m == DateTime.UtcNow.AddHours(7).Month)">Tháng @m</option>
                                 }
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Năm</label>
-                            <input type="number" name="year" value="@DateTime.Now.Year" class="form-control" />
+                            <input type="number" name="year" value="@DateTime.UtcNow.AddHours(7).Year" class="form-control" />
                         </div>
                     </div>
                     <div class="form-group mb-0">

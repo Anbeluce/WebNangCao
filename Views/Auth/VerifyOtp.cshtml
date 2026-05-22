@@ -72,25 +72,20 @@
                                 </div>
                             }
 
-                            @if (!ViewData.ModelState.IsValid)
-                            {
-                                <div class="alert alert-danger text-left">
-                                    <div asp-validation-summary="All"></div>
-                                </div>
-                            }
+                            @* Đã có khung thông báo TempData và lỗi dưới ô input nên không cần Validation Summary ở đây *@
 
                             <!-- Form -->
-                            <form asp-action="VerifyOtp" asp-controller="Auth" method="post">
+                            <form asp-action="VerifyOtp" asp-controller="Auth" method="post" id="otpForm">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" asp-for="Email" />
 
                                 <div class="form-group mb-4">
                                     <label class="floating-label" for="OtpCode">Nhập 6 chữ số OTP</label>
                                     <input asp-for="OtpCode" class="form-control otp-input" maxlength="6" autocomplete="off" autofocus>
-                                    <span asp-validation-for="OtpCode"></span>
+                                    <span asp-validation-for="OtpCode" class="text-danger"></span>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary btn-block mb-4">Xác nhận đăng ký</button>
+                                <button type="submit" id="btnVerify" class="btn btn-primary btn-block mb-4">Xác nhận đăng ký</button>
                             </form>
 
                             <p class="mb-2 text-muted">Không nhận được mã? <a href="#" class="f-w-400">Gửi lại (Chưa hỗ trợ)</a></p>
@@ -113,32 +108,35 @@
 
     <script>
         $(document).ready(function() {
-            var $form = $('form');
+            var $form = $('#otpForm');
             var $input = $('.otp-input');
-            var $btn = $form.find('button[type="submit"]');
+            var $btn = $('#btnVerify');
 
-            function performSubmit() {
-                if ($form.valid()) {
-                    $btn.prop('disabled', true);
-                    $btn.html('<i class="feather icon-loader rotate"></i> Đang xác thực...');
-                    
-                    setTimeout(function() {
-                        $form.get(0).submit();
-                    }, 1000);
-                }
+            // Khi nạp lại trang, tự động focus vào ô nhập
+            $input.focus();
+            if ($input.val().length > 0) {
+                $input.select();
             }
 
-            // Tự động submit khi nhập đủ 6 số
+            // Xử lý khi nhập
             $input.on('input', function() {
-                var val = $(this).val();
-                if (val.length === 6 && /^\d+$/.test(val)) {
-                    performSubmit();
+                var val = $(this).val().replace(/\D/g, ''); // Chỉ lấy số
+                $(this).val(val);
+                
+                // Tự động submit khi đủ 6 số
+                if (val.length === 6) {
+                    $form.submit();
                 }
             });
 
-            $form.on('submit', function(e) {
-                e.preventDefault();
-                performSubmit();
+            // Khi submit form
+            $form.on('submit', function() {
+                if ($form.valid()) {
+                    $btn.prop('disabled', true);
+                    $btn.html('<i class="feather icon-loader rotate"></i> Đang kiểm tra...');
+                    return true;
+                }
+                return false;
             });
         });
     </script>

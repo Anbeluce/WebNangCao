@@ -64,7 +64,7 @@ namespace WebNangCao.Areas.Admin.Controllers
                     DateOfBirth = user.DateOfBirth,
                     IsActive = user.IsActive,
                     Roles = roles,
-                    CreatedAt = DateTime.Now // Placeholder vì Identity không lưu CreatedAt mặc định
+                    CreatedAt = DateTime.UtcNow.AddHours(7) // Placeholder vì Identity không lưu CreatedAt mặc định
                 });
             }
 

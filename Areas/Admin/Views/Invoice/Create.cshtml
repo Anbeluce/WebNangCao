@@ -1,7 +1,7 @@
 @model CreateInvoiceVM
 @{
     ViewData["Title"] = "Tạo hóa đơn";
-    ViewData["Subtitle"] = "Tạo hóa đơn điện nước cho căn hộ";
+    ViewData["Subtitle"] = "Tạo hóa đơn nước và dịch vụ cho căn hộ";
 }
 
 <div class="row">
@@ -46,32 +46,7 @@
                         </div>
                     </div>
 
-                    <!-- Điện -->
-                    <h6 class="mt-4 mb-3 text-warning"><i class="feather icon-zap"></i> Tiền điện</h6>
-                    <div class="row align-items-end mb-4">
-                        <div class="col-md-4">
-                            <div class="form-group mb-md-0">
-                                <label class="form-label">Số kWh tiêu thụ</label>
-                                <input asp-for="ElectricityUsage" type="number" step="0.1" placeholder="VD: 150" id="elecUsage" oninput="calcTotal()" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-md-1 text-center d-none d-md-block">
-                            <span class="f-20 text-muted">×</span>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group mb-md-0">
-                                <label class="form-label">Đơn giá (đ/kWh)</label>
-                                <input asp-for="ElectricityUnitPrice" type="number" step="100" id="elecPrice" oninput="calcTotal()" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-md-1 text-center d-none d-md-block">
-                            <span class="f-20 text-muted">=</span>
-                        </div>
-                        <div class="col-md-2 text-right">
-                            <small class="text-muted d-block">Thành tiền</small>
-                            <span id="elecFee" class="f-18 font-weight-bold text-warning">0đ</span>
-                        </div>
-                    </div>
+
 
                     <!-- Nước -->
                     <h6 class="mt-4 mb-3 text-info"><i class="feather icon-droplet"></i> Tiền nước</h6>
@@ -138,15 +113,12 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         function calcTotal() {
-            var eu = parseFloat(document.getElementById('elecUsage').value) || 0;
-            var ep = parseFloat(document.getElementById('elecPrice').value) || 0;
             var wu = parseFloat(document.getElementById('waterUsage').value) || 0;
             var wp = parseFloat(document.getElementById('waterPrice').value) || 0;
             var sf = parseFloat(document.getElementById('serviceFee').value) || 0;
-            var ef = eu * ep, wf = wu * wp;
-            document.getElementById('elecFee').textContent = ef.toLocaleString('vi-VN') + 'đ';
+            var wf = wu * wp;
             document.getElementById('waterFee').textContent = wf.toLocaleString('vi-VN') + 'đ';
-            document.getElementById('totalAmount').textContent = (ef + wf + sf).toLocaleString('vi-VN') + 'đ';
+            document.getElementById('totalAmount').textContent = (wf + sf).toLocaleString('vi-VN') + 'đ';
         }
         calcTotal();
     </script>
