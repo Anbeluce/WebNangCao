@@ -243,9 +243,10 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Thanh toán thành công!',
-                                text: 'Hệ thống đã ghi nhận khoản thanh toán của bạn.',
-                                confirmButtonText: 'Đóng'
-                            }).then((result) => {
+                                text: 'Hệ thống sẽ tự động cập nhật trong giây lát...',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
                                 window.location.reload();
                             });
                         }
