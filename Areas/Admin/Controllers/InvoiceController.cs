@@ -362,14 +362,13 @@ namespace WebNangCao.Areas.Admin.Controllers
         private async Task PopulateApartmentDropdown(int? selectedId = null)
         {
             var apartments = await _context.Apartments
-                .Where(a => !a.IsDeleted)
+                .Where(a => !a.IsDeleted && a.OwnerId != null) // Chỉ lấy căn có chủ
                 .Include(a => a.Owner)
                 .OrderBy(a => a.ApartmentNumber)
                 .Select(a => new
                 {
                     a.Id,
-                    Display = a.ApartmentNumber + " - Tầng " + a.Floor
-                        + (a.Owner != null ? " (" + a.Owner.FullName + ")" : " (Chưa có chủ)")
+                    Display = a.ApartmentNumber + " - Tầng " + a.Floor + " (" + a.Owner.FullName + ")"
                 })
                 .ToListAsync();
 

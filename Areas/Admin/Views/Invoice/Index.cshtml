@@ -7,6 +7,18 @@
 @section Styles {
     <!-- data tables css -->
     <link rel="stylesheet" href="~/plugins/data-tables/css/datatables.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 43px;
+            border: 1px solid #ced4da;
+            padding: 6px 12px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 41px;
+        }
+    </style>
 }
 
 <!-- Statistics Cards -->
@@ -91,7 +103,7 @@
                         </div>
                         <div class="col-md-3 mb-2">
                             <label class="form-label">Căn hộ</label>
-                            <select name="apartmentId" asp-items="@(ViewBag.Apartments as SelectList)" class="form-control">
+                            <select name="apartmentId" asp-items="@(ViewBag.Apartments as SelectList)" class="form-control select2">
                                 <option value="">Tất cả căn hộ</option>
                             </select>
                         </div>
@@ -211,6 +223,8 @@
 @section Scripts {
     <!-- datatable Js -->
     <script src="~/plugins/data-tables/js/datatables.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#simpletable').DataTable({
@@ -219,6 +233,12 @@
                 },
                 "pageLength": 10,
                 "ordering": false // to keep server order if any
+            });
+            
+            $('.select2').select2({
+                placeholder: "Tất cả căn hộ",
+                allowClear: true,
+                width: '100%'
             });
         });
     </script>

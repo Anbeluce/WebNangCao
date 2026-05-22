@@ -4,6 +4,21 @@
     ViewData["Subtitle"] = "Tạo hóa đơn nước và dịch vụ cho căn hộ";
 }
 
+@section Styles {
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 43px;
+            border: 1px solid #ced4da;
+            padding: 6px 12px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 41px;
+        }
+    </style>
+}
+
 <div class="row">
     <div class="col-sm-12 col-md-10 col-xl-8">
         <div class="card">
@@ -23,8 +38,8 @@
 
                     <div class="form-group">
                         <label asp-for="ApartmentId" class="form-label">Căn hộ <span class="text-danger">*</span></label>
-                        <select asp-for="ApartmentId" asp-items="@(ViewBag.Apartments as SelectList)" class="form-control">
-                            <option value="">-- Chọn căn hộ --</option>
+                        <select asp-for="ApartmentId" asp-items="@(ViewBag.Apartments as SelectList)" class="form-control select2">
+                            <option value="">-- Tìm và chọn căn hộ --</option>
                         </select>
                         <span asp-validation-for="ApartmentId" class="text-danger small"></span>
                     </div>
@@ -111,7 +126,16 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "-- Tìm và chọn căn hộ --",
+                allowClear: true,
+                width: '100%'
+            });
+        });
         function calcTotal() {
             var wu = parseFloat(document.getElementById('waterUsage').value) || 0;
             var wp = parseFloat(document.getElementById('waterPrice').value) || 0;
