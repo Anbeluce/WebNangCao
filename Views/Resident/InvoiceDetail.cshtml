@@ -234,7 +234,7 @@
         <script>
             $(document).ready(function () {
                 var invoiceId = @Model.Id;
-                var currentPaidAmount = @paidAmount;
+                var currentPaidAmount = parseFloat("@paidAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)");
 
                 var pollInterval = setInterval(function () {
                     $.get('/api/payment/status/' + invoiceId, function (data) {
