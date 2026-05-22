@@ -234,11 +234,11 @@
         <script>
             $(document).ready(function () {
                 var invoiceId = @Model.Id;
-                var currentStatus = "@Model.Status";
+                var currentPaidAmount = @paidAmount;
 
                 var pollInterval = setInterval(function () {
                     $.get('/api/payment/status/' + invoiceId, function (data) {
-                        if (data && data.isPaid) {
+                        if (data && data.totalPaid > currentPaidAmount) {
                             clearInterval(pollInterval);
                             Swal.fire({
                                 icon: 'success',

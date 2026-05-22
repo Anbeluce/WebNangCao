@@ -27,10 +27,17 @@ namespace WebNangCao.Controllers.Api
                 return NotFound();
             }
 
+            var previousAmounts = await _context.Transactions
+                .Where(t => t.InvoiceId == invoice.Id && !t.IsDeleted)
+                .Select(t => t.Amount)
+                .ToListAsync();
+            var totalPaid = previousAmounts.Sum();
+
             return Ok(new
             {
                 isPaid = invoice.Status == InvoiceStatus.Paid,
-                status = invoice.Status.ToString()
+                status = invoice.Status.ToString(),
+                totalPaid = totalPaid
             });
         }
     }
