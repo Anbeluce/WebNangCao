@@ -30,7 +30,15 @@ namespace WebNangCao.Controllers.Api
                 string apiKey = string.Empty;
                 if (Request.Headers.TryGetValue("Authorization", out var authHeader))
                 {
-                    apiKey = authHeader.ToString().Replace("Apikey ", "").Replace("Bearer ", "").Trim();
+                    apiKey = authHeader.ToString();
+                    if (apiKey.StartsWith("apikey ", StringComparison.OrdinalIgnoreCase) || apiKey.StartsWith("bearer ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        apiKey = apiKey.Substring(7).Trim();
+                    }
+                    else
+                    {
+                        apiKey = apiKey.Trim();
+                    }
                 }
                 else if (Request.Headers.TryGetValue("X-API-Key", out var xApiHeader))
                 {
