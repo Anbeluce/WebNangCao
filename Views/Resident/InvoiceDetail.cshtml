@@ -238,7 +238,7 @@
 
                 var pollInterval = setInterval(function () {
                     // Thêm tham số t để chống cache trên trình duyệt
-                    $.get('/api/payment/status/' + invoiceId + '?t=' + new Date().getTime(), function (data) {
+                    $.get('/Resident/CheckPaymentStatus/' + invoiceId + '?t=' + new Date().getTime(), function (data) {
                         console.log("Checking payment:", data);
                         if (data && data.totalPaid > currentPaidAmount) {
                             clearInterval(pollInterval);

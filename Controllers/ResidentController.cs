@@ -94,6 +94,33 @@ namespace WebNangCao.Controllers
             return View(invoice);
         }
 
+        // GET: /Resident/CheckPaymentStatus/5
+        [HttpGet]
+        public async Task<IActionResult> CheckPaymentStatus(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Json(null);
+
+            var invoice = await _context.Invoices
+                .Include(i => i.Apartment)
+                .FirstOrDefaultAsync(i => i.Id == id && i.Apartment.OwnerId == user.Id && !i.IsDeleted);
+            
+            if (invoice == null) return Json(null);
+
+            var previousAmounts = await _context.Transactions
+                .Where(t => t.InvoiceId == invoice.Id && !t.IsDeleted)
+                .Select(t => t.Amount)
+                .ToListAsync();
+            var totalPaid = previousAmounts.Sum();
+
+            return Json(new
+            {
+                isPaid = invoice.Status == InvoiceStatus.Paid,
+                status = invoice.Status.ToString(),
+                totalPaid = totalPaid
+            });
+        }
+
         // POST: /Resident/ConfirmPaymentRequest
         [HttpPost]
         [ValidateAntiForgeryToken]
