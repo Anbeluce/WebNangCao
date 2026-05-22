@@ -47,7 +47,7 @@ namespace WebNangCao.Controllers.Api
 
                 if (!_sepayService.VerifyWebhookSecret(apiKey))
                 {
-                    _logger.LogWarning("Xác thực Webhook SePay thất bại. Sai API Key.");
+                    _logger.LogWarning($"[DEBUG SEPAY] Received Key: '{apiKey}'. Header raw: '{Request.Headers["Authorization"]}'");
                     return Unauthorized(new { success = false, message = "Invalid API Key" });
                 }
 
