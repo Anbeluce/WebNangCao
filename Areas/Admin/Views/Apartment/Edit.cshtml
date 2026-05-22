@@ -1,54 +1,134 @@
 @model EditApartmentVM
 @{
-    ViewData["Title"] = "Sửa căn hộ";
-    ViewData["Subtitle"] = $"Chỉnh sửa thông tin căn hộ {Model.ApartmentNumber}";
+    ViewData["Title"] = "Quản lý Căn hộ";
+    ViewData["Subtitle"] = $"Thay đổi cư dân cho căn hộ {Model.ApartmentNumber}";
+    var isOccupiedInitial = !string.IsNullOrEmpty(Model.OwnerId);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css">
+    <style>
+        /* Force zero rounded corners globally on all customized components */
+        .card,
+        .btn,
+        .form-control,
+        .alert,
+        .select2-container,
+        .select2-selection,
+        .select2-dropdown,
+        .select2-results__option {
+            border-radius: 0 !important;
+        }
+
+        /* Style Select2 to be completely flat (no rounded corners) and match theme input fields */
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #ced4da !important;
+            border-radius: 0 !important;
+            height: calc(1.5em + 0.75rem + 2px) !important;
+            padding: 0.375rem 0.75rem !important;
+            display: block !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #495057 !important;
+            line-height: 1.5 !important;
+            padding-left: 0 !important;
+            font-weight: 400 !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100% !important;
+            top: 0 !important;
+            right: 8px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #6c757d transparent transparent transparent !important;
+        }
+        .select2-dropdown {
+            border: 1px solid #ced4da !important;
+            border-radius: 0 !important;
+        }
+        .select2-results__option {
+            padding: 8px 12px !important;
+            font-size: 0.9rem !important;
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #04a9f5 !important;
+            color: #fff !important;
+        }
+    </style>
 }
 
 <div class="row">
-    <div class="col-sm-12 col-md-8 col-xl-6">
+    <div class="col-sm-12 col-md-10 col-xl-8">
         <div class="card">
             <div class="card-header">
-                <h5>Cập nhật thông tin căn hộ</h5>
+                <h5>Gán cư dân sở hữu</h5>
+                <span class="d-block m-t-5 text-muted">Căn hộ: <strong>@Model.ApartmentNumber</strong></span>
             </div>
             <div class="card-body">
+                
+                <!-- Display Only Room Specifications -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Số căn hộ</label>
+                            <input class="form-control" value="@Model.ApartmentNumber" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Diện tích (m²)</label>
+                            <input class="form-control" value="@Model.Area" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Tầng</label>
+                            <input class="form-control" value="@Model.Floor" readonly />
+                        </div>
+                    </div>
+                </div>
+
                 <form asp-action="Edit" method="post">
                     @Html.AntiForgeryToken()
+                    
+                    <!-- Hidden fields to satisfy EditApartmentVM validation requirements -->
                     <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ApartmentNumber" />
+                    <input type="hidden" asp-for="Area" />
+                    <input type="hidden" asp-for="Floor" />
 
-                    <div class="form-group">
-                        <label asp-for="ApartmentNumber" class="form-label">Số căn hộ <span class="text-danger">*</span></label>
-                        <input asp-for="ApartmentNumber" class="form-control" />
-                        <span asp-validation-for="ApartmentNumber" class="text-danger small"></span>
+                    <!-- Live updating status alert box -->
+                    <div id="statusAlertBox" class="alert @(isOccupiedInitial ? "alert-info" : "alert-success") mb-4" style="border-radius: 0 !important;">
+                        <span id="statusAlertText">
+                            @if (isOccupiedInitial)
+                            {
+                                @:Căn hộ đang có chủ sở hữu. Bạn có thể thay đổi người sở hữu hoặc thu hồi lại phòng trống bằng tùy chọn dưới đây.
+                            }
+                            else
+                            {
+                                @:Căn hộ hiện đang để trống. Chọn một cư dân trong danh sách để đăng ký chủ sở hữu căn hộ này.
+                            }
+                        </span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Area" class="form-label">Diện tích (m²) <span class="text-danger">*</span></label>
-                                <input asp-for="Area" type="number" step="0.1" class="form-control" />
-                                <span asp-validation-for="Area" class="text-danger small"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Floor" class="form-label">Tầng <span class="text-danger">*</span></label>
-                                <input asp-for="Floor" type="number" class="form-control" />
-                                <span asp-validation-for="Floor" class="text-danger small"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="OwnerId" class="form-label">Chủ sở hữu</label>
-                        <select asp-for="OwnerId" asp-items="@(ViewBag.Owners as SelectList)" class="form-control">
-                            <option value="">-- Chưa có chủ sở hữu --</option>
+                    <div class="form-group mb-4">
+                        <label asp-for="OwnerId" class="form-label">Chọn cư dân sở hữu căn hộ</label>
+                        <select asp-for="OwnerId" class="form-control js-searchable-select">
+                            @if (!string.IsNullOrEmpty(Model.OwnerId))
+                            {
+                                <option value="@Model.OwnerId" selected="selected">@ViewBag.CurrentOwnerName</option>
+                            }
+                            else
+                            {
+                                <option value="" selected="selected">-- Chưa có chủ sở hữu (Trống) --</option>
+                            }
                         </select>
-                        <span asp-validation-for="OwnerId" class="text-danger small"></span>
+                        <span asp-validation-for="OwnerId" class="text-danger small mt-1 d-block"></span>
                     </div>
 
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-warning text-dark"><i class="feather icon-save"></i> Cập nhật</button>
-                        <a asp-action="Index" class="btn btn-light"><i class="feather icon-arrow-left"></i> Quay lại</a>
+                    <div class="mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-warning text-dark">Cập nhật thay đổi</button>
+                        <a asp-action="Index" class="btn btn-light">Hủy bỏ</a>
                     </div>
                 </form>
             </div>
@@ -58,4 +138,57 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const $ownerSelect = $(".js-searchable-select");
+            const alertBox = document.querySelector("#statusAlertBox");
+            const alertText = document.querySelector("#statusAlertText");
+
+            if ($ownerSelect.length && alertBox && alertText) {
+                // Initialize select2 with AJAX search
+                $ownerSelect.select2({
+                    width: '100%',
+                    placeholder: '-- Chưa có chủ sở hữu (Trống) --',
+                    allowClear: true,
+                    ajax: {
+                        url: '@Url.Action("SearchUsers", "Apartment", new { area = "Admin" })',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                q: params.term // search term
+                            };
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        id: item.id,
+                                        text: item.text
+                                    };
+                                })
+                            };
+                        },
+                        cache: true
+                    }
+                });
+
+                // Listen to change event
+                $ownerSelect.on("change", function () {
+                    const selectedVal = $(this).val();
+                    if (!selectedVal || selectedVal === "") {
+                        // Empty state selected
+                        alertBox.className = "alert alert-success mb-4";
+                        alertText.textContent = "Căn hộ sẽ được chuyển về trạng thái Trống sau khi lưu. Quyền sở hữu trước đó sẽ bị xóa.";
+                    } else {
+                        // Occupied state selected
+                        alertBox.className = "alert alert-info mb-4";
+                        const selectedText = $(this).find("option:selected").text();
+                        alertText.innerHTML = `Căn hộ sẽ được bàn giao cho cư dân <strong>${selectedText}</strong> làm chủ sở hữu sau khi lưu.`;
+                    }
+                });
+            }
+        });
+    </script>
 }

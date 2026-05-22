@@ -42,6 +42,17 @@ namespace WebNangCao.Areas.Admin.Controllers
                 })
                 .ToListAsync();
 
+            // Tính toán số liệu thống kê KPI
+            int total = apartments.Count;
+            int occupied = apartments.Count(a => a.OwnerName != null);
+            int empty = total - occupied;
+            double occupancyRate = total > 0 ? Math.Round((double)occupied / total * 100, 1) : 0;
+
+            ViewBag.TotalCount = total;
+            ViewBag.OccupiedCount = occupied;
+            ViewBag.EmptyCount = empty;
+            ViewBag.OccupancyRate = occupancyRate;
+
             return View(apartments);
         }
 
@@ -92,6 +103,7 @@ namespace WebNangCao.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var apartment = await _context.Apartments
+                .Include(a => a.Owner)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
             if (apartment == null)
@@ -109,6 +121,9 @@ namespace WebNangCao.Areas.Admin.Controllers
                 OwnerId = apartment.OwnerId
             };
 
+            // Pass the current owner's text to ViewBag for Select2 initialization
+            ViewBag.CurrentOwnerName = apartment.Owner != null ? $"{apartment.Owner.FullName} ({apartment.Owner.Email})" : null;
+
             await PopulateOwnerDropdown(model.OwnerId);
             return View(model);
         }
@@ -120,6 +135,11 @@ namespace WebNangCao.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                if (!string.IsNullOrEmpty(model.OwnerId))
+                {
+                    var owner = await _userManager.FindByIdAsync(model.OwnerId);
+                    ViewBag.CurrentOwnerName = owner != null ? $"{owner.FullName} ({owner.Email})" : null;
+                }
                 await PopulateOwnerDropdown(model.OwnerId);
                 return View(model);
             }
@@ -139,6 +159,11 @@ namespace WebNangCao.Areas.Admin.Controllers
             if (exists)
             {
                 ModelState.AddModelError("ApartmentNumber", "Số căn hộ này đã tồn tại.");
+                if (!string.IsNullOrEmpty(model.OwnerId))
+                {
+                    var owner = await _userManager.FindByIdAsync(model.OwnerId);
+                    ViewBag.CurrentOwnerName = owner != null ? $"{owner.FullName} ({owner.Email})" : null;
+                }
                 await PopulateOwnerDropdown(model.OwnerId);
                 return View(model);
             }
@@ -176,6 +201,36 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             TempData["SuccessMessage"] = $"Đã xóa căn hộ {apartment.ApartmentNumber}.";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchUsers(string? q)
+        {
+            var query = q?.Trim().ToLower();
+
+            var usersQuery = _userManager.Users.Where(u => u.IsActive);
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                usersQuery = usersQuery.Where(u =>
+                    u.FullName.ToLower().Contains(query) ||
+                    (u.Email != null && u.Email.ToLower().Contains(query)) ||
+                    (u.PhoneNumber != null && u.PhoneNumber.ToLower().Contains(query)) ||
+                    (u.IdentityCardNumber != null && u.IdentityCardNumber.ToLower().Contains(query))
+                );
+            }
+
+            var users = await usersQuery
+                .OrderBy(u => u.FullName)
+                .Take(20)
+                .Select(u => new
+                {
+                    id = u.Id,
+                    text = u.FullName + " (" + u.Email + ")" + (u.PhoneNumber != null ? " - SĐT: " + u.PhoneNumber : "") + (u.IdentityCardNumber != null ? " - CCCD: " + u.IdentityCardNumber : "")
+                })
+                .ToListAsync();
+
+            return Json(users);
         }
 
         private async Task PopulateOwnerDropdown(string? selectedId = null)

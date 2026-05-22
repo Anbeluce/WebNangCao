@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using WebNangCao.Models;
 
 namespace WebNangCao.Models.ViewModels.Admin
 {
@@ -13,6 +14,8 @@ namespace WebNangCao.Models.ViewModels.Admin
         public bool IsActive { get; set; }
         public IList<string> Roles { get; set; } = new List<string>();
         public DateTime CreatedAt { get; set; }
+        public List<string> Apartments { get; set; } = new List<string>();
+        public ICollection<Apartment> ApartmentDetails { get; set; } = new List<Apartment>();
     }
 
     public class CreateUserVM

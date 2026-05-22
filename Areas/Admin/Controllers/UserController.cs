@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebNangCao.Models;
 using WebNangCao.Models.ViewModels.Admin;
+using WebNangCao.Data;
+
 
 namespace WebNangCao.Areas.Admin.Controllers
 {
@@ -13,12 +15,15 @@ namespace WebNangCao.Areas.Admin.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly AppDbContext _context;
 
         public UserController(UserManager<ApplicationUser> userManager,
-                              RoleManager<IdentityRole> roleManager)
+                              RoleManager<IdentityRole> roleManager,
+                              AppDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
         // GET: /Admin/User
@@ -230,7 +235,10 @@ namespace WebNangCao.Areas.Admin.Controllers
         // GET: /Admin/User/Details/{id}
         public async Task<IActionResult> Details(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _context.Users
+                .Include(u => u.Apartments)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
             if (user == null)
                 return NotFound();
 
@@ -245,7 +253,16 @@ namespace WebNangCao.Areas.Admin.Controllers
                 IdentityCardNumber = user.IdentityCardNumber,
                 DateOfBirth = user.DateOfBirth,
                 IsActive = user.IsActive,
-                Roles = roles
+                Roles = roles,
+                Apartments = user.Apartments
+                    .Where(a => !a.IsDeleted)
+                    .OrderBy(a => a.ApartmentNumber)
+                    .Select(a => a.ApartmentNumber)
+                    .ToList(),
+                ApartmentDetails = user.Apartments
+                    .Where(a => !a.IsDeleted)
+                    .OrderBy(a => a.ApartmentNumber)
+                    .ToList()
             };
 
             return View(vm);
