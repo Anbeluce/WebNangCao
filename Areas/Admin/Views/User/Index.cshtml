@@ -63,6 +63,7 @@
                                 <th>Email</th>
                                 <th>Điện thoại</th>
                                 <th>Vai trò</th>
+                                <th>Ngày đăng ký</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>
@@ -90,6 +91,9 @@
                                             var badgeClass = role == "Admin" ? "badge-primary" : role == "Staff" ? "badge-warning" : "badge-success";
                                             <span class="badge @badgeClass mr-1">@role</span>
                                         }
+                                    </td>
+                                    <td>
+                                        @user.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                                     </td>
                                     <td>
                                         @if (user.IsActive)
