@@ -69,11 +69,17 @@ namespace WebNangCao.Services
 
             // 5. Kiểm tra số tiền (chỉ update trạng thái nếu đủ tiền, hoặc xử lý theo logic kinh doanh)
             // Ở đây đơn giản hóa: Tạo Transaction và cập nhật thành Paid
+            DateTime parsedDate = DateTime.UtcNow.AddHours(7);
+            if (!string.IsNullOrEmpty(payload.TransactionDate) && DateTime.TryParse(payload.TransactionDate, out var dt))
+            {
+                parsedDate = dt;
+            }
+
             var transaction = new Transaction
             {
                 InvoiceId = invoice.Id,
                 Amount = payload.TransferAmount,
-                PaymentDate = payload.TransactionDate,
+                PaymentDate = parsedDate,
                 PaymentMethod = "Chuyển khoản (SePay QR)",
                 Note = $"Auto-paid via SePay. Ref: {payload.ReferenceNumber}",
                 SepayTransactionId = payload.Id
