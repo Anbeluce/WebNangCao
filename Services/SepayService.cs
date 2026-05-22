@@ -87,10 +87,13 @@ namespace WebNangCao.Services
 
             _context.Transactions.Add(transaction);
 
-            // Tạm tính tổng số tiền đã thanh toán cho hóa đơn này
-            var currentTotalPaid = await _context.Transactions
+            // Tạm tính tổng số tiền đã thanh toán cho hóa đơn này (fix lỗi SQLite không hỗ trợ Sum kiểu decimal)
+            var previousAmounts = await _context.Transactions
                 .Where(t => t.InvoiceId == invoice.Id)
-                .SumAsync(t => t.Amount);
+                .Select(t => t.Amount)
+                .ToListAsync();
+            
+            var currentTotalPaid = previousAmounts.Sum();
 
             if (currentTotalPaid + transaction.Amount >= invoice.TotalAmount)
             {
