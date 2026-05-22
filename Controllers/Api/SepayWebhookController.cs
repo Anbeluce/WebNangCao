@@ -11,11 +11,13 @@ namespace WebNangCao.Controllers.Api
     {
         private readonly ISepayService _sepayService;
         private readonly ILogger<SepayWebhookController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public SepayWebhookController(ISepayService sepayService, ILogger<SepayWebhookController> logger)
+        public SepayWebhookController(ISepayService sepayService, ILogger<SepayWebhookController> logger, IConfiguration configuration)
         {
             _sepayService = sepayService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -47,7 +49,8 @@ namespace WebNangCao.Controllers.Api
 
                 if (!_sepayService.VerifyWebhookSecret(apiKey))
                 {
-                    _logger.LogWarning($"[DEBUG SEPAY] Received Key: '{apiKey}'. Header raw: '{Request.Headers["Authorization"]}'");
+                    var expectedKey = _configuration["SepaySettings:WebhookSecret"];
+                    _logger.LogWarning($"[DEBUG SEPAY] Received Key: '{apiKey}'. Expected: '{expectedKey}'. Header: '{Request.Headers["Authorization"]}'");
                     return Unauthorized(new { success = false, message = "Invalid API Key" });
                 }
 
