@@ -423,6 +423,7 @@ namespace WebNangCao.Areas.Admin.Controllers
             var errors = new List<string>();
             var warnings = new List<string>();
             var importedInvoices = new List<Invoice>();
+            var allApartments = new List<Apartment>();
 
             try
             {
@@ -436,8 +437,9 @@ namespace WebNangCao.Areas.Admin.Controllers
                     }
                     else
                     {
-                        var allApartments = await _context.Apartments
+                        allApartments = await _context.Apartments
                             .Where(a => !a.IsDeleted)
+                            .Include(a => a.Owner)
                             .ToListAsync();
 
                         var apartmentDict = allApartments.ToDictionary(a => a.ApartmentNumber.Trim().ToUpper(), a => a);
@@ -580,6 +582,64 @@ namespace WebNangCao.Areas.Admin.Controllers
                 {
                     await _context.Invoices.AddRangeAsync(importedInvoices);
                     await _context.SaveChangesAsync();
+
+                    // Gửi email thông báo cho từng hộ cư dân sau khi nhập thành công
+                    foreach (var inv in importedInvoices)
+                    {
+                        try
+                        {
+                            var apartment = allApartments.FirstOrDefault(a => a.Id == inv.ApartmentId);
+                            if (apartment?.Owner?.Email != null)
+                            {
+                                var subject = $"[Thông báo] Hóa đơn tiền nước & phí dịch vụ tháng {inv.Month}/{inv.Year}";
+                                var body = $@"
+                                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;'>
+                                        <h2 style='color: #04a9f5;'>Thông báo hóa đơn mới</h2>
+                                        <p>Kính gửi ông/bà <strong>{apartment.Owner.FullName}</strong>,</p>
+                                        <p>Ban quản lý chung cư xin thông báo hóa đơn tháng <strong>{inv.Month}/{inv.Year}</strong> của căn hộ <strong>{apartment.ApartmentNumber}</strong> đã được khởi tạo từ tệp Excel.</p>
+                                        <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
+                                            <tr style='background: #f4f7fa;'>
+                                                <th style='padding: 10px; border: 1px solid #eee; text-align: left;'>Hạng mục</th>
+                                                <th style='padding: 10px; border: 1px solid #eee; text-align: right;'>Thành tiền</th>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 10px; border: 1px solid #eee;'>Tiền nước ({inv.WaterUsage} m³)</td>
+                                                <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{(inv.WaterUsage * inv.WaterUnitPrice):N0}đ</td>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 10px; border: 1px solid #eee;'>Phí quản lý vận hành</td>
+                                                <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{inv.ManagementFee:N0}đ</td>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 10px; border: 1px solid #eee;'>Phí vệ sinh (cố định)</td>
+                                                <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{inv.WasteFee:N0}đ</td>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 10px; border: 1px solid #eee;'>Phí gửi xe (cố định)</td>
+                                                <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{inv.ParkingFee:N0}đ</td>
+                                            </tr>
+                                            <tr style='font-weight: bold; font-size: 16px; color: #04a9f5;'>
+                                                <td style='padding: 10px; border: 1px solid #eee;'>TỔNG CỘNG</td>
+                                                <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{inv.TotalAmount:N0}đ</td>
+                                            </tr>
+                                        </table>
+                                        <p>Hạn thanh toán: <strong>{inv.DueDate:dd/MM/yyyy}</strong></p>
+                                        <p>Vui lòng đăng nhập vào hệ thống để xem chi tiết và thực hiện thanh toán.</p>
+                                        <div style='text-align: center; margin: 30px 0;'>
+                                            <a href='#' style='background: #04a9f5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;'>XEM HÓA ĐƠN</a>
+                                        </div>
+                                        <hr style='border: none; border-top: 1px solid #eee;'/>
+                                        <p style='font-size: 12px; color: #999;'>Ban quản lý Chung cư Smart</p>
+                                    </div>";
+
+                                await _emailService.SendEmailAsync(apartment.Owner.Email, subject, body);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // Bỏ qua lỗi gửi mail lẻ để tránh hủy giao dịch thành công
+                        }
+                    }
                 }
             }
             catch (Exception ex)

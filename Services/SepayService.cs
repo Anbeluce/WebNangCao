@@ -12,12 +12,14 @@ namespace WebNangCao.Services
         private readonly AppDbContext _context;
         private readonly SepaySettings _settings;
         private readonly ILogger<SepayService> _logger;
+        private readonly IEmailService _emailService;
 
-        public SepayService(AppDbContext context, IOptions<SepaySettings> settings, ILogger<SepayService> logger)
+        public SepayService(AppDbContext context, IOptions<SepaySettings> settings, ILogger<SepayService> logger, IEmailService emailService)
         {
             _context = context;
             _settings = settings.Value;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public string GenerateQrUrl(decimal amount, string content)
@@ -98,10 +100,80 @@ namespace WebNangCao.Services
             if (currentTotalPaid + transaction.Amount >= invoice.TotalAmount)
             {
                 invoice.Status = InvoiceStatus.Paid;
+
+                // Gửi email xác nhận thanh toán thành công qua SePay
+                try
+                {
+                    if (invoice.Apartment?.Owner?.Email != null)
+                    {
+                        var subject = $"[Xác nhận] Thanh toán hóa đơn tháng {invoice.Month}/{invoice.Year} thành công";
+                        var body = $@"
+                            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;'>
+                                <div style='text-align: center; color: #28a745; margin-bottom: 20px;'>
+                                    <h2 style='margin: 0;'>Thanh toán thành công!</h2>
+                                    <p style='font-size: 16px;'>Cảm ơn bạn đã hoàn thành nghĩa vụ thanh toán qua SePay QR.</p>
+                                </div>
+                                <p>Kính gửi ông/bà <strong>{invoice.Apartment.Owner.FullName}</strong>,</p>
+                                <p>Hệ thống đã ghi nhận thanh toán tự động cho hóa đơn tháng <strong>{invoice.Month}/{invoice.Year}</strong> của căn hộ <strong>{invoice.Apartment.ApartmentNumber}</strong>.</p>
+                                <div style='background: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;'>
+                                    <p style='margin: 5px 0;'>Mã hóa đơn: <strong>#{invoice.Id}</strong></p>
+                                    <p style='margin: 5px 0;'>Số tiền thanh toán: <strong style='color: #04a9f5;'>{payload.TransferAmount:N0}đ</strong></p>
+                                    <p style='margin: 5px 0;'>Ngày thanh toán: <strong>{parsedDate:dd/MM/yyyy HH:mm}</strong></p>
+                                    <p style='margin: 5px 0;'>Phương thức: <strong>Chuyển khoản (SePay QR)</strong></p>
+                                    <p style='margin: 5px 0;'>Trạng thái hóa đơn: <strong style='color: #28a745;'>Đã thanh toán đủ</strong></p>
+                                </div>
+                                <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ Ban quản lý để được hỗ trợ.</p>
+                                <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'/>
+                                <p style='font-size: 12px; color: #999;'>Ban quản lý Chung cư Smart</p>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(invoice.Apartment.Owner.Email, subject, body);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Lỗi khi gửi email xác nhận thanh toán tự động qua SePay.");
+                }
             }
             else
             {
                 invoice.Status = InvoiceStatus.Partial;
+
+                // Gửi email xác nhận thanh toán một phần qua SePay
+                try
+                {
+                    if (invoice.Apartment?.Owner?.Email != null)
+                    {
+                        var subject = $"[Xác nhận] Ghi nhận thanh toán một phần hóa đơn tháng {invoice.Month}/{invoice.Year}";
+                        var body = $@"
+                            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;'>
+                                <div style='text-align: center; color: #ffc107; margin-bottom: 20px;'>
+                                    <h2 style='margin: 0;'>Thanh toán một phần thành công!</h2>
+                                    <p style='font-size: 16px;'>Cảm ơn bạn đã thực hiện thanh toán qua SePay QR.</p>
+                                </div>
+                                <p>Kính gửi ông/bà <strong>{invoice.Apartment.Owner.FullName}</strong>,</p>
+                                <p>Hệ thống đã ghi nhận thanh toán một phần cho hóa đơn tháng <strong>{invoice.Month}/{invoice.Year}</strong> của căn hộ <strong>{invoice.Apartment.ApartmentNumber}</strong>.</p>
+                                <div style='background: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;'>
+                                    <p style='margin: 5px 0;'>Mã hóa đơn: <strong>#{invoice.Id}</strong></p>
+                                    <p style='margin: 5px 0;'>Số tiền thanh toán đợt này: <strong style='color: #04a9f5;'>{payload.TransferAmount:N0}đ</strong></p>
+                                    <p style='margin: 5px 0;'>Tổng số tiền đã nhận: <strong>{(currentTotalPaid + transaction.Amount):N0}đ</strong> / {invoice.TotalAmount:N0}đ</p>
+                                    <p style='margin: 5px 0;'>Ngày thanh toán: <strong>{parsedDate:dd/MM/yyyy HH:mm}</strong></p>
+                                    <p style='margin: 5px 0;'>Phương thức: <strong>Chuyển khoản (SePay QR)</strong></p>
+                                    <p style='margin: 5px 0;'>Trạng thái hóa đơn: <strong style='color: #ffc107;'>Thanh toán một phần</strong></p>
+                                </div>
+                                <p>Vui lòng chuyển khoản nốt số tiền còn thiếu trước hạn thanh toán để hoàn tất hóa đơn này.</p>
+                                <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ Ban quản lý để được hỗ trợ.</p>
+                                <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'/>
+                                <p style='font-size: 12px; color: #999;'>Ban quản lý Chung cư Smart</p>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(invoice.Apartment.Owner.Email, subject, body);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Lỗi khi gửi email xác nhận thanh toán một phần qua SePay.");
+                }
             }
 
             await _context.SaveChangesAsync();
