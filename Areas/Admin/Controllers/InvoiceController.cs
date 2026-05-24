@@ -6,6 +6,8 @@ using WebNangCao.Data;
 using WebNangCao.Models;
 using WebNangCao.Models.ViewModels.Admin;
 using WebNangCao.Services;
+using MiniExcelLibs;
+using System.IO;
 
 
 namespace WebNangCao.Areas.Admin.Controllers
@@ -341,46 +343,240 @@ namespace WebNangCao.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Admin/Invoice/CreateBatch - Tạo hóa đơn hàng loạt
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBatch(int month, int year, decimal managementFeePerM2, decimal wasteFee, decimal parkingFee)
+        // GET: Admin/Invoice/DownloadTemplate - Tải file mẫu Excel động
+        public async Task<IActionResult> DownloadTemplate()
         {
             var apartments = await _context.Apartments
-                .Where(a => !a.IsDeleted && a.OwnerId != null)
+                .Where(a => !a.IsDeleted)
+                .Include(a => a.Owner)
+                .Take(3)
                 .ToListAsync();
 
-            int created = 0;
-            foreach (var apt in apartments)
+            var rows = new List<Dictionary<string, object>>();
+
+            if (apartments.Any())
             {
-                var exists = await _context.Invoices
-                    .AnyAsync(i => i.ApartmentId == apt.Id && i.Month == month && i.Year == year && !i.IsDeleted);
-                if (exists) continue;
-
-                var invoice = new Invoice
+                foreach (var apt in apartments)
                 {
-                    ApartmentId = apt.Id,
-                    Month = month,
-                    Year = year,
-                    ElectricityUsage = 0,
-                    ElectricityUnitPrice = 0,
-                    WaterUsage = 0,
-                    WaterUnitPrice = DefaultWaterPrice,
-                    ManagementFee = (decimal)apt.Area * managementFeePerM2,
-                    WasteFee = wasteFee,
-                    ParkingFee = parkingFee,
-                    DueDate = new DateTime(year, month, 1).AddMonths(1).AddDays(14),
-                    Status = InvoiceStatus.Unpaid
-                };
-
-                _context.Invoices.Add(invoice);
-                created++;
+                    rows.Add(new Dictionary<string, object>
+                    {
+                        { "Số căn hộ", apt.ApartmentNumber },
+                        { "Tháng", DateTime.UtcNow.AddHours(7).Month },
+                        { "Năm", DateTime.UtcNow.AddHours(7).Year },
+                        { "Số nước tiêu thụ (m³)", 12.5 },
+                        { "Đơn giá nước (đ/m³)", 15000 },
+                        { "Phí quản lý vận hành (đ)", (decimal)apt.Area * DefaultManagementFeePerM2 },
+                        { "Phí vệ sinh (đ)", DefaultWasteFee },
+                        { "Phí gửi xe (đ)", DefaultParkingFee },
+                        { "Hạn thanh toán (dd/MM/yyyy)", DateTime.UtcNow.AddHours(7).AddDays(15).ToString("dd/MM/yyyy") }
+                    });
+                }
+            }
+            else
+            {
+                rows.Add(new Dictionary<string, object>
+                {
+                    { "Số căn hộ", "A101" },
+                    { "Tháng", 5 },
+                    { "Năm", 2026 },
+                    { "Số nước tiêu thụ (m³)", 15.0 },
+                    { "Đơn giá nước (đ/m³)", 15000 },
+                    { "Phí quản lý vận hành (đ)", 750000 },
+                    { "Phí vệ sinh (đ)", 50000 },
+                    { "Phí gửi xe (đ)", 100000 },
+                    { "Hạn thanh toán (dd/MM/yyyy)", "15/06/2026" }
+                });
             }
 
-            await _context.SaveChangesAsync();
+            var memoryStream = new MemoryStream();
+            memoryStream.SaveAs(rows);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mau_Nhap_Hoa_Don.xlsx");
+        }
 
-            TempData["SuccessMessage"] = $"Đã tạo {created} hóa đơn tháng {month}/{year} thành công.";
-            return RedirectToAction(nameof(Index));
+        // POST: Admin/Invoice/ImportExcel - Nhập hóa đơn từ Excel
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportExcel(IFormFile excelFile)
+        {
+            if (excelFile == null || excelFile.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn tệp Excel để nhập.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var errors = new List<string>();
+            var warnings = new List<string>();
+            var importedInvoices = new List<Invoice>();
+
+            try
+            {
+                using (var stream = excelFile.OpenReadStream())
+                {
+                    var rows = stream.Query(useHeaderRow: true).ToList();
+                    
+                    if (!rows.Any())
+                    {
+                        errors.Add("Tệp Excel trống hoặc không đúng định dạng mẫu.");
+                    }
+                    else
+                    {
+                        var allApartments = await _context.Apartments
+                            .Where(a => !a.IsDeleted)
+                            .ToListAsync();
+
+                        var apartmentDict = allApartments.ToDictionary(a => a.ApartmentNumber.Trim().ToUpper(), a => a);
+
+                        var existingInvoices = await _context.Invoices
+                            .Where(i => !i.IsDeleted)
+                            .Select(i => new { i.ApartmentId, i.Month, i.Year })
+                            .ToListAsync();
+
+                        var invoiceSet = new HashSet<string>(existingInvoices.Select(i => $"{i.ApartmentId}_{i.Month}_{i.Year}"));
+
+                        int rowNum = 1;
+                        foreach (IDictionary<string, object> row in rows)
+                        {
+                            rowNum++;
+                            
+                            if (row.Values.All(v => v == null || string.IsNullOrWhiteSpace(v.ToString())))
+                            {
+                                continue;
+                            }
+
+                            if (!row.TryGetValue("Số căn hộ", out var aptObj) || aptObj == null || string.IsNullOrWhiteSpace(aptObj.ToString()))
+                            {
+                                errors.Add($"Dòng {rowNum}: Cột 'Số căn hộ' không được để trống.");
+                                continue;
+                            }
+
+                            var aptNo = aptObj.ToString()!.Trim();
+                            if (!apartmentDict.TryGetValue(aptNo.ToUpper(), out var apartment))
+                            {
+                                errors.Add($"Dòng {rowNum}: Căn hộ '{aptNo}' không tồn tại trong hệ thống.");
+                                continue;
+                            }
+
+                            if (!row.TryGetValue("Tháng", out var monthObj) || monthObj == null || !int.TryParse(monthObj.ToString(), out int month) || month < 1 || month > 12)
+                            {
+                                errors.Add($"Dòng {rowNum}: Cột 'Tháng' phải là số nguyên từ 1 đến 12.");
+                                continue;
+                            }
+
+                            if (!row.TryGetValue("Năm", out var yearObj) || yearObj == null || !int.TryParse(yearObj.ToString(), out int year) || year < 2020 || year > 2099)
+                            {
+                                errors.Add($"Dòng {rowNum}: Cột 'Năm' phải là số nguyên hợp lệ (2020-2099).");
+                                continue;
+                            }
+
+                            var invoiceKey = $"{apartment.Id}_{month}_{year}";
+                            if (invoiceSet.Contains(invoiceKey) || importedInvoices.Any(i => i.ApartmentId == apartment.Id && i.Month == month && i.Year == year))
+                            {
+                                errors.Add($"Dòng {rowNum}: Căn hộ '{aptNo}' đã tồn tại hóa đơn kỳ tháng {month}/{year}.");
+                                continue;
+                            }
+
+                            if (!row.TryGetValue("Số nước tiêu thụ (m³)", out var waterObj) || waterObj == null || !decimal.TryParse(waterObj.ToString(), out decimal waterUsage) || waterUsage < 0)
+                            {
+                                errors.Add($"Dòng {rowNum}: Cột 'Số nước tiêu thụ (m³)' phải là số lớn hơn hoặc bằng 0.");
+                                continue;
+                            }
+
+                            decimal waterPrice = DefaultWaterPrice;
+                            if (row.TryGetValue("Đơn giá nước (đ/m³)", out var waterPriceObj) && waterPriceObj != null && !string.IsNullOrWhiteSpace(waterPriceObj.ToString()))
+                            {
+                                if (!decimal.TryParse(waterPriceObj.ToString(), out waterPrice) || waterPrice < 0)
+                                {
+                                    errors.Add($"Dòng {rowNum}: Cột 'Đơn giá nước (đ/m³)' không hợp lệ.");
+                                    continue;
+                                }
+                            }
+
+                            decimal managementFee = (decimal)apartment.Area * DefaultManagementFeePerM2;
+                            if (row.TryGetValue("Phí quản lý vận hành (đ)", out var mFeeObj) && mFeeObj != null && !string.IsNullOrWhiteSpace(mFeeObj.ToString()))
+                            {
+                                if (!decimal.TryParse(mFeeObj.ToString(), out managementFee) || managementFee < 0)
+                                {
+                                    errors.Add($"Dòng {rowNum}: Cột 'Phí quản lý vận hành (đ)' không hợp lệ.");
+                                    continue;
+                                }
+                            }
+
+                            decimal wasteFee = DefaultWasteFee;
+                            if (row.TryGetValue("Phí vệ sinh (đ)", out var wasteFeeObj) && wasteFeeObj != null && !string.IsNullOrWhiteSpace(wasteFeeObj.ToString()))
+                            {
+                                if (!decimal.TryParse(wasteFeeObj.ToString(), out wasteFee) || wasteFee < 0)
+                                {
+                                    errors.Add($"Dòng {rowNum}: Cột 'Phí vệ sinh (đ)' không hợp lệ.");
+                                    continue;
+                                }
+                            }
+
+                            decimal parkingFee = DefaultParkingFee;
+                            if (row.TryGetValue("Phí gửi xe (đ)", out var parkingFeeObj) && parkingFeeObj != null && !string.IsNullOrWhiteSpace(parkingFeeObj.ToString()))
+                            {
+                                if (!decimal.TryParse(parkingFeeObj.ToString(), out parkingFee) || parkingFee < 0)
+                                {
+                                    errors.Add($"Dòng {rowNum}: Cột 'Phí gửi xe (đ)' không hợp lệ.");
+                                    continue;
+                                }
+                            }
+
+                            DateTime dueDate = new DateTime(year, month, 1).AddMonths(1).AddDays(14);
+                            if (row.TryGetValue("Hạn thanh toán (dd/MM/yyyy)", out var dateObj) && dateObj != null && !string.IsNullOrWhiteSpace(dateObj.ToString()))
+                            {
+                                var dateStr = dateObj.ToString()!.Trim();
+                                if (!DateTime.TryParseExact(dateStr, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dueDate))
+                                {
+                                    if (!DateTime.TryParse(dateStr, out dueDate))
+                                    {
+                                        errors.Add($"Dòng {rowNum}: Định dạng 'Hạn thanh toán' không hợp lệ (mẫu: dd/MM/yyyy).");
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(apartment.OwnerId))
+                            {
+                                warnings.Add($"Cảnh báo Dòng {rowNum}: Căn hộ '{aptNo}' hiện chưa có cư dân đăng ký sở hữu (OwnerId trống).");
+                            }
+
+                            var invoice = new Invoice
+                            {
+                                ApartmentId = apartment.Id,
+                                Month = month,
+                                Year = year,
+                                WaterUsage = waterUsage,
+                                WaterUnitPrice = waterPrice,
+                                ManagementFee = managementFee,
+                                WasteFee = wasteFee,
+                                ParkingFee = parkingFee,
+                                DueDate = dueDate,
+                                Status = InvoiceStatus.Unpaid
+                            };
+
+                            importedInvoices.Add(invoice);
+                        }
+                    }
+                }
+
+                if (!errors.Any() && importedInvoices.Any())
+                {
+                    await _context.Invoices.AddRangeAsync(importedInvoices);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Lỗi hệ thống khi đọc tệp Excel: {ex.Message}");
+            }
+
+            ViewBag.Errors = errors;
+            ViewBag.Warnings = warnings;
+            ViewBag.SuccessCount = errors.Any() ? 0 : importedInvoices.Count;
+
+            return View("ImportResults");
         }
 
         private async Task PopulateApartmentDropdown(int? selectedId = null)

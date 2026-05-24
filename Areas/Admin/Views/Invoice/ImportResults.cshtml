@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "Kết quả nhập Excel";
+    var errors = ViewBag.Errors as List<string>;
+    var warnings = ViewBag.Warnings as List<string>;
+    int successCount = ViewBag.SuccessCount != null ? (int)ViewBag.SuccessCount : 0;
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-10 col-lg-8 mx-auto">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-header border-bottom-0 pb-0 mt-3 text-center">
+                <h3 class="font-weight-bold text-dark"><i class="feather icon-sidebar"></i> Kết quả xử lý tệp Excel</h3>
+                <p class="text-muted small">Báo cáo kiểm tra và nhập hóa đơn chung cư</p>
+            </div>
+            
+            <div class="card-body">
+                
+                <!-- THÀNH CÔNG -->
+                @if (successCount > 0 && (errors == null || !errors.Any()))
+                {
+                    <div class="alert alert-success border-0 p-4 mb-4 text-center" style="border-radius: 8px; background-color: #d1e7dd; color: #0f5132;">
+                        <i class="feather icon-check-circle display-4 mb-3 d-block"></i>
+                        <h4 class="font-weight-bold">NHẬP DỮ LIỆU THÀNH CÔNG!</h4>
+                        <p class="mb-0">Đã nhập thành công <strong>@successCount</strong> hóa đơn vào hệ thống cơ sở dữ liệu.</p>
+                    </div>
+                }
+
+                <!-- LỖI CỨNG (HỦY BỎ NHẬP LIỆU) -->
+                @if (errors != null && errors.Any())
+                {
+                    <div class="alert alert-danger border-0 p-4 mb-4 text-center" style="border-radius: 8px; background-color: #f8d7da; color: #842029;">
+                        <i class="feather icon-alert-octagon display-4 mb-3 d-block"></i>
+                        <h4 class="font-weight-bold">NHẬP DỮ LIỆU THẤT BẠI!</h4>
+                        <p class="mb-0">Tệp Excel chứa <strong>@errors.Count</strong> lỗi nghiêm trọng. Hệ thống đã <strong>hủy bỏ toàn bộ quá trình nhập</strong> để tránh làm sai lệch dữ liệu của bạn. Vui lòng sửa lại tệp Excel và thử lại.</p>
+                    </div>
+
+                    <div class="card mb-4 border" style="border-radius: 8px;">
+                        <div class="card-header bg-light py-2">
+                            <h6 class="mb-0 text-danger font-weight-bold"><i class="feather icon-list"></i> Danh sách chi tiết các dòng lỗi (@errors.Count)</h6>
+                        </div>
+                        <div class="card-body p-0" style="max-height: 350px; overflow-y: auto;">
+                            <ul class="list-group list-group-flush mb-0">
+                                @foreach (var err in errors)
+                                {
+                                    <li class="list-group-item list-group-item-danger py-2 border-0 small d-flex align-items-center">
+                                        <span class="mr-2">❌</span>
+                                        <span>@err</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+
+                <!-- CẢNH BÁO (PHÒNG CHƯA CÓ CƯ DÂN) -->
+                @if (warnings != null && warnings.Any())
+                {
+                    <div class="card mb-4 border border-warning" style="border-radius: 8px;">
+                        <div class="card-header bg-light-warning py-2" style="background-color: #fff3cd; border-bottom: 1px solid #ffe69c;">
+                            <h6 class="mb-0 text-warning font-weight-bold text-dark"><i class="feather icon-alert-triangle"></i> Danh sách Cảnh báo phòng trống (@warnings.Count)</h6>
+                            <small class="text-muted">Các căn hộ này đã được tạo hóa đơn thành công nhưng hiện tại chưa được gán cư dân nào sở hữu.</small>
+                        </div>
+                        <div class="card-body p-0" style="max-height: 250px; overflow-y: auto;">
+                            <ul class="list-group list-group-flush mb-0">
+                                @foreach (var warn in warnings)
+                                {
+                                    <li class="list-group-item list-group-item-warning py-2 border-0 small d-flex align-items-center" style="background-color: #fffdf5; color: #664d03;">
+                                        <span class="mr-2">⚠️</span>
+                                        <span>@warn</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+
+                <!-- Nút điều hướng -->
+                <div class="text-center mt-4 mb-3">
+                    <a asp-action="Index" class="btn btn-primary px-4 py-2 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                        <i class="feather icon-arrow-left mr-1"></i> Quay lại Danh sách Hóa đơn
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

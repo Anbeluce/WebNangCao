@@ -68,8 +68,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <h5>Danh sách hóa đơn</h5>
                     <div>
-                        <button type="button" class="btn btn-success btn-sm mr-2" data-toggle="modal" data-target="#batchModal">
-                            <i class="feather icon-layers"></i> Tạo hàng loạt
+                        <button type="button" class="btn btn-success btn-sm mr-2" data-toggle="modal" data-target="#importExcelModal">
+                            <i class="feather icon-upload"></i> Nhập từ Excel
                         </button>
                         <a asp-action="Create" class="btn btn-primary btn-sm">
                             <i class="feather icon-plus"></i> Tạo hóa đơn
@@ -186,49 +186,41 @@
     </div>
 </div>
 
-<!-- Modal tạo hàng loạt -->
-<div id="batchModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="batchModalLabel" aria-hidden="true">
+<!-- Modal nhập từ Excel -->
+<div id="importExcelModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importExcelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="batchModalLabel"><i class="feather icon-layers"></i> Tạo hóa đơn hàng loạt</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div class="modal-content" style="border-radius: 12px; border: none; overflow: hidden;">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title text-white" id="importExcelModalLabel"><i class="feather icon-upload"></i> Nhập hóa đơn từ tệp Excel</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
-            <form asp-action="CreateBatch" method="post">
-                <div class="modal-body">
-                    <p class="text-muted mb-3">Tạo cho tất cả căn hộ có chủ. Số nước = 0, cập nhật sau.</p>
-                    @Html.AntiForgeryToken()
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tháng</label>
-                            <select name="month" class="form-control">
-                                @for (int m = 1; m <= 12; m++)
-                                {
-                                    <option value="@m" selected="@(m == DateTime.UtcNow.AddHours(7).Month)">Tháng @m</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Năm</label>
-                            <input type="number" name="year" value="@DateTime.UtcNow.AddHours(7).Year" class="form-control" />
-                        </div>
+            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">Tải tệp Excel nhập số liệu hóa đơn của bạn. Các căn hộ chưa có cư dân gán sẽ hiển thị dưới dạng cảnh báo khi kết thúc nhập liệu.</p>
+                    
+                    <div class="alert alert-info py-2 px-3 small mb-4" style="border-radius: 6px; background-color: #e8f4fd; border: 1px solid #b8dbf7; color: #1d4ed8;">
+                        <i class="feather icon-info mr-1"></i> Để có định dạng chuẩn xác nhất, vui lòng tải và sử dụng tệp mẫu của hệ thống.
                     </div>
-                    <div class="form-group mb-3">
-                        <label class="form-label">Phí quản lý vận hành (VNĐ/m²)</label>
-                        <input type="number" name="managementFeePerM2" value="10000" step="1000" class="form-control" />
+
+                    <div class="text-center mb-4">
+                        <a asp-action="DownloadTemplate" class="btn btn-outline-success btn-sm font-weight-bold" style="border-radius: 6px;">
+                            <i class="feather icon-download-cloud mr-1"></i> Tải Tệp Excel Mẫu (.xlsx)
+                        </a>
                     </div>
-                    <div class="form-group mb-3">
-                        <label class="form-label">Phí vệ sinh cố định (VNĐ)</label>
-                        <input type="number" name="wasteFee" value="50000" step="5000" class="form-control" />
-                    </div>
+
                     <div class="form-group mb-0">
-                        <label class="form-label">Phí gửi xe cố định (VNĐ)</label>
-                        <input type="number" name="parkingFee" value="100000" step="10000" class="form-control" />
+                        <label class="form-label font-weight-bold">Chọn tệp Excel nhập liệu <span class="text-danger">*</span></label>
+                        <div class="custom-file">
+                            <input type="file" name="excelFile" accept=".xlsx, .xls" class="custom-file-input" id="excelFileInput" required />
+                            <label class="custom-file-label" for="excelFileInput" data-browse="Chọn">Chọn file...</label>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Hỗ trợ tệp định dạng `.xlsx` hoặc `.xls`</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Tạo hàng loạt</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" style="border-radius: 4px;">Hủy</button>
+                    <button type="submit" class="btn btn-success btn-sm font-weight-bold" style="border-radius: 4px;"><i class="feather icon-check-circle mr-1"></i> Nhập dữ liệu</button>
                 </div>
             </form>
         </div>
@@ -254,6 +246,12 @@
                 placeholder: "Tất cả căn hộ",
                 allowClear: true,
                 width: '100%'
+            });
+
+            // Cập nhật tên file chọn trên input file Bootstrap
+            $('#excelFileInput').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
         });
     </script>
