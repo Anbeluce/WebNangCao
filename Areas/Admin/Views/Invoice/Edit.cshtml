@@ -12,7 +12,7 @@
                 <span class="d-block m-t-5 text-muted">Căn hộ: <strong>@Model.ApartmentNumber</strong></span>
             </div>
             <div class="card-body">
-                @if (!ViewData.ModelState.IsValid)
+                @if (ViewData.ModelState.TryGetValue(string.Empty, out var modelState) && modelState.Errors.Any())
                 {
                     <div class="alert alert-danger">
                         <div asp-validation-summary="ModelOnly" class="mb-0"></div>
@@ -73,12 +73,28 @@
 
                     <hr>
 
-                    <!-- Phí dịch vụ & Trạng thái -->
-                    <div class="row">
-                        <div class="col-md-12">
+                    <!-- Phí dịch vụ chi tiết -->
+                    <h6 class="mt-4 mb-3 text-primary"><i class="feather icon-settings"></i> Các khoản Phí dịch vụ</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label asp-for="ServiceFee" class="form-label">Phí dịch vụ (VNĐ)</label>
-                                <input asp-for="ServiceFee" type="number" step="1000" id="serviceFee" oninput="calcTotal()" class="form-control" />
+                                <label asp-for="ManagementFee" class="form-label">Phí quản lý vận hành (VNĐ) <span class="text-danger">*</span></label>
+                                <input asp-for="ManagementFee" type="number" step="1000" id="managementFee" oninput="calcTotal()" class="form-control" />
+                                <span asp-validation-for="ManagementFee" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="WasteFee" class="form-label">Phí vệ sinh (VNĐ) <span class="text-danger">*</span></label>
+                                <input asp-for="WasteFee" type="number" step="1000" id="wasteFee" oninput="calcTotal()" class="form-control" />
+                                <span asp-validation-for="WasteFee" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="ParkingFee" class="form-label">Phí gửi xe (VNĐ) <span class="text-danger">*</span></label>
+                                <input asp-for="ParkingFee" type="number" step="1000" id="parkingFee" oninput="calcTotal()" class="form-control" />
+                                <span asp-validation-for="ParkingFee" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>
@@ -124,8 +140,13 @@
         function calcTotal() {
             var wu = parseFloat(document.getElementById('waterUsage').value) || 0;
             var wp = parseFloat(document.getElementById('waterPrice').value) || 0;
-            var sf = parseFloat(document.getElementById('serviceFee').value) || 0;
+            var mFee = parseFloat(document.getElementById('managementFee').value) || 0;
+            var wFeeInput = parseFloat(document.getElementById('wasteFee').value) || 0;
+            var pFee = parseFloat(document.getElementById('parkingFee').value) || 0;
+            
             var wf = wu * wp;
+            var sf = mFee + wFeeInput + pFee;
+            
             document.getElementById('waterFee').textContent = wf.toLocaleString('vi-VN') + 'đ';
             document.getElementById('totalAmount').textContent = (wf + sf).toLocaleString('vi-VN') + 'đ';
         }

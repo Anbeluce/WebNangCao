@@ -120,8 +120,9 @@
                                 <th>Căn hộ</th>
                                 <th>Kỳ</th>
                                 <th class="text-right">Nước</th>
-                                <th class="text-right">Phí DV</th>
-                                <th class="text-right">Tổng</th>
+                                <th class="text-right">Phí quản lý</th>
+                                <th class="text-right">Phí cố định</th>
+                                <th class="text-right">Tổng cộng</th>
                                 <th class="text-center">Trạng thái</th>
                                 <th class="text-center">Thao tác</th>
                             </tr>
@@ -142,8 +143,14 @@
                                         <span class="text-info">@inv.WaterFee.ToString("N0")đ</span>
                                         <br><small class="text-muted">@inv.WaterUsage m³</small>
                                     </td>
-                                    <td class="text-right text-primary">@inv.ServiceFee.ToString("N0")đ</td>
-                                    <td class="text-right font-weight-bold">@inv.TotalAmount.ToString("N0")đ</td>
+                                    <td class="text-right text-primary">
+                                        @inv.ManagementFee.ToString("N0")đ
+                                    </td>
+                                    <td class="text-right text-muted">
+                                        @((inv.WasteFee + inv.ParkingFee).ToString("N0"))đ
+                                        <br><small class="text-muted">VS: @inv.WasteFee.ToString("N0")đ | Xe: @inv.ParkingFee.ToString("N0")đ</small>
+                                    </td>
+                                    <td class="text-right font-weight-bold text-success">@inv.TotalAmount.ToString("N0")đ</td>
                                     <td class="text-center">
                                         @if (inv.Status == InvoiceStatus.Paid)
                                         {
@@ -206,9 +213,17 @@
                             <input type="number" name="year" value="@DateTime.UtcNow.AddHours(7).Year" class="form-control" />
                         </div>
                     </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Phí quản lý vận hành (VNĐ/m²)</label>
+                        <input type="number" name="managementFeePerM2" value="10000" step="1000" class="form-control" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Phí vệ sinh cố định (VNĐ)</label>
+                        <input type="number" name="wasteFee" value="50000" step="5000" class="form-control" />
+                    </div>
                     <div class="form-group mb-0">
-                        <label class="form-label">Phí dịch vụ (VNĐ/m²)</label>
-                        <input type="number" name="serviceFeePerM2" value="15000" step="1000" class="form-control" />
+                        <label class="form-label">Phí gửi xe cố định (VNĐ)</label>
+                        <input type="number" name="parkingFee" value="100000" step="10000" class="form-control" />
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -39,7 +39,7 @@
                 <div class="row align-items-center">
                     <div class="col-sm-8">
                         <h4 class="mb-1">Hóa đơn tháng @Model.Month/@Model.Year</h4>
-                        <p class="text-muted mb-0">Căn hộ @Model.Apartment.ApartmentNumber • Tầng @Model.Apartment.Floor</p>
+                        <p class="text-muted mb-0">Căn hộ @(Model.Apartment?.ApartmentNumber ?? "") • Tầng @(Model.Apartment?.Floor ?? 0)</p>
                     </div>
                     <div class="col-sm-4 text-sm-right mt-3 mt-sm-0">
                         <span class="badge @sBgClass f-14 py-2 px-3">@sTxt</span>
@@ -84,8 +84,8 @@
                             </div>
                         </div>
                     </li>
-                    <!-- Phí dịch vụ -->
-                    <li class="list-group-item px-0 py-3 border-bottom-0">
+                    <!-- Phí quản lý vận hành -->
+                    <li class="list-group-item px-0 py-3">
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <div class="bg-light-info text-info d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
@@ -93,11 +93,45 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <h6 class="mb-1">Phí dịch vụ</h6>
-                                <small class="text-muted">Phí quản lý vận hành</small>
+                                <h6 class="mb-1">Phí quản lý vận hành</h6>
+                                <small class="text-muted">Diện tích: @(Model.Apartment?.Area ?? 0) m² × @((Model.Apartment != null && Model.Apartment.Area > 0 ? (Model.ManagementFee / (decimal)Model.Apartment.Area) : 0).ToString("N0"))đ/m²</small>
                             </div>
                             <div class="col-auto text-right">
-                                <h6 class="mb-0 text-info">@Model.ServiceFee.ToString("N0")đ</h6>
+                                <h6 class="mb-0 text-info">@Model.ManagementFee.ToString("N0")đ</h6>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Phí vệ sinh -->
+                    <li class="list-group-item px-0 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="bg-light-warning text-warning d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
+                                    🧹
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1">Phí vệ sinh & rác thải</h6>
+                                <small class="text-muted">Phí cố định theo căn hộ</small>
+                            </div>
+                            <div class="col-auto text-right">
+                                <h6 class="mb-0 text-warning">@Model.WasteFee.ToString("N0")đ</h6>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Phí gửi xe -->
+                    <li class="list-group-item px-0 py-3 border-bottom-0">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="bg-light-success text-success d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
+                                    🏍️
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1">Phí gửi xe</h6>
+                                <small class="text-muted">Phí cố định theo căn hộ</small>
+                            </div>
+                            <div class="col-auto text-right">
+                                <h6 class="mb-0 text-success">@Model.ParkingFee.ToString("N0")đ</h6>
                             </div>
                         </div>
                     </li>

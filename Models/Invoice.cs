@@ -16,8 +16,13 @@ namespace WebNangCao.Models
         public decimal WaterUnitPrice { get; set; }       // Đơn giá (VNĐ/m³)
         public decimal WaterFee => WaterUsage * WaterUnitPrice;
 
-        // Phí dịch vụ
-        public decimal ServiceFee { get; set; }
+        // Phí dịch vụ chi tiết
+        public decimal ManagementFee { get; set; } // Phí quản lý vận hành (tính theo diện tích)
+        public decimal WasteFee { get; set; }      // Phí vệ sinh rác thải (cố định)
+        public decimal ParkingFee { get; set; }    // Phí gửi xe (cố định)
+
+        // Phí dịch vụ tổng hợp
+        public decimal ServiceFee => ManagementFee + WasteFee + ParkingFee;
 
         public decimal TotalAmount => WaterFee + ServiceFee;
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Unpaid;

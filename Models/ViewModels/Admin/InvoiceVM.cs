@@ -15,7 +15,10 @@ namespace WebNangCao.Models.ViewModels.Admin
         public decimal WaterUsage { get; set; }
         public decimal WaterUnitPrice { get; set; }
         public decimal WaterFee => WaterUsage * WaterUnitPrice;
-        public decimal ServiceFee { get; set; }
+        public decimal ManagementFee { get; set; }
+        public decimal WasteFee { get; set; }
+        public decimal ParkingFee { get; set; }
+        public decimal ServiceFee => ManagementFee + WasteFee + ParkingFee;
         public decimal TotalAmount => WaterFee + ServiceFee;
         public InvoiceStatus Status { get; set; }
         public DateTime DueDate { get; set; }
@@ -25,7 +28,7 @@ namespace WebNangCao.Models.ViewModels.Admin
     {
         [Required(ErrorMessage = "Vui lòng chọn căn hộ")]
         [Display(Name = "Căn hộ")]
-        public int ApartmentId { get; set; }
+        public int? ApartmentId { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn tháng")]
         [Display(Name = "Tháng")]
@@ -55,10 +58,20 @@ namespace WebNangCao.Models.ViewModels.Admin
         [Range(0, 1000000)]
         public decimal WaterUnitPrice { get; set; } = 15000;
 
-        [Required(ErrorMessage = "Vui lòng nhập phí dịch vụ")]
-        [Display(Name = "Phí dịch vụ (VNĐ)")]
+        [Required(ErrorMessage = "Vui lòng nhập phí quản lý")]
+        [Display(Name = "Phí quản lý vận hành (VNĐ)")]
         [Range(0, 100000000, ErrorMessage = "Số tiền không hợp lệ")]
-        public decimal ServiceFee { get; set; }
+        public decimal ManagementFee { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập phí vệ sinh")]
+        [Display(Name = "Phí vệ sinh (VNĐ)")]
+        [Range(0, 100000000, ErrorMessage = "Số tiền không hợp lệ")]
+        public decimal WasteFee { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập phí gửi xe")]
+        [Display(Name = "Phí gửi xe (VNĐ)")]
+        [Range(0, 100000000, ErrorMessage = "Số tiền không hợp lệ")]
+        public decimal ParkingFee { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn hạn thanh toán")]
         [Display(Name = "Hạn thanh toán")]
@@ -71,7 +84,7 @@ namespace WebNangCao.Models.ViewModels.Admin
         public int Id { get; set; }
 
         [Display(Name = "Căn hộ")]
-        public int ApartmentId { get; set; }
+        public int? ApartmentId { get; set; }
         public string ApartmentNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng chọn tháng")]
@@ -102,10 +115,20 @@ namespace WebNangCao.Models.ViewModels.Admin
         [Range(0, 1000000)]
         public decimal WaterUnitPrice { get; set; }
 
-        [Required]
-        [Display(Name = "Phí dịch vụ (VNĐ)")]
+        [Required(ErrorMessage = "Vui lòng nhập phí quản lý")]
+        [Display(Name = "Phí quản lý vận hành (VNĐ)")]
         [Range(0, 100000000)]
-        public decimal ServiceFee { get; set; }
+        public decimal ManagementFee { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập phí vệ sinh")]
+        [Display(Name = "Phí vệ sinh (VNĐ)")]
+        [Range(0, 100000000)]
+        public decimal WasteFee { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập phí gửi xe")]
+        [Display(Name = "Phí gửi xe (VNĐ)")]
+        [Range(0, 100000000)]
+        public decimal ParkingFee { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn hạn thanh toán")]
         [Display(Name = "Hạn thanh toán")]

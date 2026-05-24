@@ -20,7 +20,9 @@ namespace WebNangCao.Areas.Admin.Controllers
         // Đơn giá mặc định
         private const decimal DefaultElectricityPrice = 3500;  // VNĐ/kWh
         private const decimal DefaultWaterPrice = 15000;       // VNĐ/m³
-        private const decimal DefaultServiceFeePerM2 = 15000;  // VNĐ/m²
+        private const decimal DefaultManagementFeePerM2 = 10000; // VNĐ/m² (Phí quản lý vận hành)
+        private const decimal DefaultWasteFee = 50000;           // VNĐ/tháng (Cố định)
+        private const decimal DefaultParkingFee = 100000;        // VNĐ/tháng (Cố định)
 
         public InvoiceController(AppDbContext context, IEmailService emailService)
         {
@@ -57,7 +59,9 @@ namespace WebNangCao.Areas.Admin.Controllers
                     ElectricityUnitPrice = i.ElectricityUnitPrice,
                     WaterUsage = i.WaterUsage,
                     WaterUnitPrice = i.WaterUnitPrice,
-                    ServiceFee = i.ServiceFee,
+                    ManagementFee = i.ManagementFee,
+                    WasteFee = i.WasteFee,
+                    ParkingFee = i.ParkingFee,
                     Status = i.Status,
                     DueDate = i.DueDate
                 })
@@ -91,8 +95,12 @@ namespace WebNangCao.Areas.Admin.Controllers
                 Year = localNow.Year,
                 ElectricityUnitPrice = 0,
                 WaterUnitPrice = DefaultWaterPrice,
+                ManagementFee = 0, // Sẽ tự động tính toán dưới giao diện khi chọn căn hộ
+                WasteFee = DefaultWasteFee,
+                ParkingFee = DefaultParkingFee,
                 DueDate = new DateTime(localNow.Year, localNow.Month, 1).AddMonths(1).AddDays(14)
             };
+            ViewBag.DefaultManagementFeePerM2 = DefaultManagementFeePerM2;
             return View(model);
         }
 
@@ -109,7 +117,7 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             // Kiểm tra trùng hóa đơn
             var exists = await _context.Invoices
-                .AnyAsync(i => i.ApartmentId == model.ApartmentId
+                .AnyAsync(i => i.ApartmentId == (model.ApartmentId ?? 0)
                     && i.Month == model.Month && i.Year == model.Year && !i.IsDeleted);
             if (exists)
             {
@@ -120,14 +128,16 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             var invoice = new Invoice
             {
-                ApartmentId = model.ApartmentId,
+                ApartmentId = model.ApartmentId ?? 0,
                 Month = model.Month,
                 Year = model.Year,
                 ElectricityUsage = model.ElectricityUsage,
                 ElectricityUnitPrice = model.ElectricityUnitPrice,
                 WaterUsage = model.WaterUsage,
                 WaterUnitPrice = model.WaterUnitPrice,
-                ServiceFee = model.ServiceFee,
+                ManagementFee = model.ManagementFee,
+                WasteFee = model.WasteFee,
+                ParkingFee = model.ParkingFee,
                 DueDate = model.DueDate,
                 Status = InvoiceStatus.Unpaid
             };
@@ -160,8 +170,16 @@ namespace WebNangCao.Areas.Admin.Controllers
                                     <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{(model.WaterUsage * model.WaterUnitPrice):N0}đ</td>
                                 </tr>
                                 <tr>
-                                    <td style='padding: 10px; border: 1px solid #eee;'>Phí dịch vụ</td>
-                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{model.ServiceFee:N0}đ</td>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>Phí quản lý vận hành</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{model.ManagementFee:N0}đ</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>Phí vệ sinh (cố định)</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{model.WasteFee:N0}đ</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; border: 1px solid #eee;'>Phí gửi xe (cố định)</td>
+                                    <td style='padding: 10px; border: 1px solid #eee; text-align: right;'>{model.ParkingFee:N0}đ</td>
                                 </tr>
                                 <tr style='font-weight: bold; font-size: 16px; color: #04a9f5;'>
                                     <td style='padding: 10px; border: 1px solid #eee;'>TỔNG CỘNG</td>
@@ -213,7 +231,9 @@ namespace WebNangCao.Areas.Admin.Controllers
                 ElectricityUnitPrice = invoice.ElectricityUnitPrice,
                 WaterUsage = invoice.WaterUsage,
                 WaterUnitPrice = invoice.WaterUnitPrice,
-                ServiceFee = invoice.ServiceFee,
+                ManagementFee = invoice.ManagementFee,
+                WasteFee = invoice.WasteFee,
+                ParkingFee = invoice.ParkingFee,
                 DueDate = invoice.DueDate,
                 Status = invoice.Status
             };
@@ -248,7 +268,9 @@ namespace WebNangCao.Areas.Admin.Controllers
             invoice.ElectricityUnitPrice = model.ElectricityUnitPrice;
             invoice.WaterUsage = model.WaterUsage;
             invoice.WaterUnitPrice = model.WaterUnitPrice;
-            invoice.ServiceFee = model.ServiceFee;
+            invoice.ManagementFee = model.ManagementFee;
+            invoice.WasteFee = model.WasteFee;
+            invoice.ParkingFee = model.ParkingFee;
             invoice.DueDate = model.DueDate;
             invoice.Status = model.Status;
             invoice.UpdatedAt = DateTime.UtcNow.AddHours(7);
@@ -322,7 +344,7 @@ namespace WebNangCao.Areas.Admin.Controllers
         // POST: Admin/Invoice/CreateBatch - Tạo hóa đơn hàng loạt
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBatch(int month, int year, decimal serviceFeePerM2)
+        public async Task<IActionResult> CreateBatch(int month, int year, decimal managementFeePerM2, decimal wasteFee, decimal parkingFee)
         {
             var apartments = await _context.Apartments
                 .Where(a => !a.IsDeleted && a.OwnerId != null)
@@ -344,7 +366,9 @@ namespace WebNangCao.Areas.Admin.Controllers
                     ElectricityUnitPrice = 0,
                     WaterUsage = 0,
                     WaterUnitPrice = DefaultWaterPrice,
-                    ServiceFee = (decimal)apt.Area * serviceFeePerM2,
+                    ManagementFee = (decimal)apt.Area * managementFeePerM2,
+                    WasteFee = wasteFee,
+                    ParkingFee = parkingFee,
                     DueDate = new DateTime(year, month, 1).AddMonths(1).AddDays(14),
                     Status = InvoiceStatus.Unpaid
                 };
@@ -355,7 +379,7 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Đã tạo {created} hóa đơn tháng {month}/{year} (phí DV: {serviceFeePerM2:N0}đ/m²). Vui lòng cập nhật số nước cho từng căn hộ.";
+            TempData["SuccessMessage"] = $"Đã tạo {created} hóa đơn tháng {month}/{year} thành công.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -368,11 +392,16 @@ namespace WebNangCao.Areas.Admin.Controllers
                 .Select(a => new
                 {
                     a.Id,
-                    Display = a.ApartmentNumber + " - Tầng " + a.Floor + " (" + a.Owner.FullName + ")"
+                    a.ApartmentNumber,
+                    a.Floor,
+                    a.Area,
+                    OwnerName = a.Owner != null ? a.Owner.FullName : ""
                 })
                 .ToListAsync();
 
-            ViewBag.Apartments = new SelectList(apartments, "Id", "Display", selectedId);
+            ViewBag.ApartmentsList = apartments;
+            ViewBag.Apartments = new SelectList(apartments, "Id", "ApartmentNumber", selectedId);
+            ViewBag.DefaultManagementFeePerM2 = DefaultManagementFeePerM2;
         }
     }
 }
