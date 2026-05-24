@@ -1,58 +1,65 @@
 @{
     ViewData["Title"] = "Truy cập bị từ chối";
-    Layout = null;
 }
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>403 - Không có quyền truy cập</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+@section Styles {
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: white;
-            text-align: center;
-            padding: 20px;
+        .bg-light-danger {
+            background-color: #fff2f4 !important;
+            color: #ff5252 !important;
         }
-        .error-box {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            padding: 60px 48px;
-            max-width: 480px;
-            backdrop-filter: blur(20px);
-        }
-        .error-icon { font-size: 72px; margin-bottom: 24px; }
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
-        p { color: rgba(255,255,255,0.6); margin-bottom: 32px; font-size: 15px; }
-        .btn-back {
-            display: inline-block;
-            padding: 12px 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
+        .access-denied-card {
+            border-radius: 16px !important;
+            border: none !important;
             transition: all 0.3s ease;
         }
-        .btn-back:hover { transform: translateY(-2px); color: white; }
+        .access-denied-card:hover {
+            transform: translateY(-5px);
+        }
     </style>
-</head>
-<body>
-    <div class="error-box">
-        <div class="error-icon">🚫</div>
-        <h1>Truy cập bị từ chối</h1>
-        <p>Bạn không có quyền truy cập vào trang này. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là lỗi.</p>
-        <a href="/" class="btn-back">← Về trang chủ</a>
+}
+
+<div class="row justify-content-center align-items-center" style="min-height: calc(100vh - 250px);">
+    <div class="col-sm-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card access-denied-card shadow-sm">
+            <div class="card-body text-center p-5">
+                <div class="mb-4">
+                    <span class="d-inline-flex align-items-center justify-content-center bg-light-danger rounded-circle" style="width: 90px; height: 90px; box-shadow: 0 10px 20px rgba(255, 82, 82, 0.15);">
+                        <i class="feather icon-shield" style="font-size: 45px;"></i>
+                    </span>
+                </div>
+                
+                <h2 class="font-weight-bold text-dark mb-3">Truy cập bị từ chối</h2>
+                <div class="w-100 mb-4 px-3 py-2 bg-light rounded text-muted small" style="border-left: 4px solid #ff5252; background-color: #f8f9fa;">
+                    Mã lỗi: <strong>403 Forbidden</strong> — Quyền truy cập bị hạn chế.
+                </div>
+                
+                <p class="text-muted mb-5 font-weight-normal px-2">
+                    Tài khoản của bạn không có đủ quyền hạn để truy cập trang này. Vui lòng đăng nhập bằng tài khoản Quản trị viên (Admin) hoặc liên hệ Ban quản lý nếu bạn cho rằng đây là sự cố.
+                </p>
+                
+                <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2">
+                    <a href="/" class="btn btn-primary px-4 py-2 font-weight-bold shadow-sm mb-2 mb-sm-0" style="border-radius: 8px;">
+                        <i class="feather icon-home mr-1"></i> Quay về Trang chủ
+                    </a>
+                    
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a href="javascript:document.getElementById('logoutFormAccessDenied').submit();" class="btn btn-outline-danger px-4 py-2 font-weight-bold ml-0 ml-sm-2" style="border-radius: 8px;">
+                            <i class="feather icon-log-out mr-1"></i> Đăng xuất
+                        </a>
+                        <form asp-action="Logout" asp-controller="Auth" asp-area="" method="post" id="logoutFormAccessDenied" style="display:none;">
+                            @Html.AntiForgeryToken()
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-action="Login" asp-controller="Auth" asp-area="" class="btn btn-outline-primary px-4 py-2 font-weight-bold ml-0 ml-sm-2" style="border-radius: 8px;">
+                            <i class="feather icon-log-in mr-1"></i> Đăng nhập
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
