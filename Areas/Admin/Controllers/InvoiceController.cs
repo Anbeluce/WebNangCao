@@ -117,6 +117,23 @@ namespace WebNangCao.Areas.Admin.Controllers
                 return View(model);
             }
 
+            // Kiểm tra căn hộ tồn tại và đã có cư dân đăng ký sở hữu
+            var apartment = await _context.Apartments
+                .Include(a => a.Owner)
+                .FirstOrDefaultAsync(a => a.Id == (model.ApartmentId ?? 0) && !a.IsDeleted);
+            if (apartment == null)
+            {
+                ModelState.AddModelError("", "Căn hộ không tồn tại hoặc đã bị xóa.");
+                await PopulateApartmentDropdown(model.ApartmentId);
+                return View(model);
+            }
+            if (string.IsNullOrEmpty(apartment.OwnerId))
+            {
+                ModelState.AddModelError("", $"Căn hộ '{apartment.ApartmentNumber}' chưa có cư dân đăng ký sở hữu, không thể tạo hóa đơn.");
+                await PopulateApartmentDropdown(model.ApartmentId);
+                return View(model);
+            }
+
             // Kiểm tra trùng hóa đơn
             var exists = await _context.Invoices
                 .AnyAsync(i => i.ApartmentId == (model.ApartmentId ?? 0)
@@ -150,9 +167,6 @@ namespace WebNangCao.Areas.Admin.Controllers
             // Gửi mail thông báo cho cư dân
             try
             {
-                var apartment = await _context.Apartments
-                    .Include(a => a.Owner)
-                    .FirstOrDefaultAsync(a => a.Id == model.ApartmentId);
 
                 if (apartment?.Owner?.Email != null)
                 {
@@ -347,7 +361,7 @@ namespace WebNangCao.Areas.Admin.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             var apartments = await _context.Apartments
-                .Where(a => !a.IsDeleted)
+                .Where(a => !a.IsDeleted && a.OwnerId != null) // Chỉ lấy các căn đã có cư dân
                 .Include(a => a.Owner)
                 .Take(3)
                 .ToListAsync();
@@ -539,7 +553,8 @@ namespace WebNangCao.Areas.Admin.Controllers
 
                             if (string.IsNullOrEmpty(apartment.OwnerId))
                             {
-                                warnings.Add($"Cảnh báo Dòng {rowNum}: Căn hộ '{aptNo}' hiện chưa có cư dân đăng ký sở hữu (OwnerId trống).");
+                                errors.Add($"Dòng {rowNum}: Căn hộ '{aptNo}' chưa có cư dân đăng ký sở hữu, không thể tạo hóa đơn.");
+                                continue;
                             }
 
                             var invoice = new Invoice
