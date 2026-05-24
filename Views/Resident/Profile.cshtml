@@ -1,107 +1,193 @@
 @model WebNangCao.Models.ViewModels.ProfileVM
 @{
-    ViewData["Title"] = "Tài khoản của tôi";
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+@section Styles {
+    <style>
+        .profile-card {
+            border-radius: 12px !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+            overflow: hidden;
+        }
+        .profile-header-bg {
+            height: 90px;
+            background: linear-gradient(135deg, #04a9f5 0%, #00acc1 100%);
+        }
+        .profile-avatar-wrapper {
+            margin-top: -50px;
+            margin-bottom: 15px;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border: 4px solid #fff;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3f4d67 0%, #1e2531 100%);
+            color: #fff;
+            font-size: 42px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .stat-box {
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #ebf0f5;
+            transition: all 0.2s ease-in-out;
+        }
+        .stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+        }
+        .form-control:focus {
+            border-color: #04a9f5 !important;
+            box-shadow: 0 0 0 0.2rem rgba(4, 169, 245, 0.15) !important;
+        }
+    </style>
 }
 
 <div class="row">
-    <!-- Cột trái: Thông tin tổng quan và Đổi mật khẩu -->
+    <!-- Cột trái: Thông tin tổng quan và Thống kê -->
     <div class="col-xl-4 col-md-5">
         <!-- Card Thông tin ngắn gọn -->
-        <div class="card user-card user-card-1">
-            <div class="card-body pt-0">
-                <div class="user-about-block text-center mt-4">
-                    <div class="row align-items-end">
-                        <div class="col text-center">
-                            <div style="width:80px; height:80px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:36px; color:#fff;">
-                                👤
-                            </div>
-                        </div>
+        <div class="card profile-card">
+            <div class="profile-header-bg"></div>
+            <div class="card-body pt-0 text-center">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar">
+                        @(string.IsNullOrEmpty(Model.FullName) ? "U" : Model.FullName.Substring(0, 1).ToUpper())
                     </div>
-                </div>
-                <div class="text-center">
-                    <h4 class="mb-1 mt-3">@Model.FullName</h4>
-                    <p class="mb-3 text-muted">@Model.Email</p>
                 </div>
                 
-                <hr>
+                <h4 class="font-weight-bold text-dark mb-1">@Model.FullName</h4>
+                <p class="text-muted small mb-4"><i class="feather icon-mail mr-1"></i>@Model.Email</p>
+                
+                <hr class="my-4" style="border-top: 1px solid #eee;">
 
-                <div class="row text-center mt-3">
+                <div class="row px-2">
                     <div class="col-6 mb-3">
-                        <h6 class="mb-1">@Model.ApartmentCount</h6>
-                        <p class="text-muted mb-0">Căn hộ</p>
+                        <div class="stat-box">
+                            <span class="d-block text-muted small mb-1">Căn hộ sở hữu</span>
+                            <span class="f-18 font-weight-bold text-primary"><i class="feather icon-home mr-1"></i>@Model.ApartmentCount</span>
+                        </div>
                     </div>
                     <div class="col-6 mb-3">
-                        <h6 class="mb-1">@Model.InvoiceCount</h6>
-                        <p class="text-muted mb-0">Hóa đơn</p>
+                        <div class="stat-box">
+                            <span class="d-block text-muted small mb-1">Tổng hóa đơn</span>
+                            <span class="f-18 font-weight-bold text-info"><i class="feather icon-file-text mr-1"></i>@Model.InvoiceCount</span>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <h6 class="mb-1 text-danger">@Model.UnpaidInvoiceCount</h6>
-                        <p class="text-muted mb-0">Chưa thanh toán</p>
+                        <div class="stat-box" style="border-left: 3px solid #f44236;">
+                            <span class="d-block text-muted small mb-1">Hóa đơn nợ</span>
+                            <span class="f-18 font-weight-bold text-danger"><i class="feather icon-alert-circle mr-1"></i>@Model.UnpaidInvoiceCount</span>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <h6 class="mb-1 text-warning">@Model.TotalDebt.ToString("N0") đ</h6>
-                        <p class="text-muted mb-0">Còn nợ</p>
+                        <div class="stat-box" style="border-left: 3px solid #f5a623;">
+                            <span class="d-block text-muted small mb-1">Tổng nợ hiện tại</span>
+                            <span class="f-16 font-weight-bold text-warning d-block text-truncate">@Model.TotalDebt.ToString("N0")đ</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
     </div>
 
     <!-- Cột phải: Form cập nhật thông tin cá nhân -->
     <div class="col-xl-8 col-md-7">
-        <div class="card">
-            <div class="card-header">
-                <h5>Cập nhật thông tin cá nhân</h5>
+        <div class="card profile-card">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="font-weight-bold text-dark mb-0"><i class="feather icon-user mr-2 text-primary"></i>Cập nhật thông tin cá nhân</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <form asp-action="UpdateProfile" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label asp-for="FullName"></label>
-                                <input asp-for="FullName" class="form-control" />
-                                <span asp-validation-for="FullName" class="text-danger"></span>
+                                <label asp-for="FullName" class="form-label font-weight-bold text-muted small">Họ và tên <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="feather icon-user text-muted"></i></span>
+                                    </div>
+                                    <input asp-for="FullName" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" />
+                                </div>
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        
+                        <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label>Email</label>
-                                <input value="@Model.Email" disabled class="form-control" />
-                                <small class="form-text text-muted">Email dùng để đăng nhập không thể thay đổi.</small>
+                                <label class="form-label font-weight-bold text-muted small">Địa chỉ Email đăng nhập</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="feather icon-mail text-muted"></i></span>
+                                    </div>
+                                    <input value="@Model.Email" disabled class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0; background-color: #f1f3f5; cursor: not-allowed;" />
+                                </div>
+                                <small class="form-text text-muted">Email là định danh tài khoản và không thể thay đổi.</small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label asp-for="PhoneNumber"></label>
-                                <input asp-for="PhoneNumber" class="form-control" placeholder="VD: 0912345678" />
-                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                <label asp-for="PhoneNumber" class="form-label font-weight-bold text-muted small">Số điện thoại liên hệ</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="feather icon-phone text-muted"></i></span>
+                                    </div>
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="VD: 0912345678" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label asp-for="IdentityCardNumber"></label>
-                                <input asp-for="IdentityCardNumber" class="form-control" placeholder="VD: 012345678901" />
-                                <span asp-validation-for="IdentityCardNumber" class="text-danger"></span>
+                                <label asp-for="IdentityCardNumber" class="form-label font-weight-bold text-muted small">Số CCCD / CMND</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="feather icon-credit-card text-muted"></i></span>
+                                    </div>
+                                    <input asp-for="IdentityCardNumber" class="form-control" placeholder="VD: 012345678901" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" />
+                                </div>
+                                <span asp-validation-for="IdentityCardNumber" class="text-danger small"></span>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label asp-for="DateOfBirth"></label>
-                                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                                <label asp-for="DateOfBirth" class="form-label font-weight-bold text-muted small">Ngày tháng năm sinh</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="feather icon-calendar text-muted"></i></span>
+                                    </div>
+                                    <input asp-for="DateOfBirth" type="date" class="form-control" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" />
+                                </div>
+                                <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>
 
-                    <hr>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="feather icon-save"></i> Lưu thay đổi
-                    </button>
+                    <hr class="my-4" style="border-top: 1px solid #eee;">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary px-4 py-2 font-weight-bold shadow-sm" style="border-radius: 8px;">
+                            <i class="feather icon-save mr-1"></i> Lưu thay đổi
+                        </button>
+                        
+                        <a asp-action="ChangePassword" class="btn btn-outline-secondary px-4 py-2 font-weight-bold" style="border-radius: 8px;">
+                            <i class="feather icon-lock mr-1"></i> Đổi mật khẩu tài khoản
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
