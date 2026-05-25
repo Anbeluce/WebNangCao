@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebNangCao.Models;
 using WebNangCao.Models.ViewModels.Admin;
-using WebNangCao.Data;
-
+using WebNangCao.Services;
 
 namespace WebNangCao.Areas.Admin.Controllers
 {
@@ -13,70 +9,22 @@ namespace WebNangCao.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly AppDbContext _context;
+        private readonly IUserService _userService;
 
-        public UserController(UserManager<ApplicationUser> userManager,
-                              RoleManager<IdentityRole> roleManager,
-                              AppDbContext context)
+        public UserController(IUserService userService)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _context = context;
+            _userService = userService;
         }
 
         // GET: /Admin/User
         public async Task<IActionResult> Index(string? search, string? roleFilter, bool? activeFilter)
         {
-            var usersQuery = _userManager.Users.AsQueryable();
-
-            // Lọc theo search
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                search = search.Trim().ToLower();
-                usersQuery = usersQuery.Where(u =>
-                    u.FullName.ToLower().Contains(search) ||
-                    u.Email!.ToLower().Contains(search) ||
-                    (u.PhoneNumber != null && u.PhoneNumber.Contains(search)));
-            }
-
-            // Lọc theo trạng thái
-            if (activeFilter.HasValue)
-            {
-                usersQuery = usersQuery.Where(u => u.IsActive == activeFilter.Value);
-            }
-
-            var users = await usersQuery.OrderBy(u => u.FullName).ToListAsync();
-
-            // Build ViewModel
-            var userVMs = new List<UserListVM>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-
-                // Lọc theo role
-                if (!string.IsNullOrWhiteSpace(roleFilter) && !roles.Contains(roleFilter))
-                    continue;
-
-                userVMs.Add(new UserListVM
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Email = user.Email ?? "",
-                    PhoneNumber = user.PhoneNumber,
-                    IdentityCardNumber = user.IdentityCardNumber,
-                    DateOfBirth = user.DateOfBirth,
-                    IsActive = user.IsActive,
-                    Roles = roles,
-                    CreatedAt = user.CreatedAt
-                });
-            }
+            var userVMs = await _userService.GetUserListAsync(search, roleFilter, activeFilter);
 
             ViewBag.Search = search;
             ViewBag.RoleFilter = roleFilter;
             ViewBag.ActiveFilter = activeFilter;
-            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.AllRoles = await _userService.GetAllRolesAsync();
 
             return View(userVMs);
         }
@@ -84,7 +32,7 @@ namespace WebNangCao.Areas.Admin.Controllers
         // GET: /Admin/User/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.AllRoles = await _userService.GetAllRolesAsync();
             return View(new CreateUserVM());
         }
 
@@ -93,66 +41,30 @@ namespace WebNangCao.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateUserVM model)
         {
-            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.AllRoles = await _userService.GetAllRolesAsync();
 
             if (!ModelState.IsValid)
                 return View(model);
 
-            var existingUser = await _userManager.FindByEmailAsync(model.Email);
-            if (existingUser != null)
+            var result = await _userService.CreateUserAsync(model);
+            if (result.Success)
             {
-                ModelState.AddModelError("Email", "Email này đã được sử dụng.");
-                return View(model);
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                FullName = model.FullName,
-                PhoneNumber = model.PhoneNumber,
-                IdentityCardNumber = model.IdentityCardNumber,
-                DateOfBirth = model.DateOfBirth,
-                IsActive = model.IsActive,
-                EmailConfirmed = true
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, model.Role);
-                TempData["SuccessMessage"] = $"Tạo tài khoản '{model.FullName}' thành công!";
+                TempData["SuccessMessage"] = result.Message;
                 return RedirectToAction(nameof(Index));
             }
 
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
-
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Lỗi tạo tài khoản.");
             return View(model);
         }
 
         // GET: /Admin/User/Edit/{id}
         public async Task<IActionResult> Edit(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
+            var model = await _userService.GetUserForEditAsync(id);
+            if (model == null)
                 return NotFound();
 
-            var roles = await _userManager.GetRolesAsync(user);
-            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-
-            var model = new EditUserVM
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? "",
-                PhoneNumber = user.PhoneNumber,
-                IdentityCardNumber = user.IdentityCardNumber,
-                DateOfBirth = user.DateOfBirth,
-                IsActive = user.IsActive,
-                Role = roles.FirstOrDefault() ?? "Resident"
-            };
-
+            ViewBag.AllRoles = await _userService.GetAllRolesAsync();
             return View(model);
         }
 
@@ -161,7 +73,7 @@ namespace WebNangCao.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, EditUserVM model)
         {
-            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.AllRoles = await _userService.GetAllRolesAsync();
 
             if (id != model.Id)
                 return BadRequest();
@@ -176,94 +88,23 @@ namespace WebNangCao.Areas.Admin.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                return NotFound();
-
-            // Cập nhật thông tin
-            user.FullName = model.FullName;
-            user.PhoneNumber = model.PhoneNumber;
-            user.IdentityCardNumber = model.IdentityCardNumber;
-            user.DateOfBirth = model.DateOfBirth;
-            user.IsActive = model.IsActive;
-
-            // Cập nhật email nếu thay đổi
-            if (user.Email != model.Email)
+            var result = await _userService.UpdateUserAsync(id, model);
+            if (result.Success)
             {
-                var emailExists = await _userManager.FindByEmailAsync(model.Email);
-                if (emailExists != null && emailExists.Id != id)
-                {
-                    ModelState.AddModelError("Email", "Email này đã được sử dụng.");
-                    return View(model);
-                }
-                user.Email = model.Email;
-                user.UserName = model.Email;
-                user.NormalizedEmail = model.Email.ToUpper();
-                user.NormalizedUserName = model.Email.ToUpper();
+                TempData["SuccessMessage"] = result.Message;
+                return RedirectToAction(nameof(Index));
             }
 
-            var updateResult = await _userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
-            {
-                foreach (var error in updateResult.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
-                return View(model);
-            }
-
-            // Cập nhật role
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            await _userManager.AddToRoleAsync(user, model.Role);
-
-            // Đổi mật khẩu nếu có
-            if (!string.IsNullOrEmpty(model.NewPassword))
-            {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var passResult = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
-                if (!passResult.Succeeded)
-                {
-                    foreach (var error in passResult.Errors)
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    return View(model);
-                }
-            }
-
-            TempData["SuccessMessage"] = $"Cập nhật tài khoản '{user.FullName}' thành công!";
-            return RedirectToAction(nameof(Index));
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Lỗi cập nhật tài khoản.");
+            return View(model);
         }
 
         // GET: /Admin/User/Details/{id}
         public async Task<IActionResult> Details(string id)
         {
-            var user = await _context.Users
-                .Include(u => u.Apartments)
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (user == null)
+            var vm = await _userService.GetUserDetailsAsync(id);
+            if (vm == null)
                 return NotFound();
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var vm = new UserListVM
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? "",
-                PhoneNumber = user.PhoneNumber,
-                IdentityCardNumber = user.IdentityCardNumber,
-                DateOfBirth = user.DateOfBirth,
-                IsActive = user.IsActive,
-                Roles = roles,
-                Apartments = user.Apartments
-                    .Where(a => !a.IsDeleted)
-                    .OrderBy(a => a.ApartmentNumber)
-                    .Select(a => a.ApartmentNumber)
-                    .ToList(),
-                ApartmentDetails = user.Apartments
-                    .Where(a => !a.IsDeleted)
-                    .OrderBy(a => a.ApartmentNumber)
-                    .ToList()
-            };
 
             return View(vm);
         }
@@ -273,23 +114,15 @@ namespace WebNangCao.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleActive(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                return NotFound();
-
-            // Không cho phép khóa chính tài khoản của mình
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser?.Id == id)
+            var result = await _userService.ToggleUserActiveAsync(id, User);
+            if (!result.Success)
             {
-                TempData["ErrorMessage"] = "Không thể thay đổi trạng thái tài khoản của chính mình!";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = result.ErrorMessage;
             }
-
-            user.IsActive = !user.IsActive;
-            await _userManager.UpdateAsync(user);
-
-            var status = user.IsActive ? "kích hoạt" : "vô hiệu hóa";
-            TempData["SuccessMessage"] = $"Đã {status} tài khoản '{user.FullName}'.";
+            else
+            {
+                TempData["SuccessMessage"] = result.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -298,20 +131,15 @@ namespace WebNangCao.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                return NotFound();
-
-            // Không cho phép xóa tài khoản của chính mình
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser?.Id == id)
+            var result = await _userService.DeleteUserAsync(id, User);
+            if (!result.Success)
             {
-                TempData["ErrorMessage"] = "Không thể xóa tài khoản của chính mình!";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = result.ErrorMessage;
             }
-
-            await _userManager.DeleteAsync(user);
-            TempData["SuccessMessage"] = $"Đã xóa tài khoản '{user.FullName}'.";
+            else
+            {
+                TempData["SuccessMessage"] = result.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
     }

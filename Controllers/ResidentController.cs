@@ -1,68 +1,48 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebNangCao.Data;
 using WebNangCao.Models;
 using WebNangCao.Models.ViewModels;
+using WebNangCao.Services;
 
 namespace WebNangCao.Controllers
 {
     [Authorize]
     public class ResidentController : Controller
     {
-        private readonly AppDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IResidentService _residentService;
 
-        public ResidentController(AppDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public ResidentController(IResidentService residentService)
         {
-            _context = context;
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _residentService = residentService;
         }
 
         // GET: /Resident - Trang tổng quan hóa đơn
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Auth");
+            var result = await _residentService.GetDashboardAsync(User);
+            if (!result.Success) return RedirectToAction("Login", "Auth");
 
-            var apartments = await _context.Apartments
-                .Where(a => a.OwnerId == user.Id && !a.IsDeleted)
-                .Include(a => a.Invoices.Where(i => !i.IsDeleted))
-                .OrderBy(a => a.ApartmentNumber)
-                .ToListAsync();
+            var dashboard = result.Data!;
+            ViewBag.UserName = dashboard.UserName;
+            ViewBag.TotalApartments = dashboard.Apartments.Count;
+            ViewBag.TotalInvoices = dashboard.TotalInvoices;
+            ViewBag.UnpaidInvoices = dashboard.UnpaidInvoices;
+            ViewBag.TotalUnpaid = dashboard.TotalUnpaid;
 
-            var allInvoices = apartments.SelectMany(a => a.Invoices).ToList();
-            ViewBag.UserName = user.FullName;
-            ViewBag.TotalApartments = apartments.Count;
-            ViewBag.TotalInvoices = allInvoices.Count;
-            ViewBag.UnpaidInvoices = allInvoices.Count(i => i.Status == InvoiceStatus.Unpaid);
-            ViewBag.TotalUnpaid = allInvoices
-                .Where(i => i.Status != InvoiceStatus.Paid)
-                .Sum(i => i.TotalAmount);
-
-            return View(apartments);
+            return View(dashboard.Apartments);
         }
 
         // GET: /Resident/Invoices/5
         public async Task<IActionResult> Invoices(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var apartment = await _context.Apartments
-                .Include(a => a.Invoices.Where(i => !i.IsDeleted))
-                    .ThenInclude(i => i.Transactions)
-                .FirstOrDefaultAsync(a => a.Id == id && a.OwnerId == user.Id && !a.IsDeleted);
-
-            if (apartment == null)
+            var result = await _residentService.GetApartmentInvoicesAsync(id, User);
+            if (!result.Success)
             {
-                TempData["ErrorMessage"] = "Không tìm thấy căn hộ hoặc bạn không có quyền truy cập.";
+                TempData["ErrorMessage"] = result.ErrorMessage;
                 return RedirectToAction(nameof(Index));
             }
 
+            var apartment = result.Data!;
             ViewBag.ApartmentNumber = apartment.ApartmentNumber;
 
             var invoices = apartment.Invoices
@@ -76,79 +56,33 @@ namespace WebNangCao.Controllers
         // GET: /Resident/InvoiceDetail/5
         public async Task<IActionResult> InvoiceDetail(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var invoice = await _context.Invoices
-                .Include(i => i.Apartment)
-                .Include(i => i.Transactions.Where(t => !t.IsDeleted))
-                .FirstOrDefaultAsync(i => i.Id == id && !i.IsDeleted
-                    && i.Apartment.OwnerId == user.Id);
-
-            if (invoice == null)
+            var result = await _residentService.GetInvoiceDetailAsync(id, User);
+            if (!result.Success)
             {
-                TempData["ErrorMessage"] = "Không tìm thấy hóa đơn.";
+                TempData["ErrorMessage"] = result.ErrorMessage;
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(invoice);
+            return View(result.Data);
         }
 
         // GET: /Resident/CheckPaymentStatus/5
         [HttpGet]
         public async Task<IActionResult> CheckPaymentStatus(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Json(null);
+            var result = await _residentService.CheckPaymentStatusAsync(id, User);
+            if (!result.Success) return Json(null);
 
-            var invoice = await _context.Invoices
-                .Include(i => i.Apartment)
-                .FirstOrDefaultAsync(i => i.Id == id && i.Apartment.OwnerId == user.Id && !i.IsDeleted);
-            
-            if (invoice == null) return Json(null);
-
-            var previousAmounts = await _context.Transactions
-                .Where(t => t.InvoiceId == invoice.Id && !t.IsDeleted)
-                .Select(t => t.Amount)
-                .ToListAsync();
-            var totalPaid = previousAmounts.Sum();
-
-            return Json(new
-            {
-                isPaid = invoice.Status == InvoiceStatus.Paid,
-                status = invoice.Status.ToString(),
-                totalPaid = totalPaid
-            });
+            return Json(result.Data);
         }
 
         // GET: /Resident/Profile - Trang quản lý tài khoản
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Auth");
+            var result = await _residentService.GetProfileAsync(User);
+            if (!result.Success) return RedirectToAction("Login", "Auth");
 
-            var apartments = await _context.Apartments
-                .Where(a => a.OwnerId == user.Id && !a.IsDeleted)
-                .Include(a => a.Invoices.Where(i => !i.IsDeleted))
-                .ToListAsync();
-
-            var allInvoices = apartments.SelectMany(a => a.Invoices).ToList();
-
-            var model = new ProfileVM
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? "",
-                PhoneNumber = user.PhoneNumber,
-                IdentityCardNumber = user.IdentityCardNumber,
-                DateOfBirth = user.DateOfBirth,
-                ApartmentCount = apartments.Count,
-                InvoiceCount = allInvoices.Count,
-                UnpaidInvoiceCount = allInvoices.Count(i => i.Status == InvoiceStatus.Unpaid),
-                TotalDebt = allInvoices.Where(i => i.Status != InvoiceStatus.Paid).Sum(i => i.TotalAmount)
-            };
-
-            return View(model);
+            return View(result.Data);
         }
 
         // POST: /Resident/UpdateProfile
@@ -156,40 +90,31 @@ namespace WebNangCao.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfile(ProfileVM model)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Auth");
-
             // Chỉ validate các trường cần thiết
             ModelState.Remove("Email");
             if (!ModelState.IsValid)
             {
-                // Reload thống kê
-                var apts = await _context.Apartments
-                    .Where(a => a.OwnerId == user.Id && !a.IsDeleted)
-                    .Include(a => a.Invoices.Where(i => !i.IsDeleted))
-                    .ToListAsync();
-                var invs = apts.SelectMany(a => a.Invoices).ToList();
-                model.Email = user.Email ?? "";
-                model.ApartmentCount = apts.Count;
-                model.InvoiceCount = invs.Count;
-                model.UnpaidInvoiceCount = invs.Count(i => i.Status == InvoiceStatus.Unpaid);
-                model.TotalDebt = invs.Where(i => i.Status != InvoiceStatus.Paid).Sum(i => i.TotalAmount);
+                // Reload thống kê bằng cách lấy dữ liệu hiện tại
+                var profileResult = await _residentService.GetProfileAsync(User);
+                if (profileResult.Success && profileResult.Data != null)
+                {
+                    model.Email = profileResult.Data.Email;
+                    model.ApartmentCount = profileResult.Data.ApartmentCount;
+                    model.InvoiceCount = profileResult.Data.InvoiceCount;
+                    model.UnpaidInvoiceCount = profileResult.Data.UnpaidInvoiceCount;
+                    model.TotalDebt = profileResult.Data.TotalDebt;
+                }
                 return View("Profile", model);
             }
 
-            user.FullName = model.FullName;
-            user.PhoneNumber = model.PhoneNumber;
-            user.IdentityCardNumber = model.IdentityCardNumber;
-            user.DateOfBirth = model.DateOfBirth;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            var result = await _residentService.UpdateProfileAsync(model, User);
+            if (result.Success)
             {
-                TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
+                TempData["SuccessMessage"] = result.Message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + string.Join(", ", result.Errors.Select(e => e.Description));
+                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + result.ErrorMessage;
             }
 
             return RedirectToAction(nameof(Profile));
@@ -211,22 +136,15 @@ namespace WebNangCao.Controllers
                 return View(model);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded)
+            var result = await _residentService.ChangePasswordAsync(model, User);
+            if (result.Success)
             {
-                await _signInManager.RefreshSignInAsync(user);
-                TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
+                TempData["SuccessMessage"] = result.Message;
                 return RedirectToAction(nameof(Profile));
             }
             else
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Code == "PasswordMismatch" ? "Mật khẩu hiện tại không đúng." : error.Description);
-                }
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Đổi mật khẩu thất bại.");
                 return View(model);
             }
         }

@@ -1,6 +1,6 @@
-﻿namespace WebNangCao.Services
+namespace WebNangCao.Services
 {
-    public class IUtilityService
+    public interface IUtilityService
     {
     }
 }

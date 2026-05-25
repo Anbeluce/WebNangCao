@@ -52,6 +52,17 @@ builder.Services.AddHttpClient<IEmailService, BrevoEmailService>();
 builder.Services.Configure<SepaySettings>(builder.Configuration.GetSection("SepaySettings"));
 builder.Services.AddScoped<ISepayService, SepayService>();
 
+// Cấu hình Invoice Settings
+builder.Services.Configure<InvoiceSettings>(builder.Configuration.GetSection("InvoiceSettings"));
+
+// Đăng ký các Services cho hệ thống
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IApartmentService, ApartmentService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IResidentService, ResidentService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(10);

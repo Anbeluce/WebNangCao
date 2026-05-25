@@ -9,6 +9,12 @@ namespace WebNangCao.Models
         // Điện
         public decimal ElectricityUsage { get; set; }    // Số kWh tiêu thụ
         public decimal ElectricityUnitPrice { get; set; } // Đơn giá (VNĐ/kWh)
+
+        /// <summary>
+        /// Phí tiền điện luôn trả về 0.
+        /// LƯU Ý: Điện năng tiêu thụ thực tế được cư dân thanh toán trực tiếp cho Công ty Điện lực (EVN),
+        /// Ban quản lý chỉ ghi nhận số liệu để theo dõi chứ không thu phí này qua hóa đơn chung cư.
+        /// </summary>
         public decimal ElectricityFee => 0;
 
         // Nước
