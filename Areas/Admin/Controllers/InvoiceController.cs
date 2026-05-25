@@ -293,8 +293,8 @@ namespace WebNangCao.Areas.Admin.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Nếu trạng thái đổi từ Unpaid sang Paid thì gửi mail cảm ơn/xác nhận
-            if (oldStatus == InvoiceStatus.Unpaid && model.Status == InvoiceStatus.Paid)
+            // Nếu trạng thái đổi từ Unpaid hoặc Partial sang Paid thì gửi mail cảm ơn/xác nhận
+            if (oldStatus != InvoiceStatus.Paid && model.Status == InvoiceStatus.Paid)
             {
                 try
                 {
