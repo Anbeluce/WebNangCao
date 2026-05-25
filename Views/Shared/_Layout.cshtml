@@ -83,13 +83,7 @@
                                 <span class="pcoded-mtext">Hồ sơ cá nhân</span>
                             </a>
                         </li>
-                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resident" && ViewContext.RouteData.Values["action"]?.ToString() == "ChangePassword" ? "active" : "")">
-                            <a asp-area="" asp-controller="Resident" asp-action="ChangePassword" class="nav-link">
-                                <span class="pcoded-micon"><i class="feather icon-lock"></i></span>
-                                <span class="pcoded-mtext">Đổi mật khẩu</span>
-                            </a>
-                        </li>
-                                                <li class="nav-item">
+                        <li class="nav-item">
                             <a href="#" onclick="document.getElementById('logoutFormSidebar').submit(); return false;" class="nav-link">
                                 <span class="pcoded-micon"><i class="feather icon-log-out"></i></span>
                                 <span class="pcoded-mtext">Đăng xuất</span>
