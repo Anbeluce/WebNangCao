@@ -87,12 +87,6 @@
                             <span class="pcoded-mtext">Hóa đơn</span>
                         </a>
                     </li>
-                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Utility" ? "active" : "")">
-                        <a asp-area="Admin" asp-controller="Utility" asp-action="Index" class="nav-link">
-                            <span class="pcoded-micon"><i class="feather icon-zap"></i></span>
-                            <span class="pcoded-mtext">Tiện ích</span>
-                        </a>
-                    </li>
                     <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "BlogPost" ? "active" : "")">
                         <a asp-area="Admin" asp-controller="BlogPost" asp-action="Index" class="nav-link">
                             <span class="pcoded-micon"><i class="feather icon-edit-1"></i></span>
