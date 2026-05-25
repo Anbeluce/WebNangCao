@@ -14,7 +14,7 @@
 
 @{
     var sColorClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "text-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "text-warning" : "text-danger";
-    var sBgClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "badge-light-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "badge-light-warning" : "badge-light-danger";
+    var sBgClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "badge-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "badge-warning text-dark" : "badge-danger";
     var sTxt = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "✅ Đã thanh toán" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "⏳ Một phần" : "❌ Chưa thanh toán";
     var paidAmount = Model.Transactions.Where(t => !t.IsDeleted).Sum(t => t.Amount);
     var remaining = Model.TotalAmount - paidAmount;
