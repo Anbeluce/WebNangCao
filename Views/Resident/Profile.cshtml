@@ -4,50 +4,50 @@
 }
 
 <div class="row">
-    <!-- Cột trái: Thông tin tổng quan và Đổi mật khẩu -->
+    <!-- Cột trái: Thông tin tổng quan -->
     <div class="col-xl-4 col-md-5">
-        <!-- Card Thông tin ngắn gọn -->
+        <!-- Card Thông tin ngắn gọn dùng class chuẩn của Elite Able -->
         <div class="card user-card user-card-1">
             <div class="card-body pt-0">
                 <div class="user-about-block text-center mt-4">
                     <div class="row align-items-end">
                         <div class="col text-center">
-                            <div style="width:80px; height:80px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:36px; color:#fff;">
-                                👤
+                            <!-- Avatar vòng tròn gradient thương hiệu tinh tế -->
+                            <div class="text-white d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 85px; height: 85px; border-radius: 50%; background: linear-gradient(135deg, #04a9f5 0%, #00acc1 100%); font-size: 36px; font-weight: bold; box-shadow: 0 4px 10px rgba(4, 169, 245, 0.2);">
+                                @(string.IsNullOrEmpty(Model.FullName) ? "U" : Model.FullName.Substring(0, 1).ToUpper())
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center">
-                    <h4 class="mb-1 mt-3">@Model.FullName</h4>
-                    <p class="mb-3 text-muted">@Model.Email</p>
+                <div class="text-center mt-3">
+                    <h4 class="mb-1 font-weight-bold">@Model.FullName</h4>
+                    <p class="mb-3 text-muted small"><i class="feather icon-mail mr-1"></i>@Model.Email</p>
                 </div>
                 
-                <hr>
+                <hr class="my-4">
 
-                <div class="row text-center mt-3">
-                    <div class="col-6 mb-3">
-                        <h6 class="mb-1">@Model.ApartmentCount</h6>
-                        <p class="text-muted mb-0">Căn hộ</p>
+                <!-- Thống kê căn hộ và hóa đơn sử dụng lưới border gốc của Bootstrap -->
+                <div class="row text-center">
+                    <div class="col-6 mb-3 border-right border-bottom pb-3">
+                        <h5 class="mb-1 text-c-blue font-weight-bold">@Model.ApartmentCount</h5>
+                        <p class="text-muted mb-0 small">Căn hộ</p>
                     </div>
-                    <div class="col-6 mb-3">
-                        <h6 class="mb-1">@Model.InvoiceCount</h6>
-                        <p class="text-muted mb-0">Hóa đơn</p>
+                    <div class="col-6 mb-3 border-bottom pb-3">
+                        <h5 class="mb-1 text-c-green font-weight-bold">@Model.InvoiceCount</h5>
+                        <p class="text-muted mb-0 small">Hóa đơn</p>
                     </div>
-                    <div class="col-6">
-                        <h6 class="mb-1 text-danger">@Model.UnpaidInvoiceCount</h6>
-                        <p class="text-muted mb-0">Chưa thanh toán</p>
+                    <div class="col-6 pt-2 border-right">
+                        <h5 class="mb-1 text-c-red font-weight-bold">@Model.UnpaidInvoiceCount</h5>
+                        <p class="text-muted mb-0 small">Chưa TT</p>
                     </div>
-                    <div class="col-6">
-                        <h6 class="mb-1 text-warning">@Model.TotalDebt.ToString("N0") đ</h6>
-                        <p class="text-muted mb-0">Còn nợ</p>
+                    <div class="col-6 pt-2">
+                        <h5 class="mb-1 text-c-yellow font-weight-bold text-truncate">@Model.TotalDebt.ToString("N0")đ</h5>
+                        <p class="text-muted mb-0 small">Còn nợ</p>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
     </div>
 
     <!-- Cột phải: Form cập nhật thông tin cá nhân -->
@@ -64,44 +64,52 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="FullName"></label>
+                                <label asp-for="FullName" class="font-weight-bold small"></label>
                                 <input asp-for="FullName" class="form-control" />
-                                <span asp-validation-for="FullName" class="text-danger"></span>
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Email</label>
-                                <input value="@Model.Email" disabled class="form-control" />
-                                <small class="form-text text-muted">Email dùng để đăng nhập không thể thay đổi.</small>
+                                <label class="font-weight-bold small">Email đăng nhập</label>
+                                <input value="@Model.Email" disabled class="form-control" style="background-color: #f4f7fa;" />
+                                <small class="form-text text-muted">Email đăng nhập cố định, không thể thay đổi.</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="PhoneNumber"></label>
+                                <label asp-for="PhoneNumber" class="font-weight-bold small"></label>
                                 <input asp-for="PhoneNumber" class="form-control" placeholder="VD: 0912345678" />
-                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="IdentityCardNumber"></label>
+                                <label asp-for="IdentityCardNumber" class="font-weight-bold small"></label>
                                 <input asp-for="IdentityCardNumber" class="form-control" placeholder="VD: 012345678901" />
-                                <span asp-validation-for="IdentityCardNumber" class="text-danger"></span>
+                                <span asp-validation-for="IdentityCardNumber" class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="DateOfBirth"></label>
+                                <label asp-for="DateOfBirth" class="font-weight-bold small"></label>
                                 <input asp-for="DateOfBirth" type="date" class="form-control" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>
 
-                    <hr>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="feather icon-save"></i> Lưu thay đổi
-                    </button>
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="feather icon-save mr-1"></i> Lưu thay đổi
+                        </button>
+                        
+                        <a asp-action="ChangePassword" class="btn btn-outline-secondary px-4">
+                            <i class="feather icon-lock mr-1"></i> Đổi mật khẩu
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
