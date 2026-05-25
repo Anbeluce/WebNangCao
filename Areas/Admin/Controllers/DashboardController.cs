@@ -30,13 +30,24 @@ namespace WebNangCao.Areas.Admin.Controllers
             ViewBag.OccupiedCount = await _context.Apartments.CountAsync(a => a.OwnerId != null && !a.IsDeleted);
             ViewBag.EmptyCount = await _context.Apartments.CountAsync(a => a.OwnerId == null && !a.IsDeleted);
             
-            ViewBag.TotalPaidRevenue = await _context.Invoices
-                .Where(i => i.Status == InvoiceStatus.Paid && !i.IsDeleted)
-                .SumAsync(i => (decimal?)i.TotalAmount) ?? 0;
+            // Lấy danh sách hóa đơn rút gọn dưới dạng bộ nhớ để tính toán calculated properties
+            var dbInvoices = await _context.Invoices
+                .Where(i => !i.IsDeleted)
+                .Select(i => new {
+                    i.Status,
+                    i.Month,
+                    i.Year,
+                    TotalAmount = (i.WaterUsage * i.WaterUnitPrice) + i.ManagementFee + i.WasteFee + i.ParkingFee
+                })
+                .ToListAsync();
 
-            ViewBag.TotalUnpaidDebt = await _context.Invoices
-                .Where(i => i.Status != InvoiceStatus.Paid && !i.IsDeleted)
-                .SumAsync(i => (decimal?)i.TotalAmount) ?? 0;
+            ViewBag.TotalPaidRevenue = dbInvoices
+                .Where(i => i.Status == InvoiceStatus.Paid)
+                .Sum(i => i.TotalAmount);
+
+            ViewBag.TotalUnpaidDebt = dbInvoices
+                .Where(i => i.Status != InvoiceStatus.Paid)
+                .Sum(i => i.TotalAmount);
 
             // 5 cư dân đăng ký căn hộ mới nhất
             ViewBag.LatestResidents = await _context.Apartments
@@ -71,13 +82,13 @@ namespace WebNangCao.Areas.Admin.Controllers
             {
                 monthlyLabels.Add($"T{monthYear.Month}/{monthYear.Year}");
                 
-                var paid = await _context.Invoices
-                    .Where(i => i.Month == monthYear.Month && i.Year == monthYear.Year && i.Status == InvoiceStatus.Paid && !i.IsDeleted)
-                    .SumAsync(i => (double?)i.TotalAmount) ?? 0;
+                var paid = dbInvoices
+                    .Where(i => i.Month == monthYear.Month && i.Year == monthYear.Year && i.Status == InvoiceStatus.Paid)
+                    .Sum(i => (double)i.TotalAmount);
 
-                var unpaid = await _context.Invoices
-                    .Where(i => i.Month == monthYear.Month && i.Year == monthYear.Year && i.Status != InvoiceStatus.Paid && !i.IsDeleted)
-                    .SumAsync(i => (double?)i.TotalAmount) ?? 0;
+                var unpaid = dbInvoices
+                    .Where(i => i.Month == monthYear.Month && i.Year == monthYear.Year && i.Status != InvoiceStatus.Paid)
+                    .Sum(i => (double)i.TotalAmount);
 
                 monthlyPaid.Add(paid);
                 monthlyUnpaid.Add(unpaid);
