@@ -15,7 +15,7 @@
 @{
     var sColorClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "text-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "text-warning" : "text-danger";
     var sBgClass = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "badge-success" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "badge-warning text-dark" : "badge-danger";
-    var sTxt = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "✅ Đã thanh toán" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "⏳ Một phần" : "❌ Chưa thanh toán";
+    var sTxt = Model.Status == WebNangCao.Models.InvoiceStatus.Paid ? "Đã thanh toán" : Model.Status == WebNangCao.Models.InvoiceStatus.Partial ? "Một phần" : "Chưa thanh toán";
     var paidAmount = Model.Transactions.Where(t => !t.IsDeleted).Sum(t => t.Amount);
     var remaining = Model.TotalAmount - paidAmount;
 }
@@ -42,7 +42,21 @@
                         <p class="text-muted mb-0">Căn hộ @(Model.Apartment?.ApartmentNumber ?? "") • Tầng @(Model.Apartment?.Floor ?? 0)</p>
                     </div>
                     <div class="col-sm-4 text-sm-right mt-3 mt-sm-0">
-                        <span class="badge @sBgClass f-14 py-2 px-3">@sTxt</span>
+                        <span class="badge @sBgClass f-14 py-2 px-3">
+                            @if (Model.Status == WebNangCao.Models.InvoiceStatus.Paid)
+                            {
+                                <i class="feather icon-check-circle mr-1"></i>
+                            }
+                            else if (Model.Status == WebNangCao.Models.InvoiceStatus.Partial)
+                            {
+                                <i class="feather icon-clock mr-1"></i>
+                            }
+                            else
+                            {
+                                <i class="feather icon-alert-circle mr-1"></i>
+                            }
+                            @sTxt
+                        </span>
                     </div>
                 </div>
                 <hr>
@@ -72,7 +86,7 @@
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <div class="bg-light-primary text-primary d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
-                                    💧
+                                    <i class="feather icon-droplet"></i>
                                 </div>
                             </div>
                             <div class="col">
@@ -89,7 +103,7 @@
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <div class="bg-light-info text-info d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
-                                    🏢
+                                    <i class="feather icon-home"></i>
                                 </div>
                             </div>
                             <div class="col">
@@ -106,7 +120,7 @@
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <div class="bg-light-warning text-warning d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
-                                    🧹
+                                    <i class="feather icon-trash-2"></i>
                                 </div>
                             </div>
                             <div class="col">
@@ -123,7 +137,7 @@
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <div class="bg-light-success text-success d-inline-flex align-items-center justify-content-center rounded" style="width: 40px; height: 40px; font-size: 20px;">
-                                    🏍️
+                                    <i class="feather icon-navigation"></i>
                                 </div>
                             </div>
                             <div class="col">
@@ -233,7 +247,7 @@
         {
     <div class="card">
         <div class="card-header">
-            <h5>💳 Lịch sử thanh toán</h5>
+            <h5><i class="feather icon-credit-card mr-2 text-primary"></i>Lịch sử thanh toán</h5>
         </div>
         <div class="card-body p-0">
             <ul class="list-group list-group-flush">
@@ -246,7 +260,7 @@
                             <small class="text-muted"><i class="feather icon-calendar"></i> @tx.PaymentDate.ToString("dd/MM/yyyy HH:mm")</small>
                             @if (!string.IsNullOrEmpty(tx.Note))
                                         {
-                            <small class="d-block text-muted mt-1">📝 @tx.Note</small>
+                            <small class="d-block text-muted mt-1"><i class="feather icon-edit-3 mr-1"></i>@tx.Note</small>
                                         }
                         </div>
                         <div class="col-auto text-right">

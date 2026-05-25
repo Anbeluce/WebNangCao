@@ -8,7 +8,7 @@
         <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">
             <i class="feather icon-arrow-left"></i> Quay lại tài khoản
         </a>
-        <h2 class="mb-2">📄 Hóa đơn căn hộ @ViewBag.ApartmentNumber</h2>
+        <h2 class="mb-2"><i class="feather icon-file-text text-primary mr-2"></i>Hóa đơn căn hộ @ViewBag.ApartmentNumber</h2>
         <p class="text-muted">Tổng cộng @Model.Count hóa đơn</p>
     </div>
 </div>
@@ -101,11 +101,11 @@ else
                             <div class="col-md-5 col-sm-6 mb-2 mb-md-0">
                                 <div class="row text-center">
                                     <div class="col-6 border-right">
-                                        <small class="text-muted d-block">💧 Nước (@inv.WaterUsage m³)</small>
+                                        <small class="text-muted d-block"><i class="feather icon-droplet text-info mr-1"></i>Nước (@inv.WaterUsage m³)</small>
                                         <span class="font-weight-bold text-info">@inv.WaterFee.ToString("N0")đ</span>
                                     </div>
                                     <div class="col-6">
-                                        <small class="text-muted d-block">🏢 Phí dịch vụ</small>
+                                        <small class="text-muted d-block"><i class="feather icon-home text-primary mr-1"></i>Phí dịch vụ</small>
                                         <span class="font-weight-bold text-primary">@inv.ServiceFee.ToString("N0")đ</span>
                                     </div>
                                 </div>
