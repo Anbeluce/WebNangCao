@@ -1,10 +1,11 @@
 @{
     ViewData["Title"] = "Dashboard";
-    ViewData["Subtitle"] = "Tổng quan hệ thống";
+    ViewData["Subtitle"] = "Tổng quan hệ thống chung cư";
 }
 
 <!-- Stats Cards -->
 <div class="row">
+    <!-- Total Users -->
     <div class="col-md-6 col-xl-3">
         <div class="card bg-c-blue order-card">
             <div class="card-body">
@@ -14,66 +15,290 @@
             </div>
         </div>
     </div>
+    
+    <!-- Total Apartments -->
     <div class="col-md-6 col-xl-3">
         <div class="card bg-c-green order-card">
             <div class="card-body">
-                <h6 class="text-white">TK hoạt động</h6>
-                <h2 class="text-white">@ViewBag.ActiveUsers</h2>
-                <i class="feather icon-user-check card-icon"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card bg-c-yellow order-card">
-            <div class="card-body">
-                <h6 class="text-white">Căn hộ</h6>
+                <h6 class="text-white">Căn hộ hệ thống</h6>
                 <h2 class="text-white">@ViewBag.TotalApartments</h2>
                 <i class="feather icon-home card-icon"></i>
             </div>
         </div>
     </div>
+    
+    <!-- Paid Invoices sum -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-yellow order-card">
+            <div class="card-body">
+                <h6 class="text-white">Doanh thu đã thu</h6>
+                <h2 class="text-white">@(((decimal)ViewBag.TotalPaidRevenue).ToString("N0"))đ</h2>
+                <i class="feather icon-check-circle card-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Unpaid Invoices sum -->
     <div class="col-md-6 col-xl-3">
         <div class="card bg-c-red order-card">
             <div class="card-body">
-                <h6 class="text-white">Hóa đơn</h6>
-                <h2 class="text-white">@ViewBag.TotalInvoices</h2>
-                <i class="feather icon-file-text card-icon"></i>
+                <h6 class="text-white">Nợ còn tồn đọng</h6>
+                <h2 class="text-white">@(((decimal)ViewBag.TotalUnpaidDebt).ToString("N0"))đ</h2>
+                <i class="feather icon-alert-circle card-icon"></i>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Charts Section -->
 <div class="row">
-    <div class="col-md-12">
+    <!-- Revenue Chart -->
+    <div class="col-xl-8 col-md-12">
         <div class="card">
-            <div class="card-header">
-                <h5>⚡ Truy cập nhanh</h5>
+            <div class="card-header border-bottom py-3">
+                <h5 class="m-0"><i class="feather icon-bar-chart-2 mr-2"></i>Phân tích tài chính 6 tháng gần nhất</h5>
             </div>
             <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4 mb-3">
-                        <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-outline-primary btn-block text-left p-3">
-                            <i class="feather icon-users text-primary f-24 d-block mb-2"></i>
-                            <span class="d-block font-weight-bold f-16 text-body">Quản lý người dùng</span>
-                            <span class="d-block text-muted mt-1 f-12">Xem và quản lý tài khoản</span>
-                        </a>
+                <div style="height: 320px; width: 100%;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Occupancy Doughnut Chart -->
+    <div class="col-xl-4 col-md-12">
+        <div class="card">
+            <div class="card-header border-bottom py-3">
+                <h5 class="m-0"><i class="feather icon-pie-chart mr-2"></i>Tỷ lệ sử dụng căn hộ</h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between" style="min-height: 320px;">
+                <div style="height: 200px; width: 100%; position: relative;">
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+                <div class="row text-center mt-3 border-top pt-2">
+                    <div class="col-6 border-right">
+                        <h6 class="mb-1 text-primary">@ViewBag.OccupiedCount</h6>
+                        <span class="text-muted small">Căn có cư dân</span>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <a asp-area="Admin" asp-controller="User" asp-action="Create" class="btn btn-outline-success btn-block text-left p-3">
-                            <i class="feather icon-user-plus text-success f-24 d-block mb-2"></i>
-                            <span class="d-block font-weight-bold f-16 text-body">Thêm người dùng</span>
-                            <span class="d-block text-muted mt-1 f-12">Tạo tài khoản mới</span>
-                        </a>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <a asp-area="Admin" asp-controller="Apartment" asp-action="Index" class="btn btn-outline-warning btn-block text-left p-3">
-                            <i class="feather icon-home text-warning f-24 d-block mb-2"></i>
-                            <span class="d-block font-weight-bold f-16 text-body">Quản lý căn hộ</span>
-                            <span class="d-block text-muted mt-1 f-12">Xem danh sách căn hộ</span>
-                        </a>
+                    <div class="col-6">
+                        <h6 class="mb-1 text-muted">@ViewBag.EmptyCount</h6>
+                        <span class="text-muted small">Căn còn trống</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Realtime Table Logs -->
+<div class="row">
+    <!-- Latest Invoices -->
+    <div class="col-xl-7 col-md-12">
+        <div class="card">
+            <div class="card-header border-bottom py-3">
+                <h5 class="m-0"><i class="feather icon-file-text mr-2"></i>Hóa đơn khởi tạo gần nhất</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr class="bg-light">
+                                <th>Căn hộ</th>
+                                <th>Kỳ</th>
+                                <th class="text-right">Tổng tiền</th>
+                                <th class="text-center">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inv in (ViewBag.LatestInvoices as List<Invoice>) ?? new List<Invoice>())
+                            {
+                                <tr>
+                                    <td>
+                                        <h6 class="m-0">@(inv.Apartment?.ApartmentNumber ?? "")</h6>
+                                        <small class="text-muted">@(inv.Apartment?.Owner?.FullName ?? "N/A")</small>
+                                    </td>
+                                    <td>Tháng @inv.Month/@inv.Year</td>
+                                    <td class="text-right font-weight-bold text-dark">@inv.TotalAmount.ToString("N0")đ</td>
+                                    <td class="text-center">
+                                        @if (inv.Status == InvoiceStatus.Paid)
+                                        {
+                                            <span class="badge badge-success px-2 py-1 font-weight-bold" style="border-radius: 4px;">Đã thanh toán</span>
+                                        }
+                                        else if (inv.Status == InvoiceStatus.Partial)
+                                        {
+                                            <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold" style="border-radius: 4px;">Một phần</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger px-2 py-1 font-weight-bold" style="border-radius: 4px;">Chưa thanh toán</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Registered Residents -->
+    <div class="col-xl-5 col-md-12">
+        <div class="card">
+            <div class="card-header border-bottom py-3">
+                <h5 class="m-0"><i class="feather icon-user-check mr-2"></i>Cư dân bàn giao gần nhất</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr class="bg-light">
+                                <th>Căn hộ</th>
+                                <th>Chủ sở hữu</th>
+                                <th class="text-center">Diện tích</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var apt in (ViewBag.LatestResidents as List<Apartment>) ?? new List<Apartment>())
+                            {
+                                <tr>
+                                    <td>
+                                        <h6 class="m-0">Căn @(apt.ApartmentNumber ?? "")</h6>
+                                        <small class="text-muted">Tầng @apt.Floor</small>
+                                    </td>
+                                    <td>
+                                        <h6 class="m-0">@(apt.Owner?.FullName ?? "N/A")</h6>
+                                        <small class="text-muted">@(apt.Owner?.PhoneNumber ?? "")</small>
+                                    </td>
+                                    <td class="text-center font-weight-bold">@apt.Area m²</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Widgets -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header border-bottom py-3">
+                <h5 class="m-0"><i class="feather icon-zap mr-2"></i>Thao tác quản trị nhanh</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card border mb-0 text-center shadow-none p-3 h-100" style="transition: all 0.2s ease-in-out;">
+                            <div class="mb-3">
+                                <i class="feather icon-users text-primary f-30"></i>
+                            </div>
+                            <h6 class="font-weight-bold mb-2">Thành viên & Cư dân</h6>
+                            <p class="text-muted small">Xem danh sách, quản lý quyền hạn tài khoản và đăng ký thành viên mới.</p>
+                            <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-outline-primary btn-sm mt-auto">Quản lý</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card border mb-0 text-center shadow-none p-3 h-100" style="transition: all 0.2s ease-in-out;">
+                            <div class="mb-3">
+                                <i class="feather icon-layout text-success f-30"></i>
+                            </div>
+                            <h6 class="font-weight-bold mb-2">Sơ đồ Căn hộ</h6>
+                            <p class="text-muted small">Xem trực quan sơ đồ mặt bằng các tầng của Tòa A và Tòa B.</p>
+                            <a asp-area="Admin" asp-controller="Apartment" asp-action="Index" class="btn btn-outline-success btn-sm mt-auto">Sơ đồ phòng</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border mb-0 text-center shadow-none p-3 h-100" style="transition: all 0.2s ease-in-out;">
+                            <div class="mb-3">
+                                <i class="feather icon-file-plus text-warning f-30"></i>
+                            </div>
+                            <h6 class="font-weight-bold mb-2">Hóa đơn & Dịch vụ</h6>
+                            <p class="text-muted small">Khởi tạo hóa đơn tháng tiền nước, phí dịch vụ hoặc nhập hàng loạt từ Excel.</p>
+                            <a asp-area="Admin" asp-controller="Invoice" asp-action="Index" class="btn btn-outline-warning btn-sm mt-auto">Hóa đơn</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- ChartJS -->
+    <script src="~/plugins/chart-chartjs/js/Chart.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Revenue Chart (Double Bar Chart)
+            var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            var revenueChart = new Chart(ctxRevenue, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(ViewBag.MonthlyLabels)),
+                    datasets: [
+                        {
+                            label: 'Đã thu (VNĐ)',
+                            data: @Html.Raw(Json.Serialize(ViewBag.MonthlyPaid)),
+                            backgroundColor: '#1de9b6',
+                            borderColor: '#1de9b6',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Chưa thu (VNĐ)',
+                            data: @Html.Raw(Json.Serialize(ViewBag.MonthlyUnpaid)),
+                            backgroundColor: '#ff5252',
+                            borderColor: '#ff5252',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function(value, index, values) {
+                                    return value.toLocaleString() + 'đ';
+                                }
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                return data.datasets[tooltipItem.datasetIndex].label + ': ' + tooltipItem.yLabel.toLocaleString() + 'đ';
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Occupancy Chart (Pie Chart)
+            var ctxOccupancy = document.getElementById('occupancyChart').getContext('2d');
+            var occupancyChart = new Chart(ctxOccupancy, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Có cư dân', 'Còn trống'],
+                    datasets: [{
+                        data: [@ViewBag.OccupiedCount, @ViewBag.EmptyCount],
+                        backgroundColor: ['#04a9f5', '#f4f7fa'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        position: 'bottom'
+                    },
+                    cutoutPercentage: 70
+                }
+            });
+        });
+    </script>
+}
