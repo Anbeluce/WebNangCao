@@ -13,6 +13,53 @@
     </div>
 </div>
 
+<!-- Statistics Cards -->
+<div class="row">
+    <!-- Tổng hóa đơn -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-blue order-card">
+            <div class="card-body">
+                <h6 class="text-white">Tổng số hóa đơn</h6>
+                <h2 class="text-white">@Model.Count</h2>
+                <i class="feather icon-file-text card-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Đã thanh toán -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-green order-card">
+            <div class="card-body">
+                <h6 class="text-white">Đã thanh toán</h6>
+                <h2 class="text-white">@Model.Count(i => i.Status == WebNangCao.Models.InvoiceStatus.Paid)</h2>
+                <i class="feather icon-check-circle card-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chưa thanh toán -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-red order-card">
+            <div class="card-body">
+                <h6 class="text-white">Chưa thanh toán</h6>
+                <h2 class="text-white">@Model.Count(i => i.Status == WebNangCao.Models.InvoiceStatus.Unpaid)</h2>
+                <i class="feather icon-alert-circle card-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Còn nợ -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-c-yellow order-card">
+            <div class="card-body">
+                <h6 class="text-white">Còn nợ</h6>
+                <h2 class="text-white">@Model.Where(i => i.Status != WebNangCao.Models.InvoiceStatus.Paid).Sum(i => i.TotalAmount).ToString("N0")đ</h2>
+                <i class="feather icon-credit-card card-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
 @if (!Model.Any())
 {
     <div class="row">

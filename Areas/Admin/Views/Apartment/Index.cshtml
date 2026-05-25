@@ -450,50 +450,48 @@
     </style>
 }
 
-<!-- KPI Cards Grid (Minimalist & Flat) -->
+<!-- Statistics Cards -->
 <div class="row">
     <!-- Total Apartments -->
     <div class="col-md-6 col-xl-3">
-        <div class="card kpi-card" style="border-top: 3px solid #04a9f5;">
+        <div class="card bg-c-blue order-card">
             <div class="card-body">
-                <h6 class="kpi-card-title">Tổng số căn hộ</h6>
-                <h3 class="kpi-card-value">@ViewBag.TotalCount</h3>
-                <p class="kpi-card-subtitle">Quy mô 2 tòa tháp</p>
+                <h6 class="text-white">Tổng số căn hộ</h6>
+                <h2 class="text-white">@ViewBag.TotalCount</h2>
+                <i class="feather icon-layout card-icon"></i>
             </div>
         </div>
     </div>
     
     <!-- Occupied Apartments -->
     <div class="col-md-6 col-xl-3">
-        <div class="card kpi-card" style="border-top: 3px solid #28a745;">
+        <div class="card bg-c-green order-card">
             <div class="card-body">
-                <h6 class="kpi-card-title">Căn có cư dân</h6>
-                <h3 class="kpi-card-value">@ViewBag.OccupiedCount</h3>
-                <p class="kpi-card-subtitle">Cư dân đã đăng ký</p>
+                <h6 class="text-white">Căn có cư dân</h6>
+                <h2 class="text-white">@ViewBag.OccupiedCount</h2>
+                <i class="feather icon-user-check card-icon"></i>
             </div>
         </div>
     </div>
     
     <!-- Empty Apartments -->
     <div class="col-md-6 col-xl-3">
-        <div class="card kpi-card" style="border-top: 3px solid #dc3545;">
+        <div class="card bg-c-red order-card">
             <div class="card-body">
-                <h6 class="kpi-card-title">Còn trống</h6>
-                <h3 class="kpi-card-value">@ViewBag.EmptyCount</h3>
-                <p class="kpi-card-subtitle">Sẵn sàng bàn giao</p>
+                <h6 class="text-white">Còn trống</h6>
+                <h2 class="text-white">@ViewBag.EmptyCount</h2>
+                <i class="feather icon-slash card-icon"></i>
             </div>
         </div>
     </div>
     
     <!-- Occupancy Rate -->
     <div class="col-md-6 col-xl-3">
-        <div class="card kpi-card" style="border-top: 3px solid #ffc107;">
+        <div class="card bg-c-yellow order-card">
             <div class="card-body">
-                <h6 class="kpi-card-title">Tỷ lệ lấp đầy</h6>
-                <h3 class="kpi-card-value">@ViewBag.OccupancyRate%</h3>
-                <div class="progress m-t-15" style="height:6px; background-color: #e2e8f0;">
-                    <div class="progress-bar bg-warning" style="width: @ViewBag.OccupancyRate%"></div>
-                </div>
+                <h6 class="text-white">Tỷ lệ lấp đầy</h6>
+                <h2 class="text-white">@ViewBag.OccupancyRate%</h2>
+                <i class="feather icon-percent card-icon"></i>
             </div>
         </div>
     </div>
